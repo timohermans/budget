@@ -4,24 +4,20 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - Budget</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap@5.3.2.min.css"/>
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons@1.11.2.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/Budget.Pages.styles.css" asp-append-version="true"/>
-
-    <script defer src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script defer src="~/lib/htmx/htmx@1.9.9.min.js"></script>
+    <script defer src="~/lib/bootstrap/dist/js/bootstrap@5.3.2.bundle.min.js"></script>
     <script defer src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </head>
-<body>
+<body class="vh-100 d-flex flex-column">
 
-<header>
-    header hier
-</header>
-
-<main role="main" class="container">
-    @RenderBody()
-</main>
+@RenderBody()
 
 </body>
 </html>

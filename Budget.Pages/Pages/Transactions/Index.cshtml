@@ -1,0 +1,30 @@
+﻿@page
+@model Budget.Pages.Pages.Transactions.IndexModel
+
+@{
+    ViewData["Title"] = "2023-12";
+}
+
+<nav class="navbar">
+    <div class="container-fluid">
+        <div class="navbar-brand">
+            @{ var previousMonth = Model.Date.AddMonths(-1);}
+            <a class="btn" asp-page="/Transactions/Index" asp-route-year="@previousMonth.Year" asp-route-month="@previousMonth.Month">
+                <i class="bi bi-arrow-left-circle fs-4"></i>
+            </a>
+            <a class="btn fs-4" asp-page="/Transactions/Index"> @Model.Date.ToString("yyyy-MM")</a>
+            @{ var nextMonth = Model.Date.AddMonths(1); }
+            <a class="btn" asp-page="/Transactions/Index" asp-route-year="@nextMonth.Year" asp-route-month="@nextMonth.Month">
+                <i class="bi bi-arrow-right-circle fs-4"></i>
+            </a>
+        </div>
+        
+        <div>
+            Hello, @HttpContext.User.Identity?.Name (<a href="">Logout</a>)
+        </div>
+    </div>
+</nav>
+
+<main class="container flex-grow-1">
+    <h1>Transactions</h1>
+</main>
