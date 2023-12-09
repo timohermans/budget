@@ -20,7 +20,7 @@
         </div>
         
         <div>
-            Hello, @HttpContext.User.Identity?.Name (<a href="">Logout</a>)
+            Hello, @HttpContext.User.Identity?.Name (<form class="d-inline" method="post" asp-page="/Account/Logout"><button type="submit" class="btn btn-link p-0">Logout</button></form>)
         </div>
     </div>
 </nav>
