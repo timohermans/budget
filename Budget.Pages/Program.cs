@@ -1,5 +1,8 @@
 using Budget.Core.Constants;
+using Budget.Core.Models;
+using Budget.Pages.Pages;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +28,11 @@ builder.Services.Configure<RouteOptions>(options =>
     options.LowercaseUrls = true;
     options.LowercaseQueryStrings = true;
 });
+
+// Add database
+builder.Services.AddDbContext<BudgetContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BudgetContext"),
+        b => b.MigrationsAssembly(typeof(IndexModel).Assembly.FullName)));
 
 
 var app = builder.Build();
