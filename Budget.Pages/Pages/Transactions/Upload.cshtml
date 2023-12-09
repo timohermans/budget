@@ -1,0 +1,22 @@
+﻿@page
+@model Budget.Pages.Pages.Transactions.UploadModel
+@{
+}
+
+<main class="container">
+    <h2>Nieuwe transacties</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label asp-for="TransactionsFile" class="form-label"></label>
+            <input asp-for="TransactionsFile" class="form-control" type="file">
+            <span asp-validation-for="TransactionsFile"></span>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-floppy"></i>
+                <span>Opslaan</span>
+            </button>
+        </div>
+    </form>
+</main>

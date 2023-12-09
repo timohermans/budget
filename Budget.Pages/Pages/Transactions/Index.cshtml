@@ -1,4 +1,5 @@
 ﻿@page
+@using Budget.Core.UseCases
 @model Budget.Pages.Pages.Transactions.IndexModel
 
 @{
@@ -8,17 +9,21 @@
 <nav class="navbar">
     <div class="container-fluid">
         <div class="navbar-brand">
-            @{ var previousMonth = Model.Date.AddMonths(-1);}
+            @{
+                var previousMonth = Model.Date.AddMonths(-1);
+            }
             <a class="btn" asp-page="/Transactions/Index" asp-route-year="@previousMonth.Year" asp-route-month="@previousMonth.Month">
                 <i class="bi bi-arrow-left-circle fs-4"></i>
             </a>
             <a class="btn fs-4" asp-page="/Transactions/Index"> @Model.Date.ToString("yyyy-MM")</a>
-            @{ var nextMonth = Model.Date.AddMonths(1); }
+            @{
+                var nextMonth = Model.Date.AddMonths(1);
+            }
             <a class="btn" asp-page="/Transactions/Index" asp-route-year="@nextMonth.Year" asp-route-month="@nextMonth.Month">
                 <i class="bi bi-arrow-right-circle fs-4"></i>
             </a>
         </div>
-        
+
         <div>
             Hello, @HttpContext.User.Identity?.Name (<form class="d-inline" method="post" asp-page="/Account/Logout"><button type="submit" class="btn btn-link p-0">Logout</button></form>)
         </div>
@@ -26,5 +31,72 @@
 </nav>
 
 <main class="container flex-grow-1">
-    <h1>Transactions</h1>
+    @if (TempData.ContainsKey(UploadModel.TmpAmountInsertedKey))
+    {
+        var amountInserted = TempData[UploadModel.TmpAmountInsertedKey];
+        var minDate = TempData[UploadModel.TmpAmountMinDateKey];
+        var maxDate = TempData[UploadModel.TmpAmountMaxDateKey];
+
+        <div class="alert alert-success" role="alert">
+            Er zijn <b>@amountInserted</b> transacties toegevoegd met data tussen @minDate en @maxDate!
+        </div>
+    }
+
+    <div class="row mb-3">
+        <div class="col-auto align-self-center">
+            <a class="btn btn-primary fs-4" asp-page="/Transactions/Upload">
+                <i class="bi bi-cloud-arrow-up"></i>
+            </a>
+        </div>
+        <form x-data="{}" method="get" class="col">
+            <input type="hidden" name="year" value="@Model.Date.Year" />
+            <input type="hidden" name="month" value="@Model.Date.Month" />
+            <div class="form-floating">
+                <select name="iban" asp-items="Model.Ibans" class="form-select" x-on:change="$event.target.form.submit()">
+                </select>
+                <label asp-for="Iban"></label>
+            </div>
+        </form>
+    </div>
+
+    <section class="row">
+        <div class="col-12 col-sm-8 col-md-6 col-lg-5">
+            <h2>Budget</h2>
+            <ul>
+                <li class="row">
+                    <div class="col fst-italic">November</div>
+                </li>
+                <li class="row">
+                    <div class="col">Inkomen</div>
+                    <div class="col-auto">@Model.IncomeLastMonth</div>
+                    <div class="col-auto">&nbsp;</div>
+                </li>
+                <li class="row border-bottom">
+                    <div class="col">Lasten</div>
+                    <div class="col-auto">@(Model.ExpensesFixedLastMonth * -1)</div>
+                    <div class="col-auto">-</div>
+                </li>
+                <li class="row mb-3">
+                    <div class="col">Budget</div>
+                    <div class="col-auto">@(Model.IncomeLastMonth + Model.ExpensesFixedLastMonth)</div>
+                    <div class="col-auto">&nbsp;</div>
+                </li>
+                <li class="row">
+                    <div class="col fst-italic">December</div>
+                </li>
+                <li class="row border-bottom">
+                    <div class="col">Weken</div>
+                    <div class="col-auto">4</div>
+                    <div class="col-auto">÷</div>
+                </li>
+                <li class="row border-bottom">
+                    <div class="col">Budget per week</div>
+                    <div class="col-auto">@(Math.Floor((Model.IncomeLastMonth + Model.ExpensesFixedLastMonth) / 4))</div>
+                    <div class="col-auto">&nbsp;</div>
+                </li>
+            </ul>
+        </div>
+        <div class="col">
+        </div>
+    </section>
 </main>

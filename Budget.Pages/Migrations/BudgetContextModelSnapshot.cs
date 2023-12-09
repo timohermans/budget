@@ -34,13 +34,13 @@ namespace Budget.Pages.Migrations
                         .HasPrecision(12, 2)
                         .HasColumnType("decimal(12,2)");
 
-                    b.Property<decimal>("AmountAfterTransaction")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("decimal(12,2)");
-
                     b.Property<string>("AuthorizationCode")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<decimal>("BalanceAfterTransaction")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
 
                     b.Property<string>("Currency")
                         .IsRequired()
@@ -71,6 +71,9 @@ namespace Budget.Pages.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FollowNumber", "Iban")
+                        .IsUnique();
 
                     b.ToTable("Transactions");
                 });
