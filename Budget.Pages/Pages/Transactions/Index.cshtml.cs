@@ -3,7 +3,9 @@ using Budget.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace Budget.Pages.Pages.Transactions;
 
@@ -16,9 +18,16 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
     public required string Iban { get; set; }
     public List<SelectListItem> Ibans { get; set; }
     public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+    public DateOnly DatePreviousMonth => _previousMonth;
     public decimal IncomeLastMonth { get; set; } = 0;
     public decimal ExpensesFixedLastMonth { get; set; } = 0;
-    public decimal BudgetPerWeek { get; set; } = 0;
+    public decimal BudgetAvailable => IncomeLastMonth + ExpensesFixedLastMonth;
+    public decimal BudgetPerWeek => WeeksInMonth.Count > 0 ? Math.Floor(BudgetAvailable / WeeksInMonth.Count) : 0;
+    public List<int> WeeksInMonth { get; set; } = new List<int>();
+    public decimal ExpensesVariable { get; set; } = 0;
+    public Dictionary<int, decimal> ExpensesPerWeek { get; set; } = new Dictionary<int, decimal>();
+    public decimal IncomeFromOwnAccounts { get; set; } = 0;
+    public Dictionary<int, List<Transaction>> TransactionsPerWeek { get; set; } = new Dictionary<int, List<Transaction>>();
 
     public void OnGet(int? year, int? month, string? iban)
     {
@@ -31,12 +40,37 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
         SetupIbans(iban);
         AggregatePreviousMonthData();
 
-        // TODO: aantal weken december berekenen en hardcoded zooi weghalen
-        // TODO: hardcoded november/decmeber titel weghalen
+        var dateMin = new DateOnly(Date.Year, Date.Month, 1);
+        var dateMax = dateMin.AddMonths(1).AddDays(-1);
+        var transactions = db.Transactions
+            .Where(t => t.DateTransaction >= dateMin && t.DateTransaction <= dateMax && t.Iban == Iban)
+            .ToList();
 
+        CalculateWeekInfo(dateMin, dateMax);
 
+        foreach (var transaction in transactions)
+        {
+            var week = transaction.DateTransaction.ToIsoWeekNumber();
+            if (!ExpensesPerWeek.ContainsKey(week))
+            {
+                ExpensesPerWeek.Add(week, 0);
+            }
 
+            if (transaction.IsIncome && transaction.IsFromOwnAccount(_ibans))
+            {
+                IncomeFromOwnAccounts += transaction.Amount;
+            }
 
+            if (!transaction.IsIncome && !transaction.IsFixed && transaction.IsFromOtherParty(_ibans))
+            {
+                ExpensesVariable += transaction.Amount;
+                ExpensesPerWeek[week] += transaction.Amount;
+            }
+        }
+
+        TransactionsPerWeek = transactions
+            .GroupBy(t => t.DateTransaction.ToIsoWeekNumber())
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.ToList());
 
         logger.LogInformation("Load {Iban}'s transactions of {Date}", Iban, Date);
     }
@@ -54,7 +88,7 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
                 .ToList();
 
         _ibans = ibansOrdered;
-        Iban = iban == null || !ibansOrdered.Contains(iban) ? ibansOrdered.First() : iban;
+        Iban = iban == null || !ibansOrdered.Contains(iban) ? ibansOrdered.FirstOrDefault("") : iban;
         Ibans = ibansOrdered.Select(iban => new SelectListItem(iban, iban, iban == Iban)).ToList();
     }
 
@@ -79,5 +113,13 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
                 ExpensesFixedLastMonth += transaction.Amount;
             }
         }
+    }
+
+    public void CalculateWeekInfo(DateOnly dateMin, DateOnly dateMax)
+    {
+        WeeksInMonth = Enumerable.Range(0, dateMax.Day)
+            .Select(day => new DateTime(dateMax.Year, dateMax.Month, day + 1).ToIsoWeekNumber())
+            .Distinct()
+            .ToList();
     }
 }

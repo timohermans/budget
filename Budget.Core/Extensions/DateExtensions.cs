@@ -1,9 +1,20 @@
 using Budget.Core.Infrastructure;
+using System.Globalization;
 
 namespace Budget.Core.Extensions;
 
 public static class DateExtensions
 {
+    public static int ToIsoWeekNumber(this DateTime date)
+    {
+        var day = (int)CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(date);
+        return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(date.AddDays(4 - (day == 0 ? 7 : day)), CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+    }
+    public static int ToIsoWeekNumber(this DateOnly date)
+    {
+        return date.ToDateTime(TimeOnly.MinValue).ToIsoWeekNumber();
+    }
+
     public static string TimePassed(this DateTime date, IDateProvider dateProvider)
     {
         var timePassed = dateProvider.Now() - date;
