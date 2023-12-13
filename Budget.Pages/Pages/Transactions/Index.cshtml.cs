@@ -11,23 +11,23 @@ namespace Budget.Pages.Pages.Transactions;
 
 public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageModel
 {
-    private List<string> _ibans = new List<string>();
+    private List<string> _ibans = [];
     private DateOnly _previousMonth = DateOnly.FromDateTime(DateTime.Today);
     [BindProperty]
     [DisplayName("Rekening")]
     public required string Iban { get; set; }
-    public List<SelectListItem> Ibans { get; set; }
+    public List<SelectListItem> Ibans { get; set; } = [];
     public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Now);
     public DateOnly DatePreviousMonth => _previousMonth;
     public decimal IncomeLastMonth { get; set; } = 0;
     public decimal ExpensesFixedLastMonth { get; set; } = 0;
     public decimal BudgetAvailable => IncomeLastMonth + ExpensesFixedLastMonth;
     public decimal BudgetPerWeek => WeeksInMonth.Count > 0 ? Math.Floor(BudgetAvailable / WeeksInMonth.Count) : 0;
-    public List<int> WeeksInMonth { get; set; } = new List<int>();
+    public List<int> WeeksInMonth { get; set; } = [];
     public decimal ExpensesVariable { get; set; } = 0;
-    public Dictionary<int, decimal> ExpensesPerWeek { get; set; } = new Dictionary<int, decimal>();
+    public Dictionary<int, decimal> ExpensesPerWeek { get; set; } = [];
     public decimal IncomeFromOwnAccounts { get; set; } = 0;
-    public Dictionary<int, List<Transaction>> TransactionsPerWeek { get; set; } = new Dictionary<int, List<Transaction>>();
+    public Dictionary<int, List<Transaction>> TransactionsPerWeek { get; set; } = [];
 
     public void OnGet(int? year, int? month, string? iban)
     {
@@ -42,11 +42,12 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
 
         var dateMin = new DateOnly(Date.Year, Date.Month, 1);
         var dateMax = dateMin.AddMonths(1).AddDays(-1);
+
         var transactions = db.Transactions
             .Where(t => t.DateTransaction >= dateMin && t.DateTransaction <= dateMax && t.Iban == Iban)
             .ToList();
 
-        CalculateWeekInfo(dateMin, dateMax);
+        CalculateWeekInfo(dateMax);
 
         foreach (var transaction in transactions)
         {
@@ -115,7 +116,7 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
         }
     }
 
-    public void CalculateWeekInfo(DateOnly dateMin, DateOnly dateMax)
+    public void CalculateWeekInfo(DateOnly dateMax)
     {
         WeeksInMonth = Enumerable.Range(0, dateMax.Day)
             .Select(day => new DateTime(dateMax.Year, dateMax.Month, day + 1).ToIsoWeekNumber())
