@@ -1,3 +1,4 @@
+using Azure.Data.Tables;
 using Budget.Core.Models;
 using Budget.Core.UseCases;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,7 @@ using System.ComponentModel;
 
 namespace Budget.Pages.Pages.Transactions
 {
-    public class UploadModel(BudgetContext db, ILogger<UploadModel> logger) : PageModel
+    public class UploadModel(TableClient db, ILogger<UploadModel> logger) : PageModel
     {
         public static string TmpAmountInsertedKey = nameof(UploadModel) + "_AmountInserted";
         public static string TmpAmountMinDateKey = nameof(UploadModel) + "_MinDate";

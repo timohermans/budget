@@ -1,13 +1,14 @@
-﻿using Budget.Core.Models;
+﻿using Azure.Data.Tables;
+using Budget.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 
 namespace Budget.Core.UseCases
 {
-    public class TransactionFileUploadUseCase(BudgetContext db, ILogger logger)
+    public class TransactionFileUploadUseCase(TableClient db, ILogger logger)
     {
-        public record Response(int AmountInserted, DateOnly DateMin, DateOnly DateMax);
+        public record Response(int AmountInserted, DateTime DateMin, DateTime DateMax);
 
         public async Task<Response> HandleAsync(Stream stream)
         {
@@ -19,9 +20,9 @@ namespace Budget.Core.UseCases
 
             reader.ReadLine();
 
-            var iban = 0;
+            var ibanIndex = 0;
             var currency = 1;
-            var followNumber = 3;
+            var followNumberIndex = 3;
             var date = 4;
             var amount = 6;
             var balanceAfter = 7;
@@ -44,12 +45,17 @@ namespace Budget.Core.UseCases
                     continue;
                 }
 
+                var iban = values.ElementAt(ibanIndex);
+                var followNumber = values.ElementAt(followNumberIndex);
+                var dateTransaction = ParseCellToDate(values.ElementAt(date), date);
                 var transaction = new Transaction
                 {
-                    Iban = values.ElementAt(iban),
+                    RowKey = $"{iban}-{followNumber}",
+                    PartitionKey = $"{dateTransaction.Year}-{dateTransaction.Month}",
+                    Iban = values.ElementAt(ibanIndex),
                     Currency = values.ElementAt(currency),
-                    FollowNumber = ParseCellToInt(values.ElementAt(followNumber), followNumber),
-                    DateTransaction = ParseCellToDate(values.ElementAt(date), date),
+                    FollowNumber = ParseCellToInt(followNumber, followNumberIndex),
+                    DateTransaction = dateTransaction,
                     Amount = ParseCellToDecimal(values.ElementAt(amount), amount),
                     BalanceAfterTransaction = ParseCellToDecimal(values.ElementAt(balanceAfter), balanceAfter),
                     IbanOtherParty = values.ElementAt(ibanOtherParty),
@@ -61,26 +67,29 @@ namespace Budget.Core.UseCases
                 transactions.Add(transaction);
             }
 
+            var transactionsPerPartitionKey = transactions
+                .GroupBy(t => t.PartitionKey)
+                .ToDictionary(kvp => kvp.Key, g => g.ToList());
+
+            foreach (var partition in transactionsPerPartitionKey)
+            {
+                Parallel.ForEach(partition.Value.Chunk(100), async transactions =>
+                {
+                    List<TableTransactionAction> addEntitiesBatch = transactions
+                        .Select(transaction => new TableTransactionAction(TableTransactionActionType.UpsertReplace, transaction))
+                        .ToList();
+
+                    var response = await db.SubmitTransactionAsync(addEntitiesBatch);
+
+                    logger.LogInformation("Saved {amount} transactions out of {count} in current batch", response.Value.Count(r => r.Status == 204), transactions.Count());
+                });
+            }
+
+
             var minDate = transactions.Min(t => t.DateTransaction);
             var maxDate = transactions.Max(t => t.DateTransaction);
-            var transactionsInDb = await db.Transactions
-                .Where(t => t.DateTransaction >= minDate && t.DateTransaction <= maxDate)
-                .Select(t => new Tuple<string, int>(t.Iban, t.FollowNumber))
-                .ToListAsync();
 
-            var transactionsNew = transactions
-                .Where(t => !transactionsInDb.Contains(new Tuple<string, int>(t.Iban, t.FollowNumber)))
-                .ToList();
-
-            await db.Transactions.AddRangeAsync(transactionsNew);
-            await db.SaveChangesAsync();
-
-            logger.LogInformation("Saved {amount} transactions ranging from {minDate} to {maxDate} successfully",
-                transactionsNew.Count,
-                transactions.Min(t => t.DateTransaction),
-                transactions.Max(t => t.DateTransaction));
-
-            return new Response(transactionsNew.Count, minDate, maxDate);
+            return new Response(transactions.Count, minDate, maxDate);
         }
 
         private int ParseCellToInt(string value, int columnIndex)
@@ -104,14 +113,14 @@ namespace Budget.Core.UseCases
             return number;
         }
 
-        private DateOnly ParseCellToDate(string value, int columnIndex)
+        private DateTime ParseCellToDate(string value, int columnIndex)
         {
-            if (!DateOnly.TryParse(value, out var date))
+            if (!DateTime.TryParse(value, out var date))
             {
                 logger.LogWarning("Unable to parse {value} at {columnIndex} to date", value, columnIndex);
             }
 
-            return date;
+            return DateTime.SpecifyKind(date, DateTimeKind.Utc);
         }
     }
 }

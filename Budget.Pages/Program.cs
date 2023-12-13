@@ -1,3 +1,4 @@
+using Azure.Data.Tables;
 using Budget.Core.Constants;
 using Budget.Core.Models;
 using Budget.Pages.Pages;
@@ -29,11 +30,19 @@ builder.Services.Configure<RouteOptions>(options =>
     options.LowercaseQueryStrings = true;
 });
 
+// Add azure table storage
+builder.Services.AddScoped(_ =>
+{
+    var service = new TableServiceClient(builder.Configuration.GetConnectionString("TransactionTable"));
+    var client =  service.GetTableClient("Transactions");
+    client.CreateIfNotExists();
+    return client;
+});
+
 // Add database
 builder.Services.AddDbContext<BudgetContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BudgetContext"),
         b => b.MigrationsAssembly(typeof(IndexModel).Assembly.FullName)));
-
 
 var app = builder.Build();
 

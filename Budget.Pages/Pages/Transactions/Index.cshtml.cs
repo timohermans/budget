@@ -40,7 +40,7 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
         SetupIbans(iban);
         AggregatePreviousMonthData();
 
-        var dateMin = new DateOnly(Date.Year, Date.Month, 1);
+        var dateMin = new DateTime(Date.Year, Date.Month, 1);
         var dateMax = dateMin.AddMonths(1).AddDays(-1);
 
         var transactions = db.Transactions
@@ -78,7 +78,7 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
 
     private void SetupIbans(string? iban)
     {
-        var dateFirstOfMonth = new DateOnly(_previousMonth.Year, _previousMonth.Month, 1);
+        var dateFirstOfMonth = new DateTime(_previousMonth.Year, _previousMonth.Month, 1);
         var ibansOrdered = db.Transactions
                 .Where(t => t.DateTransaction >= dateFirstOfMonth && t.DateTransaction < dateFirstOfMonth.AddMonths(2))
                 .Select(t => t.Iban)
@@ -95,7 +95,7 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
 
     private void AggregatePreviousMonthData()
     {
-        var monthPrevious = new DateOnly(Date.AddMonths(-1).Year, Date.AddMonths(-1).Month, 1);
+        var monthPrevious = new DateTime(Date.AddMonths(-1).Year, Date.AddMonths(-1).Month, 1);
         var transactionsLastMonth = db.Transactions
             .Where(t => t.DateTransaction >= monthPrevious
             && t.DateTransaction < monthPrevious.AddMonths(1)
@@ -116,7 +116,7 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
         }
     }
 
-    public void CalculateWeekInfo(DateOnly dateMax)
+    public void CalculateWeekInfo(DateTime dateMax)
     {
         WeeksInMonth = Enumerable.Range(0, dateMax.Day)
             .Select(day => new DateTime(dateMax.Year, dateMax.Month, day + 1).ToIsoWeekNumber())
