@@ -1,9 +1,6 @@
 using Azure.Data.Tables;
 using Budget.Core.Constants;
-using Budget.Core.Models;
-using Budget.Pages.Pages;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
