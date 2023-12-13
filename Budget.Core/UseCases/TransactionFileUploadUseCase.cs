@@ -56,8 +56,8 @@ namespace Budget.Core.UseCases
                     Currency = values.ElementAt(currency),
                     FollowNumber = ParseCellToInt(followNumber, followNumberIndex),
                     DateTransaction = dateTransaction,
-                    Amount = ParseCellToDecimal(values.ElementAt(amount), amount),
-                    BalanceAfterTransaction = ParseCellToDecimal(values.ElementAt(balanceAfter), balanceAfter),
+                    Amount = ParseCellToDouble(values.ElementAt(amount), amount),
+                    BalanceAfterTransaction = ParseCellToDouble(values.ElementAt(balanceAfter), balanceAfter),
                     IbanOtherParty = values.ElementAt(ibanOtherParty),
                     NameOtherParty = values.ElementAt(nameOtherParty),
                     AuthorizationCode = values.ElementAt(authorizationCode),
@@ -102,10 +102,10 @@ namespace Budget.Core.UseCases
             return number;
         }
 
-        private decimal ParseCellToDecimal(string value, int columnIndex)
+        private double ParseCellToDouble(string value, int columnIndex)
         {
-            string decimalInput = value.Replace(",", ".");
-            if (!decimal.TryParse(decimalInput, CultureInfo.InvariantCulture, out decimal number))
+            string doubleInput = value.Replace(",", ".");
+            if (!double.TryParse(doubleInput, CultureInfo.InvariantCulture, out double number))
             {
                 logger.LogWarning("Unable to parse number {value} at column {columnIndex} to int", value, columnIndex);
             }

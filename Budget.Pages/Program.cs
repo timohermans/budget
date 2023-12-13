@@ -39,11 +39,6 @@ builder.Services.AddScoped(_ =>
     return client;
 });
 
-// Add database
-builder.Services.AddDbContext<BudgetContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("BudgetContext"),
-        b => b.MigrationsAssembly(typeof(IndexModel).Assembly.FullName)));
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

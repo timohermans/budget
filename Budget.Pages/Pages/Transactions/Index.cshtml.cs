@@ -1,15 +1,14 @@
-﻿using Budget.Core.Extensions;
+﻿using Azure.Data.Tables;
+using Budget.Core.Extensions;
 using Budget.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
 using System.ComponentModel;
-using System.Globalization;
 
 namespace Budget.Pages.Pages.Transactions;
 
-public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageModel
+public class IndexModel(TableClient table, ILogger<IndexModel> logger) : PageModel
 {
     private List<string> _ibans = [];
     private DateOnly _previousMonth = DateOnly.FromDateTime(DateTime.Today);
@@ -29,7 +28,7 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
     public decimal IncomeFromOwnAccounts { get; set; } = 0;
     public Dictionary<int, List<Transaction>> TransactionsPerWeek { get; set; } = [];
 
-    public void OnGet(int? year, int? month, string? iban)
+    public async void OnGet(int? year, int? month, string? iban)
     {
         if (year.HasValue && month.HasValue)
         {
@@ -37,21 +36,23 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
         }
         _previousMonth = Date.AddMonths(-1);
 
-        SetupIbans(iban);
-        AggregatePreviousMonthData();
-
         var dateMin = new DateTime(Date.Year, Date.Month, 1);
         var dateMax = dateMin.AddMonths(1).AddDays(-1);
 
-        var transactions = db.Transactions
-            .Where(t => t.DateTransaction >= dateMin && t.DateTransaction <= dateMax && t.Iban == Iban)
-            .ToList();
+        var partitionKeyPrevious = $"{_previousMonth.Year}-{_previousMonth.Month}";
+        var partitionKey = $"{Date.Year}-{Date.Month}";
+        var transactionsAll = table.Query<Transaction>(e => e.PartitionKey == partitionKey || e.PartitionKey == partitionKeyPrevious).ToList();
+        SetupIbans(transactionsAll, iban);
+        var transactions = transactionsAll.Where(t => t.Iban == Iban && t.PartitionKey == partitionKey).ToList();
+        var transactionsLastMonth = transactionsAll.Where(t => t.Iban == Iban && t.PartitionKey == partitionKeyPrevious).ToList();
 
         CalculateWeekInfo(dateMax);
 
+        AggregatePreviousMonthData(transactionsLastMonth);
         foreach (var transaction in transactions)
         {
             var week = transaction.DateTransaction.ToIsoWeekNumber();
+            var amount = (decimal)transaction.Amount;
             if (!ExpensesPerWeek.ContainsKey(week))
             {
                 ExpensesPerWeek.Add(week, 0);
@@ -59,13 +60,13 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
 
             if (transaction.IsIncome && transaction.IsFromOwnAccount(_ibans))
             {
-                IncomeFromOwnAccounts += transaction.Amount;
+                IncomeFromOwnAccounts += amount;
             }
 
             if (!transaction.IsIncome && !transaction.IsFixed && transaction.IsFromOtherParty(_ibans))
             {
-                ExpensesVariable += transaction.Amount;
-                ExpensesPerWeek[week] += transaction.Amount;
+                ExpensesVariable += amount;
+                ExpensesPerWeek[week] += amount;
             }
         }
 
@@ -76,10 +77,10 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
         logger.LogInformation("Load {Iban}'s transactions of {Date}", Iban, Date);
     }
 
-    private void SetupIbans(string? iban)
+    private void SetupIbans(List<Transaction> transactionsAll, string? iban)
     {
         var dateFirstOfMonth = new DateTime(_previousMonth.Year, _previousMonth.Month, 1);
-        var ibansOrdered = db.Transactions
+        var ibansOrdered = transactionsAll
                 .Where(t => t.DateTransaction >= dateFirstOfMonth && t.DateTransaction < dateFirstOfMonth.AddMonths(2))
                 .Select(t => t.Iban)
                 .GroupBy(i => i)
@@ -93,25 +94,19 @@ public class IndexModel(BudgetContext db, ILogger<IndexModel> logger) : PageMode
         Ibans = ibansOrdered.Select(iban => new SelectListItem(iban, iban, iban == Iban)).ToList();
     }
 
-    private void AggregatePreviousMonthData()
+    private void AggregatePreviousMonthData(List<Transaction> transactionsLastMonth)
     {
-        var monthPrevious = new DateTime(Date.AddMonths(-1).Year, Date.AddMonths(-1).Month, 1);
-        var transactionsLastMonth = db.Transactions
-            .Where(t => t.DateTransaction >= monthPrevious
-            && t.DateTransaction < monthPrevious.AddMonths(1)
-            && t.Iban == Iban)
-            .ToList();
-
         foreach (var transaction in transactionsLastMonth)
         {
+            var amount = (decimal)transaction.Amount;
             if (transaction.IsIncome && transaction.IsFromOtherParty(_ibans))
             {
-                IncomeLastMonth += transaction.Amount;
+                IncomeLastMonth += amount;
             }
 
             if (!transaction.IsIncome && (transaction.IsFixed || transaction.IsFromOwnAccount(_ibans)))
             {
-                ExpensesFixedLastMonth += transaction.Amount;
+                ExpensesFixedLastMonth += amount;
             }
         }
     }

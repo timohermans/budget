@@ -27,7 +27,7 @@ public class Transaction : ITableEntity
     [StringLength(5)]
     public required string Currency { get; set; }
     [Precision(12, 2)]
-    public decimal Amount { get; set; }
+    public double Amount { get; set; }
     public required DateTime DateTransaction
     {
         get => _dateTransaction;
@@ -37,7 +37,7 @@ public class Transaction : ITableEntity
         }
     }
     [Precision(12, 2)]
-    public decimal BalanceAfterTransaction { get; set; }
+    public double BalanceAfterTransaction { get; set; }
     [StringLength(255)]
     public string? NameOtherParty { get; set; }
     [StringLength(34)]
@@ -55,5 +55,7 @@ public class Transaction : ITableEntity
 
     public bool IsFromOtherParty(IEnumerable<string> ibansOwned) => !ibansOwned.Contains(IbanOtherParty);
     public bool IsFromOwnAccount(IEnumerable<string> ibansOwned) => ibansOwned.Contains(IbanOtherParty);
+
+
 
 }
