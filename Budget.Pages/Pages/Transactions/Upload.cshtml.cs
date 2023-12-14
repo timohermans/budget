@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Budget.Pages.Pages.Transactions
 {
-    public class UploadModel(TableClient db, ILogger<UploadModel> logger) : PageModel
+    public class UploadModel(TransactionFileUploadUseCase useCase) : PageModel
     {
         public static string TmpAmountInsertedKey = nameof(UploadModel) + "_AmountInserted";
         public static string TmpAmountMinDateKey = nameof(UploadModel) + "_MinDate";
@@ -16,18 +16,17 @@ namespace Budget.Pages.Pages.Transactions
         [DisplayName("Rabobank csv bestand")]
         public required IFormFile TransactionsFile { get; set; }
 
-        public async Task<IActionResult> OnPost()
+        public IActionResult OnPost()
         {
             if (!ModelState.IsValid)
             {
                 return Page();
             }
-            var usecase = new TransactionFileUploadUseCase(db, logger);
 
             // TODO: filetype validation
 
             using var fileStream = TransactionsFile.OpenReadStream();
-            var response = await usecase.HandleAsync(fileStream);
+            var response = useCase.Handle(fileStream);
 
             TempData[TmpAmountInsertedKey] = response.AmountInserted;
             TempData[TmpAmountMinDateKey] = response.DateMin.ToShortDateString();

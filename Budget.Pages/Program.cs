@@ -27,6 +27,13 @@ builder.Services.Configure<RouteOptions>(options =>
     options.LowercaseQueryStrings = true;
 });
 
+// Add UseCases
+typeof(Budget.Core.UseCases.TransactionFileUploadUseCase).Assembly.GetTypes()
+    .Where(t => t.Namespace == "Budget.Core.UseCases")
+    .Where(t => t.Name.EndsWith("UseCase"))
+    .ToList()
+    .ForEach(t => builder.Services.AddScoped(t));
+
 // Add azure table storage
 builder.Services.AddScoped(_ =>
 {

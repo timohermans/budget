@@ -1,16 +1,15 @@
 ﻿using Azure.Data.Tables;
 using Budget.Core.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 
 namespace Budget.Core.UseCases
 {
-    public class TransactionFileUploadUseCase(TableClient db, ILogger logger)
+    public class TransactionFileUploadUseCase(TableClient db, ILogger<TransactionFileUploadUseCase> logger)
     {
         public record Response(int AmountInserted, DateTime DateMin, DateTime DateMax);
 
-        public async Task<Response> HandleAsync(Stream stream)
+        public Response Handle(Stream stream)
         {
             logger.LogInformation("Handling Transaction file upload");
 
