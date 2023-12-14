@@ -40,6 +40,6 @@ jobs:
           containerAppName: budget
           resourceGroup: Budget
           imageToBuild: itsyou0o/budget:${{ github.sha }}
-          dockerfilePath: ./Budget.Pages/Dockerfile
+          dockerfilePath: Budget.Pages/Dockerfile
 
 
