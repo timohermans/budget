@@ -169,7 +169,7 @@
                     @foreach (var transaction in weekKvp.Value)
                     {
                         <tr>
-                            <td>@transaction.DateTransaction</td>
+                            <td>@transaction.DateTransaction.ToShortDateString()</td>
                             <td>@transaction.NameOtherParty</td>
                             <td class="text-center">
                                 <span class="badge text-bg-@(transaction.Amount < 0 ? "danger" : "success")">
