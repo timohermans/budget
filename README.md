@@ -9,6 +9,8 @@
 
 ## Getting started
 
+### Azurite
+
 Make sure you have Azurite, the emulator for Azure Storage, running. You can do this with Docker:
 
 ```bash
@@ -16,6 +18,17 @@ docker run -p 10000:10000 -p 10001:10001 -p 10002:10002 -v C:/Users/<user>/data/
 ```
 
 Note that if `C:/Users/<user>/data/azurite:/data` doesn't exist, you need to create the directory
+
+### (Optional) Azure Storage Explorer
+
+You can use Azure Storage Explorer to view the data in the emulator. 
+You can download it [here](https://azure.microsoft.com/en-us/features/storage-explorer/). 
+Or install it via winget:
+
+```bash
+winget install Microsoft.Azure.StorageExplorer
+```
+
 
 ## Running docker image
 

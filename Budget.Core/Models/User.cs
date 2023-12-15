@@ -4,6 +4,6 @@ namespace Budget.Core.Models;
 
 public class User
 {
-    public required string Email { get; set; }
+    public required string Username { get; set; }
     [DataType(DataType.Password)] public required string Password { get; set; }
 }

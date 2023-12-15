@@ -34,10 +34,10 @@ public class Login(IConfiguration config, ILogger<Login> logger) : PageModel
         var adminUsername = config.GetValue<string>("Admin:Username");
         var adminPassword = config.GetValue<string>("Admin:Password");
 
-        if (adminUsername != User.Email || adminPassword != User.Password)
+        if (adminUsername != User.Username || adminPassword != User.Password)
         {
             _loginThrottler.Throttle();
-            logger.LogWarning("Someone failed login with username {Email} and a given password. Throttler: {SecondsLeft}s", User.Email, _loginThrottler.GetSecondsLeftToTryAgain());
+            logger.LogWarning("Someone failed login with username {Email} and a given password. Throttler: {SecondsLeft}s", User.Username, _loginThrottler.GetSecondsLeftToTryAgain());
             ModelState.AddModelError("login", "Username or password is incorrect");
             return Page();
         }
