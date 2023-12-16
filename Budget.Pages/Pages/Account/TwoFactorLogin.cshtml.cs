@@ -59,7 +59,7 @@ public class TwoFactorLogin : PageModel
 
         var base32Bytes = Base32Encoding.ToBytes(secret);
         var otp = new Totp(base32Bytes);
-        if (!otp.VerifyTotp(Code, out long timeStepMatched, new VerificationWindow()))
+        if (!otp.VerifyTotp(Code, out long timeStepMatched, VerificationWindow.RfcSpecifiedNetworkDelay))
         {
             _logger.LogWarning("2FA failure");
             ModelState.AddModelError("incorrect", "One time password was incorrect");
