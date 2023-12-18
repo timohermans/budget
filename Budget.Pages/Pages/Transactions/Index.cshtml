@@ -55,7 +55,7 @@
             <input type="hidden" name="year" value="@Model.Date.Year" />
             <input type="hidden" name="month" value="@Model.Date.Month" />
             <div class="form-floating">
-                <select name="iban" asp-items="Model.Ibans" class="form-select" x-on:change="$event.target.form.submit()">
+                <select name="iban" asp-items="Model.IbansToSelect" class="form-select" x-on:change="$event.target.form.submit()">
                 </select>
                 <label asp-for="Iban"></label>
             </div>
@@ -119,12 +119,18 @@
                     <li class="row @(isLast ? "border-bottom pb-1": "")">
                         <div class="col">Week <a href="#week@(week)">@week</a> @(DateTime.Now.ToIsoWeekNumber() == week ? "👈" : "")</div>
                         <div class="col-auto">
-                            <span class="badge @(expenseOfWeek == 0 ? "text-bg-light" : (expenseOfWeek * -1) > Model.BudgetPerWeek ? "text-bg-danger" : "text-bg-success")">
+                            <span class="badge text-bg-light">
                                 @expenseOfWeek
                             </span>
                         </div>
                         <div class="col-1">
-                            @if (isLast)
+                            @if (expenseOfWeek < 0)
+                            {
+                                <span class="badge @((Model.BudgetPerWeek + expenseOfWeek) < 0 ? "text-bg-danger" : "text-bg-success")">
+                                    @(Model.BudgetPerWeek + expenseOfWeek)
+                                </span>
+                            }
+                            else if (isLast)
                             {
                                 <span>+</span>
                             }
