@@ -10,12 +10,11 @@ namespace Budget.Pages.Pages.Transactions;
 
 public class IndexModel(TableClient table, ILogger<IndexModel> logger) : PageModel
 {
-    private List<string> _ibans = [];
     private DateOnly _previousMonth = DateOnly.FromDateTime(DateTime.Today);
     [BindProperty]
     [DisplayName("Rekening")]
     public required string Iban { get; set; }
-    public List<SelectListItem> Ibans { get; set; } = [];
+    public List<SelectListItem> IbansToSelect { get; set; } = [];
     public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Now);
     public DateOnly DatePreviousMonth => _previousMonth;
     public decimal IncomeLastMonth { get; set; } = 0;
@@ -38,84 +37,67 @@ public class IndexModel(TableClient table, ILogger<IndexModel> logger) : PageMod
 
         var dateMin = new DateTime(Date.Year, Date.Month, 1);
         var dateMax = dateMin.AddMonths(1).AddDays(-1);
-
         var partitionKeyPrevious = $"{_previousMonth.Year}-{_previousMonth.Month}";
         var partitionKey = $"{Date.Year}-{Date.Month}";
         var transactionsAll = table.Query<Transaction>(e => e.PartitionKey == partitionKey || e.PartitionKey == partitionKeyPrevious).ToList();
-        SetupIbans(transactionsAll, iban);
-        var transactions = transactionsAll.Where(t => t.Iban == Iban && t.PartitionKey == partitionKey).ToList();
-        var transactionsLastMonth = transactionsAll.Where(t => t.Iban == Iban && t.PartitionKey == partitionKeyPrevious).ToList();
-
-        CalculateWeekInfo(dateMax);
-
-        AggregatePreviousMonthData(transactionsLastMonth);
-        foreach (var transaction in transactions)
-        {
-            var week = transaction.DateTransaction.ToIsoWeekNumber();
-            var amount = (decimal)transaction.Amount;
-            if (!ExpensesPerWeek.ContainsKey(week))
-            {
-                ExpensesPerWeek.Add(week, 0);
-            }
-
-            if (transaction.IsIncome && transaction.IsFromOwnAccount(_ibans))
-            {
-                IncomeFromOwnAccounts += amount;
-            }
-
-            if (!transaction.IsIncome && !transaction.IsFixed && transaction.IsFromOtherParty(_ibans))
-            {
-                ExpensesVariable += amount;
-                ExpensesPerWeek[week] += amount;
-            }
-        }
-
-        TransactionsPerWeek = transactions
-            .GroupBy(t => t.DateTransaction.ToIsoWeekNumber())
-            .ToDictionary(kvp => kvp.Key, kvp => kvp.ToList());
-
-        logger.LogInformation("Load {Iban}'s transactions of {Date}", Iban, Date);
-    }
-
-    private void SetupIbans(List<Transaction> transactionsAll, string? iban)
-    {
         var dateFirstOfMonth = new DateTime(_previousMonth.Year, _previousMonth.Month, 1);
         var ibansOrdered = transactionsAll
-                .Where(t => t.DateTransaction >= dateFirstOfMonth && t.DateTransaction < dateFirstOfMonth.AddMonths(2))
                 .Select(t => t.Iban)
                 .GroupBy(i => i)
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Count())
                 .OrderByDescending(kvp => kvp.Value)
                 .Select(kvp => kvp.Key)
                 .ToList();
+        var ibans = ibansOrdered;
+        var ibanSelected = iban == null || !ibansOrdered.Contains(iban) ? ibansOrdered.FirstOrDefault("") : iban;
+        var transactions = transactionsAll.Where(t => t.Iban == ibanSelected && t.PartitionKey == partitionKey).ToList();
 
-        _ibans = ibansOrdered;
-        Iban = iban == null || !ibansOrdered.Contains(iban) ? ibansOrdered.FirstOrDefault("") : iban;
-        Ibans = ibansOrdered.Select(iban => new SelectListItem(iban, iban, iban == Iban)).ToList();
-    }
-
-    private void AggregatePreviousMonthData(List<Transaction> transactionsLastMonth)
-    {
-        foreach (var transaction in transactionsLastMonth)
+        foreach (var transaction in transactionsAll)
         {
+            var isLastMonth = transaction.PartitionKey == partitionKeyPrevious;
+            var isThisMonth = transaction.PartitionKey == partitionKey;
+            var week = transaction.DateTransaction.ToIsoWeekNumber();
             var amount = (decimal)transaction.Amount;
-            if (transaction.IsIncome && transaction.IsFromOtherParty(_ibans))
+
+            if (transaction.Iban != ibanSelected) continue;
+
+            if (isLastMonth && transaction.IsIncome && transaction.IsFromOtherParty(ibans))
             {
                 IncomeLastMonth += amount;
             }
 
-            if (!transaction.IsIncome && (transaction.IsFixed || transaction.IsFromOwnAccount(_ibans)))
+            if (isLastMonth && !transaction.IsIncome && (transaction.IsFixed || transaction.IsFromOwnAccount(ibans)))
             {
                 ExpensesFixedLastMonth += amount;
             }
-        }
-    }
 
-    public void CalculateWeekInfo(DateTime dateMax)
-    {
+            if (isThisMonth && !ExpensesPerWeek.ContainsKey(week))
+            {
+                ExpensesPerWeek.Add(week, 0);
+            }
+
+            if (isThisMonth && transaction.IsIncome && transaction.IsFromOwnAccount(ibans))
+            {
+                IncomeFromOwnAccounts += amount;
+            }
+
+            if (isThisMonth && !transaction.IsIncome && !transaction.IsFixed && transaction.IsFromOtherParty(ibans))
+            {
+                ExpensesVariable += amount;
+                ExpensesPerWeek[week] += amount;
+            }
+        }
+
+        Iban = ibanSelected;
+        IbansToSelect = ibansOrdered.Select(iban => new SelectListItem(iban, iban, iban == ibanSelected)).ToList();
         WeeksInMonth = Enumerable.Range(0, dateMax.Day)
             .Select(day => new DateTime(dateMax.Year, dateMax.Month, day + 1).ToIsoWeekNumber())
             .Distinct()
             .ToList();
+        TransactionsPerWeek = transactions
+            .GroupBy(t => t.DateTransaction.ToIsoWeekNumber())
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.ToList());
+
+        logger.LogInformation("Load {Iban}'s transactions of {Date}", this.Iban, Date);
     }
 }

@@ -1,8 +1,10 @@
 ﻿using Azure;
 using Azure.Data.Tables;
+using System.Diagnostics;
 
 namespace Budget.Core.Models;
 
+[DebuggerDisplay("{DateTransaction} {Iban} <- {NameOtherParty} {Amount} {Description}")]
 public class Transaction : ITableEntity
 {
     public int Id { get; set; }
