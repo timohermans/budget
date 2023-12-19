@@ -105,7 +105,12 @@ public class TransactionGetOverviewUseCase(TableClient table)
             if (isThisMonth && transaction.IsIncome && transaction.CashbackForDate != null)
             {
                 expensesVariable += amount;
-                expensesPerWeek[transaction.CashbackForDate.Value.ToIsoWeekNumber()] += amount;
+                var cashbackWeek = transaction.CashbackForDate.Value.ToIsoWeekNumber();
+                if (!expensesPerWeek.ContainsKey(cashbackWeek))
+                {
+                    expensesPerWeek.Add(cashbackWeek, 0);
+                }
+                expensesPerWeek[cashbackWeek] += amount;
             }
         }
 

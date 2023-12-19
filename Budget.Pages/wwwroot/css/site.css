@@ -1,3 +1,19 @@
 .dropdown-toggle-no-arrow::after {
     display: none;
 }
+
+.htmx-indicator {
+    display: none;
+}
+
+.htmx-request .htmx-indicator {
+    display: block;
+}
+
+.htmx-request.htmx-indicator {
+    display: block;
+}
+
+.htmx-request .htmx-indicator-hide {
+    display: none;
+}

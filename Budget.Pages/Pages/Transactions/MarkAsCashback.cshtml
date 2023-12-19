@@ -4,7 +4,7 @@
     Layout = null;
 }
 
-<tr id="cashbackForm@(Model.RowKey)">
+<tr id="cashbackForm@(Model.RowKey)" x-data="{}" x-ref="row">
     <td></td>
     <td colspan="5">
         <form class="row align-items-center gap-2" method="post"
@@ -20,15 +20,17 @@
                 <span asp-validation-for="Date" class="text-danger"></span>
             </div>
             <div class="col-auto">
-                <button type="submit" class="btn btn-success"><i class="bi bi-send"></i></button>
+                <button type="submit" class="btn btn-success">
+                    <partial name="_LoadingSpinner" />
+                    <i class="bi bi-send htmx-indicator-hide"></i>
+                </button>
             </div>
             <div class="col-auto">
-                <button class="btn btn-danger"
-                        hx-get="@Url.Page("MarkAsCashback")"
-                        hx-target="closest tr"
-                        hx-swap="delete">
+                <button class="btn btn-danger" @@click.prevent="$refs.row.remove()">
                     <i class="bi bi-sign-stop"></i>
                 </button>
+            </div>
+            <div class="col-auto">
             </div>
         </form>
     </td>

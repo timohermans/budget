@@ -69,7 +69,8 @@ public class MarkAsCashbackModel(TableClient table, IMemoryCache cache, ILogger<
             try
             {
                 table.AddEntity(transactionUpdated);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 logger.LogError(ex, "Error while marking cashback for {Transaction} for date {Date}", transactionUpdated, Date);
                 table.AddEntity(transaction);
