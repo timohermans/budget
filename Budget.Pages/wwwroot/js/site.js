@@ -1,4 +1,11 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿// enable propovers (https://getbootstrap.com/docs/5.3/components/popovers/#enable-popovers)
+function enablePopovers() {
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+    const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+}
 
-// Write your JavaScript code.
+document.addEventListener("update-bootstrap", () => {
+    enablePopovers();
+});
+
+enablePopovers();

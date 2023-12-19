@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.Pages", "Budget.Page
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.Core", "Budget.Core\Budget.Core.csproj", "{55B4649E-C992-4B2E-A948-81EDD91ADEF4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.Tests", "Budget.Tests\Budget.Tests.csproj", "{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.Tests", "Budget.Tests\Budget.Tests.csproj", "{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

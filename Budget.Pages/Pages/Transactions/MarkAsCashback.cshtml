@@ -1,0 +1,36 @@
+﻿@page
+@model Budget.Pages.Pages.Transactions.MarkAsCashbackModel
+@{
+    Layout = null;
+}
+
+<tr id="cashbackForm@(Model.RowKey)">
+    <td></td>
+    <td colspan="5">
+        <form class="row align-items-center gap-2" method="post"
+              hx-post="@Url.Page("MarkAsCashback")"
+              hx-target="body">
+            <input type="hidden" asp-for="RowKey" />
+            <input type="hidden" asp-for="PartitionKey" />
+            <div class="col-auto"><label>Terugbetaling voor</label></div>
+            <div class="col-auto">
+                <input class="form-control" placeholder="Terugbetaling voor..." asp-for="Date" value="@Model.Date.ToString("yyyy/MM/dd")" />
+            </div>
+            <div class="col-auto">
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-success"><i class="bi bi-send"></i></button>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-danger"
+                        hx-get="@Url.Page("MarkAsCashback")"
+                        hx-target="closest tr"
+                        hx-swap="delete">
+                    <i class="bi bi-sign-stop"></i>
+                </button>
+            </div>
+        </form>
+    </td>
+</tr>
+

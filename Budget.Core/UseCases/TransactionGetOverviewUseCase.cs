@@ -76,7 +76,7 @@ public class TransactionGetOverviewUseCase(TableClient table)
 
             if (transaction.Iban != ibanSelected) continue;
 
-            if (isLastMonth && transaction.IsIncome && transaction.IsFromOtherParty(ibans))
+            if (isLastMonth && transaction.IsIncome && transaction.IsFromOtherParty(ibans) && transaction.CashbackForDate == null)
             {
                 incomeLastMonth += amount;
             }
@@ -91,7 +91,7 @@ public class TransactionGetOverviewUseCase(TableClient table)
                 expensesPerWeek.Add(week, 0);
             }
 
-            if (isThisMonth && transaction.IsIncome && transaction.IsFromOwnAccount(ibans))
+            if (isThisMonth && transaction.IsIncome && transaction.IsFromOwnAccount(ibans) && transaction.CashbackForDate == null)
             {
                 incomeFromOwnAccounts += amount;
             }
@@ -100,6 +100,12 @@ public class TransactionGetOverviewUseCase(TableClient table)
             {
                 expensesVariable += amount;
                 expensesPerWeek[week] += amount;
+            }
+            
+            if (isThisMonth && transaction.IsIncome && transaction.CashbackForDate != null)
+            {
+                expensesVariable += amount;
+                expensesPerWeek[transaction.CashbackForDate.Value.ToIsoWeekNumber()] += amount;
             }
         }
 

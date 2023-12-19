@@ -158,6 +158,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Datum</th>
                     <th>Naam</th>
                     <th>Bedrag</th>
@@ -169,12 +170,32 @@
                 @foreach (var weekKvp in Model.TransactionsPerWeek)
                 {
                     <tr id="week@(weekKvp.Key)">
-                        <td class="fw-bold fst-italic" colspan="5">Week @weekKvp.Key</td>
+                        <td class="fw-bold fst-italic" colspan="6">Week @weekKvp.Key</td>
                     </tr>
 
                     @foreach (var transaction in weekKvp.Value)
                     {
-                        <tr>
+                        <tr class="align-middle">
+                            <td>
+                                @if (transaction.Amount > 0)
+                                {
+                                    <div class="btn-group">
+                                        <button type="button" class="btn dropdown-toggle dropdown-toggle-no-arrow" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <button type="button" class="dropdown-item icon-link align-items-center"
+                                                hx-get="@Url.Page("MarkAsCashback", new { transaction.RowKey, transaction.PartitionKey, Date = transaction.DateTransaction })"
+                                                hx-target="closest tr"
+                                                hx-swap="afterend">
+                                                    <div><i class="bi bi-sign-turn-left"></i></div> <span>Als terugbetaling markeren</span>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                }
+                            </td>
                             <td>@transaction.DateTransaction.ToShortDateString()</td>
                             <td>@transaction.NameOtherParty</td>
                             <td class="text-center">
@@ -182,8 +203,18 @@
                                     @transaction.Amount
                                 </span>
                             </td>
-                            <td>@(string.IsNullOrWhiteSpace(transaction.AuthorizationCode) ? "" : "🔒")</td>
+                            <td>
+                                <span>@(string.IsNullOrWhiteSpace(transaction.AuthorizationCode) ? "" : "🔒")</span>
+
+                                @if (transaction.CashbackForDate != null)
+                                {
+                                    <button type="button" class="btn" data-bs-toggle="popover" data-bs-content="Cashback voor datum: @(transaction?.CashbackForDate?.ToShortDateString())" data-bs-placement="top">
+                                        <i class="bi bi-sign-turn-left"></i>
+                                    </button>
+                                }
+                            </td>
                             <td>@transaction.Description</td>
+                            <td>@transaction.IbanOtherParty -> @transaction.Iban</td>
                         </tr>
                     }
                 }

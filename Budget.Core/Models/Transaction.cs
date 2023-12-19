@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace Budget.Core.Models;
 
 [DebuggerDisplay("{DateTransaction} {Iban} <- {NameOtherParty} {Amount} {Description}")]
-public class Transaction : ITableEntity
+public record Transaction : ITableEntity
 {
     public int Id { get; set; }
     public required string PartitionKey { get; set; }

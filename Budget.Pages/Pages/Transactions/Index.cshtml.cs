@@ -1,8 +1,7 @@
-﻿using Azure.Data.Tables;
-using Budget.Core.Extensions;
-using Budget.Core.Models;
+﻿using Budget.Core.Models;
 using Budget.Core.UseCases;
 using Budget.Pages.Constants;
+using Htmx;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -61,5 +60,10 @@ public class IndexModel(TransactionGetOverviewUseCase useCase, ILogger<IndexMode
         TransactionsPerWeek = result.TransactionsPerWeek;
 
         logger.LogInformation("Load {Iban}'s transactions of {Date}", this.Iban, Date);
+
+        if (Request.IsHtmx())
+        {
+            Response.Htmx(h => h.WithTrigger(HtmxEvents.UpdateBootstrap, timing: HtmxTriggerTiming.AfterSettle));
+        }
     }
 }

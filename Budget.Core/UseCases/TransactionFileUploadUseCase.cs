@@ -75,7 +75,7 @@ namespace Budget.Core.UseCases
                 Parallel.ForEach(partition.Value.Chunk(100), async transactions =>
                 {
                     List<TableTransactionAction> addEntitiesBatch = transactions
-                        .Select(transaction => new TableTransactionAction(TableTransactionActionType.UpsertReplace, transaction))
+                        .Select(transaction => new TableTransactionAction(TableTransactionActionType.UpsertMerge, transaction))
                         .ToList();
 
                     var response = await db.SubmitTransactionAsync(addEntitiesBatch);
