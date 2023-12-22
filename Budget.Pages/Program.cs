@@ -38,7 +38,7 @@ typeof(Budget.Core.UseCases.TransactionFileUploadUseCase).Assembly.GetTypes()
 builder.Services.AddScoped(_ =>
 {
     var service = new TableServiceClient(builder.Configuration.GetConnectionString("TransactionTable"));
-    var client =  service.GetTableClient("Transactions");
+    var client = service.GetTableClient("Transactions");
     client.CreateIfNotExists();
     return client;
 });
@@ -64,3 +64,5 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.Run();
+
+public partial class Program { }
