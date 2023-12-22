@@ -213,8 +213,8 @@
                                     </button>
                                 }
                             </td>
-                            <td>@transaction.Description</td>
-                            <td>@transaction.IbanOtherParty -> @transaction.Iban</td>
+                            <td>@transaction?.Description</td>
+                            <td>@transaction?.IbanOtherParty -> @transaction?.Iban</td>
                         </tr>
                     }
                 }
