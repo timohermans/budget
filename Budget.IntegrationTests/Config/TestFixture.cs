@@ -14,7 +14,7 @@ using Xunit.Abstractions;
 namespace Budget.IntegrationTests.Config;
 
 // [Collection("web")]
-public class TestFixture
+public class TestFixture : IDisposable
 {
     private readonly WebApplicationFactory<Program> _factory;
     private readonly IContainer _container;
@@ -34,14 +34,29 @@ public class TestFixture
     /// </summary>
     public async Task<HttpClient> CreateAuthenticatedAppClientAsync(ITestOutputHelper? outputHelper = null)
     {
+        await EnsureDatabaseIsRunning(outputHelper);
+
+        if (_factory == null) throw new ArgumentNullException();
+
+        var clientBuilder = ConfigureClient(outputHelper);
+        await EnsureTransactionTableIsClearedAsync(clientBuilder);
+        var client = CreateClient(clientBuilder);
+
+        return client ?? throw new NullReferenceException("Something went wrong creating the client");
+    }
+
+    private async Task EnsureDatabaseIsRunning(ITestOutputHelper? outputHelper)
+    {
         if (_container.State != TestcontainersStates.Running)
         {
             outputHelper?.WriteLine("Starting container");
             await _container.StartAsync().ConfigureAwait(false);
         }
+    }
 
-        if (_factory == null) throw new ArgumentNullException();
-        var clientBuilder = _factory.WithWebHostBuilder(builder =>
+    private WebApplicationFactory<Program> ConfigureClient(ITestOutputHelper? outputHelper)
+    {
+        return _factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureAppConfiguration((context, conf) =>
                 {
@@ -68,14 +83,20 @@ public class TestFixture
                     });
                 });
             });
+    }
 
+    private async Task EnsureTransactionTableIsClearedAsync(WebApplicationFactory<Program> clientBuilder)
+    {
         using (var scope = clientBuilder.Services.CreateScope())
         {
             var tableClient = scope.ServiceProvider.GetRequiredService<TableClient>();
             await tableClient.DeleteAsync();
             await tableClient.CreateIfNotExistsAsync();
         };
+    }
 
+    private HttpClient CreateClient(WebApplicationFactory<Program> clientBuilder)
+    {
         var client = clientBuilder.CreateClient(new WebApplicationFactoryClientOptions
         {
             AllowAutoRedirect = false, // this makes sure you will not get a 200 at the /login page automatically
@@ -84,11 +105,15 @@ public class TestFixture
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue(scheme: "TestScheme");
 
-        var response = await client.GetAsync("/transactions");
+        return client;
+    }
 
-        return client ?? throw new NullReferenceException("Something went wrong creating the client");
+    public void Dispose()
+    {
+        _container.DisposeAsync();
     }
 }
+
 
 [CollectionDefinition("integration")]
 public class IntegrationCollectionDefinition : ICollectionFixture<TestFixture>
