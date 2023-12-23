@@ -1,9 +1,12 @@
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using Azure.Data.Tables;
+using DotNet.Testcontainers.Builders;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Xunit.Abstractions;
 
@@ -16,6 +19,21 @@ public class TestFixture(WebApplicationFactory<Program> _factory, ITestOutputHel
     /// </summary>
     public async Task<HttpClient> CreateAuthenticatedAppClientAsync()
     {
+        var container = new ContainerBuilder()
+          // Set the image for the container to "testcontainers/helloworld:1.1.0".
+          .WithImage("mcr.microsoft.com/azure-storage/azurite")
+          // Bind port 8080 of the container to a random port on the host.
+          .WithPortBinding(10002, true)
+          // Wait until the HTTP endpoint of the container is available.
+          .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged("Azurite Table service is successfully listening at http://0.0.0.0:10002"))
+          // Build the container configuration.
+          .Build();
+
+        testOutputHelper.WriteLine("Starting container");
+        await container.StartAsync().ConfigureAwait(false);
+        testOutputHelper.WriteLine("Container started");
+
+
         testOutputHelper.WriteLine("Creating authenticated client");
         if (_factory == null) throw new ArgumentNullException();
         var client = _factory.WithWebHostBuilder(builder =>
@@ -33,6 +51,16 @@ public class TestFixture(WebApplicationFactory<Program> _factory, ITestOutputHel
                     services.AddAuthentication(defaultScheme: "TestScheme")
                         .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
                             "TestScheme", options => { });
+
+                    services.RemoveAll<TableClient>();
+                    services.AddScoped(_ =>
+                    {
+                        var service = new TableServiceClient($"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://{container.Hostname}:{container.GetMappedPublicPort(10002)}/devstoreaccount1");
+                        var client = service.GetTableClient("Transactions");
+                        testOutputHelper.WriteLine($"Creating transaction table");
+                        client.CreateIfNotExists();
+                        return client;
+                    });
 
                     // TODO: Make sure that test Azurite is used
                 });
