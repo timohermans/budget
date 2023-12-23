@@ -5,13 +5,13 @@ using Xunit.Abstractions;
 namespace Budget.IntegrationTests;
 
 [Collection("integration")]
-public class BasicTestsTestFixture(WebApplicationFactory<Program> factory, ITestOutputHelper testOutputHelper) : TestFixture(factory, testOutputHelper)
+public class BasicTestsTestFixture(TestFixture testFixture, ITestOutputHelper testOutputHelper) 
 {
     [Fact]
     public async Task Home_redirects_to_transactions()
     {
         // Arrange
-        var client = await CreateAuthenticatedAppClientAsync();
+        var client = await testFixture.CreateAuthenticatedAppClientAsync(testOutputHelper);
 
         // Act
         var response = await client.GetAsync("/");
@@ -24,7 +24,7 @@ public class BasicTestsTestFixture(WebApplicationFactory<Program> factory, ITest
     public async Task Transactions_overview_integration()
     {
         // Arrange
-        var client = await CreateAuthenticatedAppClientAsync();
+        var client = await testFixture.CreateAuthenticatedAppClientAsync(testOutputHelper);
 
         // Act
         var response = await client.GetAsync("/transactions");

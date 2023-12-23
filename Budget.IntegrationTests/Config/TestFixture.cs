@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Azure.Data.Tables;
 using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Containers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -12,31 +13,35 @@ using Xunit.Abstractions;
 
 namespace Budget.IntegrationTests.Config;
 
-public class TestFixture(WebApplicationFactory<Program> _factory, ITestOutputHelper testOutputHelper) : IClassFixture<WebApplicationFactory<Program>>
+// [Collection("web")]
+public class TestFixture
 {
+    private readonly WebApplicationFactory<Program> _factory;
+    private readonly IContainer _container;
+
+    public TestFixture()
+    {
+        _factory = new WebApplicationFactory<Program>();
+        _container = new ContainerBuilder()
+          .WithImage("mcr.microsoft.com/azure-storage/azurite")
+          .WithPortBinding(10002, true)
+          .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged("Azurite Table service is successfully listening at http://0.0.0.0:10002"))
+          .Build();
+    }
+
     /// <summary>
     /// inspired by https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-7.0
     /// </summary>
-    public async Task<HttpClient> CreateAuthenticatedAppClientAsync()
+    public async Task<HttpClient> CreateAuthenticatedAppClientAsync(ITestOutputHelper? outputHelper = null)
     {
-        var container = new ContainerBuilder()
-          // Set the image for the container to "testcontainers/helloworld:1.1.0".
-          .WithImage("mcr.microsoft.com/azure-storage/azurite")
-          // Bind port 8080 of the container to a random port on the host.
-          .WithPortBinding(10002, true)
-          // Wait until the HTTP endpoint of the container is available.
-          .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged("Azurite Table service is successfully listening at http://0.0.0.0:10002"))
-          // Build the container configuration.
-          .Build();
+        if (_container.State != TestcontainersStates.Running)
+        {
+            outputHelper?.WriteLine("Starting container");
+            await _container.StartAsync().ConfigureAwait(false);
+        }
 
-        testOutputHelper.WriteLine("Starting container");
-        await container.StartAsync().ConfigureAwait(false);
-        testOutputHelper.WriteLine("Container started");
-
-
-        testOutputHelper.WriteLine("Creating authenticated client");
         if (_factory == null) throw new ArgumentNullException();
-        var client = _factory.WithWebHostBuilder(builder =>
+        var clientBuilder = _factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureAppConfiguration((context, conf) =>
                 {
@@ -45,8 +50,11 @@ public class TestFixture(WebApplicationFactory<Program> _factory, ITestOutputHel
 
                 builder.ConfigureTestServices(services =>
                 {
-                    services.AddLogging(logBuilder =>
-                        logBuilder.ClearProviders().AddXunit(testOutputHelper));
+                    if (outputHelper != null)
+                    {
+                        services.AddLogging(logBuilder =>
+                            logBuilder.ClearProviders().AddXunit(outputHelper));
+                    }
 
                     services.AddAuthentication(defaultScheme: "TestScheme")
                         .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
@@ -55,20 +63,23 @@ public class TestFixture(WebApplicationFactory<Program> _factory, ITestOutputHel
                     services.RemoveAll<TableClient>();
                     services.AddScoped(_ =>
                     {
-                        var service = new TableServiceClient($"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://{container.Hostname}:{container.GetMappedPublicPort(10002)}/devstoreaccount1");
-                        var client = service.GetTableClient("Transactions");
-                        testOutputHelper.WriteLine($"Creating transaction table");
-                        client.CreateIfNotExists();
-                        return client;
+                        var service = new TableServiceClient($"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://{_container.Hostname}:{_container.GetMappedPublicPort(10002)}/devstoreaccount1");
+                        return service.GetTableClient("Transactions");
                     });
-
-                    // TODO: Make sure that test Azurite is used
                 });
-            })
-            .CreateClient(new WebApplicationFactoryClientOptions
-            {
-                AllowAutoRedirect = false, // this makes sure you will not get a 200 at the /login page automatically
             });
+
+        using (var scope = clientBuilder.Services.CreateScope())
+        {
+            var tableClient = scope.ServiceProvider.GetRequiredService<TableClient>();
+            await tableClient.DeleteAsync();
+            await tableClient.CreateIfNotExistsAsync();
+        };
+
+        var client = clientBuilder.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false, // this makes sure you will not get a 200 at the /login page automatically
+        });
 
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue(scheme: "TestScheme");
@@ -80,7 +91,7 @@ public class TestFixture(WebApplicationFactory<Program> _factory, ITestOutputHel
 }
 
 [CollectionDefinition("integration")]
-public class IntegrationCollectionDefinition : ICollectionFixture<WebApplicationFactory<Program>>
+public class IntegrationCollectionDefinition : ICollectionFixture<TestFixture>
 {
 }
 
