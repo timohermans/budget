@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using AngleSharp;
+using AngleSharp.Dom;
 using Azure.Data.Tables;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
@@ -27,6 +29,13 @@ public class TestFixture : IDisposable
           .WithPortBinding(10002, true)
           .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged("Azurite Table service is successfully listening at http://0.0.0.0:10002"))
           .Build();
+    }
+
+    public async Task<IDocument> OpenHtmlOf(string htmlContent)
+    {
+        var browser = BrowsingContext.New(Configuration.Default);
+        var document = await browser.OpenAsync(req => req.Content(htmlContent));
+        return document ?? throw new NullReferenceException("Something went wrong opening the html");
     }
 
     /// <summary>
