@@ -27,12 +27,10 @@ public class UploadTests(TestFixture fixture)
         form?.QuerySelector("[type=submit]").Should().NotBeNull();
 
         var fileOptions = new FileUpload("Transactions/UploadTests1.csv", "TransactionsFile", "transactions.csv");
-        var result = await client.SendAsync("/transactions/upload", form!, fileOptions);
+        var result = await client.SendAsync("/transactions/upload", form!, fileValues: fileOptions);
 
         result.EnsureSuccessStatusCode();
 
         result.Headers.Location.Should().Be("/transactions");
     }
-
-
 }
