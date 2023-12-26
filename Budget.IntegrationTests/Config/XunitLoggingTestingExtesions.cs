@@ -46,7 +46,7 @@ public class XunitLogger : ILogger
     }
 
     public void Log<TState>(
-        LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         if (!IsEnabled(logLevel))
         {
@@ -97,9 +97,9 @@ public class XunitLogger : ILogger
     }
 
     public bool IsEnabled(LogLevel logLevel)
-        => logLevel >= _minLogLevel;
+            => logLevel >= _minLogLevel;
 
-    public IDisposable BeginScope<TState>(TState state)
+    IDisposable ILogger.BeginScope<TState>(TState state)
         => new NullScope();
 
     private class NullScope : IDisposable
