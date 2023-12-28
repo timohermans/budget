@@ -1,7 +1,9 @@
 using System.Net;
+using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using Budget.IntegrationTests.Helpers;
 using FluentAssertions;
+using FluentAssertions.Execution;
 
 namespace Budget.IntegrationTests.Transactions;
 
@@ -10,27 +12,36 @@ public class UploadTests(TestFixture fixture)
 {
 
     [Fact]
-    public async Task Displays_a_nice_form_to_upload_transactions()
+    public async Task Upload_transactions_from_a_file_and_show_nice_dashboard()
     {
+        // arrange upload form 
         var client = await fixture.CreateAuthenticatedAppClientAsync();
 
-        var response = await client.GetAsync("/transactions/upload");
+        // act upload form
+        var responseForm = await client.GetAsync("/transactions/upload");
 
-        var document = await fixture.OpenHtmlOf(await response.Content.ReadAsStringAsync());
+        // assert upload form
+        var document = await fixture.OpenHtmlOf(await responseForm.Content.ReadAsStringAsync());
+        var form = document.QuerySelector<IHtmlFormElement>("form");
+        using (new AssertionScope("Assert upload form"))
+        {
+            form.Should().NotBeNull().And.BeAssignableTo<IHtmlFormElement>();
+            form?.GetAttribute("enctype").Should().BeEquivalentTo("multipart/form-data");
+            form?.GetAttribute("method").Should().BeEquivalentTo("post");
+            form?.QuerySelector("input[type='file'][name='TransactionsFile']").Should().NotBeNull();
+            form?.QuerySelector("[type=submit]").Should().NotBeNull();
+        }
 
-        var form = Assert.IsAssignableFrom<IHtmlFormElement>(document.QuerySelector("form"));
-        Assert.NotNull(form);
-        form.Should().NotBeNull();
-        form?.GetAttribute("enctype").Should().BeEquivalentTo("multipart/form-data");
-        form?.GetAttribute("method").Should().BeEquivalentTo("post");
-        form?.QuerySelector("input[type='file'][name='TransactionsFile']").Should().NotBeNull();
-        form?.QuerySelector("[type=submit]").Should().NotBeNull();
-
+        // arrange file upload
         var fileOptions = new FileUpload("Transactions/UploadTests1.csv", "TransactionsFile", "transactions.csv");
-        var result = await client.SendAsync("/transactions/upload", form!, fileValues: fileOptions);
 
-        result.EnsureSuccessStatusCode();
+        // act file upload
+        var responseUpload = await client.SendAsync("/transactions/upload", form!, fileValues: fileOptions);
 
-        result.Headers.Location.Should().Be("/transactions");
+        // assert file upload
+        responseUpload.Should().BeRedirection("because we should be redirected to the transaction overview page");
+        responseUpload.Headers.Location.Should().Be("/transactions");
+
+        // TODO: Make another call to transaction overview, as redirect doesn't show this (use Headers!)
     }
 }
