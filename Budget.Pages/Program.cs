@@ -1,6 +1,8 @@
 using Azure.Data.Tables;
+using Azure.Identity;
 using Budget.Core.Constants;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,10 +40,17 @@ typeof(Budget.Core.UseCases.TransactionFileUploadUseCase).Assembly.GetTypes()
 builder.Services.AddScoped(_ =>
 {
     var service = new TableServiceClient(builder.Configuration.GetConnectionString("TransactionTable"));
-    var client =  service.GetTableClient("Transactions");
+    var client = service.GetTableClient("Transactions");
     client.CreateIfNotExists();
     return client;
 });
+
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDataProtection()
+        .PersistKeysToAzureBlobStorage(new Uri(builder.Configuration.GetValue<string>("DataProtection:StorageUri") ?? throw new ArgumentNullException("DataProtection:StorageUri")))
+        .ProtectKeysWithAzureKeyVault(new Uri(builder.Configuration.GetValue<string>("DataProtection:KeyIdentifier") ?? throw new ArgumentNullException("DataProtection:KeyIdentifier")), new DefaultAzureCredential());
+}
 
 var app = builder.Build();
 
