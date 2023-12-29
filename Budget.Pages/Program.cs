@@ -48,8 +48,8 @@ builder.Services.AddScoped(_ =>
 if (!builder.Environment.IsDevelopment())
 {
     builder.Services.AddDataProtection()
-        .PersistKeysToAzureBlobStorage(new Uri(builder.Configuration.GetValue<string>("DataProtection:StorageUri") ?? throw new ArgumentNullException("DataProtection:StorageUri")))
-        .ProtectKeysWithAzureKeyVault(new Uri(builder.Configuration.GetValue<string>("DataProtection:KeyIdentifier") ?? throw new ArgumentNullException("DataProtection:KeyIdentifier")), new DefaultAzureCredential());
+        .PersistKeysToAzureBlobStorage(new Uri(builder.Configuration.GetValue<string>("DataProtection:StorageUri") ?? throw new ArgumentNullException("DataProtection:StorageUri")));
+        // .ProtectKeysWithAzureKeyVault(new Uri(builder.Configuration.GetValue<string>("DataProtection:KeyIdentifier") ?? throw new ArgumentNullException("DataProtection:KeyIdentifier")), new DefaultAzureCredential());
 }
 
 var app = builder.Build();
