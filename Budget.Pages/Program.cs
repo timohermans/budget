@@ -1,6 +1,8 @@
 using Azure.Data.Tables;
+using Azure.Identity;
 using Budget.Core.Constants;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +44,13 @@ builder.Services.AddScoped(_ =>
     client.CreateIfNotExists();
     return client;
 });
+
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDataProtection()
+        .SetApplicationName("Budget")
+        .PersistKeysToAzureBlobStorage(builder.Configuration.GetConnectionString("Storage"), "keys", "keys.xml");
+}
 
 var app = builder.Build();
 
