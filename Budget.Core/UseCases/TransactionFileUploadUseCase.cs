@@ -34,11 +34,9 @@ namespace Budget.Core.UseCases
             string? line;
             while ((line = reader.ReadLine()) != null)
             {
-                var values = line.Split("\",\"").ToList();
-                values[0] = string.Join("", values[0].Skip(1));
-                values[values.Count - 1] = string.Join("", values.Take(values.Count - 1));
+                var values = SplitLine(line).ToList();
 
-                if (values == null)
+                if (values.Count == 0)
                 {
                     logger.LogWarning("Skipping line somehow. Line is: {Line}", line);
                     continue;
@@ -60,7 +58,9 @@ namespace Budget.Core.UseCases
                     IbanOtherParty = values.ElementAt(ibanOtherParty),
                     NameOtherParty = values.ElementAt(nameOtherParty),
                     AuthorizationCode = values.ElementAt(authorizationCode),
-                    Description = string.Join(" ", descriptionIndices.Select(idx => values.ElementAt(idx)))
+                    Description = string.Join(" ",
+                        descriptionIndices.Select(idx => values.ElementAt(idx))
+                            .Where(v => !string.IsNullOrWhiteSpace(v)))
                 };
 
                 transactions.Add(transaction);
@@ -75,12 +75,14 @@ namespace Budget.Core.UseCases
                 Parallel.ForEach(partition.Value.Chunk(100), async transactions =>
                 {
                     List<TableTransactionAction> addEntitiesBatch = transactions
-                        .Select(transaction => new TableTransactionAction(TableTransactionActionType.UpsertMerge, transaction))
+                        .Select(transaction =>
+                            new TableTransactionAction(TableTransactionActionType.UpsertMerge, transaction))
                         .ToList();
 
                     var response = await db.SubmitTransactionAsync(addEntitiesBatch);
 
-                    logger.LogInformation("Saved {amount} transactions out of {count} in current batch", response.Value.Count(r => r.Status == 204), transactions.Count());
+                    logger.LogInformation("Saved {amount} transactions out of {count} in current batch",
+                        response.Value.Count(r => r.Status == 204), transactions.Count());
                 });
             }
 
@@ -89,6 +91,33 @@ namespace Budget.Core.UseCases
             var maxDate = transactions.Max(t => t.DateTransaction);
 
             return new Response(transactions.Count, minDate, maxDate);
+        }
+
+        private IEnumerable<string> SplitLine(string line)
+        {
+            var values = new List<string>();
+
+            for (int i = 0; i < line.Length - 1; i++)
+            {
+                if (line[i] == '"')
+                {
+                    var startIndex = i + 1;
+                    var nextQuoteIndex = line.IndexOf('"', startIndex);
+                    var value = line.Substring(startIndex, nextQuoteIndex - i - 1);
+                    values.Add(value.Trim());
+                    i = nextQuoteIndex + 1;
+                }
+                else if (line[i] == ',')
+                {
+                    values.Add("");
+                }
+                else
+                {
+                    throw new ArgumentException("Unable to parse line at index " + i + " with value " + line[i]);
+                }
+            }
+
+            return values;
         }
 
         private int ParseCellToInt(string value, int columnIndex)

@@ -35,8 +35,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Transactions\UploadTests1.csv">
+    <None Update="Data\transactions-1.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\transactions-2.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

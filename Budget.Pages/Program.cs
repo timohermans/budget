@@ -1,5 +1,4 @@
 using Azure.Data.Tables;
-using Azure.Identity;
 using Budget.Core.Constants;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;

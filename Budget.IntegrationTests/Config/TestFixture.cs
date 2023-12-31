@@ -15,7 +15,6 @@ using Xunit.Abstractions;
 
 namespace Budget.IntegrationTests.Config;
 
-// [Collection("web")]
 public class TestFixture : IDisposable
 {
     private readonly WebApplicationFactory<Program> _factory;
