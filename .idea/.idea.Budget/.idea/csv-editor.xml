@@ -10,13 +10,6 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\Budget.IntegrationTests\Transactions\UploadTests1.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="\Budget.Tests\Data\transactions-2.csv">
           <value>
             <Attribute>

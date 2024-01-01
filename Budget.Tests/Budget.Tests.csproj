@@ -30,10 +30,4 @@
     <Folder Include="Pages\Transactions\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Data\transactions-2.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

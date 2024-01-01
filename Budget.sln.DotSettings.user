@@ -1,6 +1,6 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=75f99b65_002Dad59_002D41c4_002D80cf_002Dc95ab425eeef/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Saves_transactions_successfully_in_the_table" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1::net8.0::Budget.Tests.Core.UseCases.TransactionFileUploadUseCaseTests.Saves_transactions_successfully_in_the_table&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::A64DF4A3-2B5A-4815-85BA-AC033B11FBC8::net8.0::Budget.IntegrationTests.Tests.Core.UseCases.TransactionFileUploadUseCaseTests.Saves_transactions_successfully_in_the_table&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

@@ -39,6 +39,4 @@ public class DataFixture : IDisposable
 
 
 [CollectionDefinition("data")]
-public class DataCollectionDefinition : ICollectionFixture<DataFixture>
-{
-}
+public class DataCollectionDefinition : ICollectionFixture<DataFixture>;

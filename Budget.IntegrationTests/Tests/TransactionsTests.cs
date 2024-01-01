@@ -18,7 +18,7 @@ public class TransactionsTests(TestFixture fixture) {
         var responseForm = await client.GetAsync("/transactions/upload");
 
         // assert upload form
-        var document = await fixture.OpenHtmlOf(await responseForm.Content.ReadAsStringAsync());
+        var document = await fixture.OpenHtmlOf(responseForm.Content);
         var form = document.QuerySelector<IHtmlFormElement>("form");
         using (new AssertionScope("Assert upload form"))
         {

@@ -30,11 +30,34 @@ public class TestFixture : IDisposable
           .Build();
     }
 
-    public async Task<IDocument> OpenHtmlOf(string htmlContent)
+    /// <summary>
+    /// Opens html string content into a DOM document like object that your can QuerySelector on
+    /// </summary>
+    /// <param name="htmlContent">response from `await client.GetAsync("url");`</param>
+    public async Task<IDocument> OpenHtmlOf(HttpContent htmlContent)
     {
         var browser = BrowsingContext.New(Configuration.Default);
-        var document = await browser.OpenAsync(req => req.Content(htmlContent));
+        var contentStream = await htmlContent.ReadAsStreamAsync();
+        var document = await browser.OpenAsync(req => req.Content(contentStream));
         return document ?? throw new NullReferenceException("Something went wrong opening the html");
+    }
+    
+    /// <summary>
+    /// Opens connection to transaction azure table and clears it. Use this when you only want to use table, not html
+    /// </summary>
+    /// <returns>The table client to the transactions table</returns>
+    public async Task<TableClient> CreateTableClientAsync()
+    {
+        if (_container.State != TestcontainersStates.Running)
+        {
+            await _container.StartAsync().ConfigureAwait(false);
+        }
+
+        var service = new TableServiceClient($"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://{_container.Hostname}:{_container.GetMappedPublicPort(10002)}/devstoreaccount1");
+        var client = service.GetTableClient("Transactions");
+        await client.DeleteAsync();
+        await client.CreateIfNotExistsAsync();
+        return client;
     }
 
     /// <summary>
@@ -66,7 +89,7 @@ public class TestFixture : IDisposable
     {
         return _factory.WithWebHostBuilder(builder =>
             {
-                builder.ConfigureAppConfiguration((context, conf) =>
+                builder.ConfigureAppConfiguration((_, conf) =>
                 {
                     conf.AddJsonFile("appsettings.integration.json");
                 });
@@ -81,7 +104,7 @@ public class TestFixture : IDisposable
 
                     services.AddAuthentication(defaultScheme: "TestScheme")
                         .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
-                            "TestScheme", options => { });
+                            "TestScheme", _ => { });
 
                     services.RemoveAll<TableClient>();
                     services.AddScoped(_ =>
@@ -95,12 +118,10 @@ public class TestFixture : IDisposable
 
     private async Task EnsureTransactionTableIsClearedAsync(WebApplicationFactory<Program> clientBuilder)
     {
-        using (var scope = clientBuilder.Services.CreateScope())
-        {
-            var tableClient = scope.ServiceProvider.GetRequiredService<TableClient>();
-            await tableClient.DeleteAsync();
-            await tableClient.CreateIfNotExistsAsync();
-        };
+        using var scope = clientBuilder.Services.CreateScope();
+        var tableClient = scope.ServiceProvider.GetRequiredService<TableClient>();
+        await tableClient.DeleteAsync();
+        await tableClient.CreateIfNotExistsAsync();
     }
 
     private HttpClient CreateClient(WebApplicationFactory<Program> clientBuilder)
@@ -124,9 +145,7 @@ public class TestFixture : IDisposable
 
 
 [CollectionDefinition("integration")]
-public class IntegrationCollectionDefinition : ICollectionFixture<TestFixture>
-{
-}
+public class IntegrationCollectionDefinition : ICollectionFixture<TestFixture>;
 
 public class TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger, UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
