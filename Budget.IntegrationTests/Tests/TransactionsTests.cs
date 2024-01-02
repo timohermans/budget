@@ -19,7 +19,7 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output) {
         A.CallTo(() => timeProvider.GetUtcNow()).Returns(new DateTime(2023, 12, 1));
         
         // arrange upload form 
-        output.WriteLine($"{DateTime.Now} - creating client");
+        output.WriteLine($"{DateTime.Now.ToString("HH:mm:ss.fff")} - creating client");
         var client = await fixture.CreateAuthenticatedAppClientAsync(output, timeProvider);
 
         // act upload form
@@ -57,7 +57,7 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output) {
             
         }
         
-        output.WriteLine($"{DateTime.Now} - done");
+        output.WriteLine($"{DateTime.Now.ToString("HH:mm:ss.fff")} - done");
     }
 
 }

@@ -14,7 +14,7 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
     {
         // Arrange
         var logger = new XunitLogger<TransactionFileUploadUseCase>(output);
-        output.WriteLine($"{DateTime.Now} - creating client");
+        output.WriteLine($"{DateTime.Now.ToString("HH:mm:ss.fff")} - creating client");
         var client = await fixture.CreateTableClientAsync();
         var useCase = new TransactionFileUploadUseCase(client, logger);
 
@@ -76,6 +76,6 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
                      && t.IsIncome == false
                      && t.Description == "Betaalautomaat 2023-11-xx");
         
-        output.WriteLine($"{DateTime.Now} - done");
+        output.WriteLine($"{DateTime.Now.ToString("HH:mm:ss.fff")} - done");
     }
 }
