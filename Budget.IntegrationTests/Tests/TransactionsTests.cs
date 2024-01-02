@@ -1,18 +1,24 @@
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using Budget.IntegrationTests.Helpers;
+using FakeItEasy;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Xunit.Abstractions;
 
 namespace Budget.IntegrationTests.Tests;
 
 [Collection("integration")]
-public class TransactionsTests(TestFixture fixture) {
+public class TransactionsTests(TestFixture fixture, ITestOutputHelper output) {
     [Fact]
     public async Task Upload_transactions_from_a_file_and_show_nice_dashboard()
     {
+        // global arrange
+        var timeProvider = A.Fake<TimeProvider>();
+        A.CallTo(() => timeProvider.GetUtcNow()).Returns(new DateTime(2023, 12, 1));
+        
         // arrange upload form 
-        var client = await fixture.CreateAuthenticatedAppClientAsync();
+        var client = await fixture.CreateAuthenticatedAppClientAsync(output, timeProvider);
 
         // act upload form
         var responseForm = await client.GetAsync("/transactions/upload");
@@ -40,9 +46,14 @@ public class TransactionsTests(TestFixture fixture) {
         responseUpload.Headers.Location.Should().Be("/transactions");
 
         // TODO: Make another call to transaction overview, as redirect doesn't show this (use Headers as the page to get!)
-
         var responseDashboard = await client.GetAsync(responseUpload.Headers.Location);
-        
+
+        var dashboardDoc = await fixture.OpenHtmlOf(responseDashboard.Content);
+
+        using (new AssertionScope("Dashboard data"))
+        {
+            
+        }
     }
 
 }

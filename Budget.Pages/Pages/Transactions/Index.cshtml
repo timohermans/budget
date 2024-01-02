@@ -117,7 +117,7 @@
                     var expenseOfWeek = Model.ExpensesPerWeek.GetValueOrDefault(week, 0);
 
                     <li class="row @(isLast ? "border-bottom pb-1": "")">
-                        <div class="col">Week <a href="#week@(week)">@week</a> @(DateTime.Now.ToIsoWeekNumber() == week ? "👈" : "")</div>
+                        <div class="col">Week <a href="#week@(week)">@week</a> @(Model.IsThisWeek(week) ? "👈" : "")</div>
                         <div class="col-auto">
                             <span class="badge text-bg-light">
                                 @expenseOfWeek

@@ -24,10 +24,11 @@ public class TestFixture : IDisposable
     {
         _factory = new WebApplicationFactory<Program>();
         _container = new ContainerBuilder()
-          .WithImage("mcr.microsoft.com/azure-storage/azurite")
-          .WithPortBinding(10002, true)
-          .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged("Azurite Table service is successfully listening at http://0.0.0.0:10002"))
-          .Build();
+            .WithImage("mcr.microsoft.com/azure-storage/azurite")
+            .WithPortBinding(10002, true)
+            .WithWaitStrategy(Wait.ForUnixContainer()
+                .UntilMessageIsLogged("Azurite Table service is successfully listening at http://0.0.0.0:10002"))
+            .Build();
     }
 
     /// <summary>
@@ -41,7 +42,7 @@ public class TestFixture : IDisposable
         var document = await browser.OpenAsync(req => req.Content(contentStream));
         return document ?? throw new NullReferenceException("Something went wrong opening the html");
     }
-    
+
     /// <summary>
     /// Opens connection to transaction azure table and clears it. Use this when you only want to use table, not html
     /// </summary>
@@ -53,7 +54,8 @@ public class TestFixture : IDisposable
             await _container.StartAsync().ConfigureAwait(false);
         }
 
-        var service = new TableServiceClient($"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://{_container.Hostname}:{_container.GetMappedPublicPort(10002)}/devstoreaccount1");
+        var service = new TableServiceClient(
+            $"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://{_container.Hostname}:{_container.GetMappedPublicPort(10002)}/devstoreaccount1");
         var client = service.GetTableClient("Transactions");
         await client.DeleteAsync();
         await client.CreateIfNotExistsAsync();
@@ -63,13 +65,14 @@ public class TestFixture : IDisposable
     /// <summary>
     /// inspired by https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-7.0
     /// </summary>
-    public async Task<HttpClient> CreateAuthenticatedAppClientAsync(ITestOutputHelper? outputHelper = null)
+    public async Task<HttpClient> CreateAuthenticatedAppClientAsync(ITestOutputHelper? outputHelper = null,
+        TimeProvider? timeProviderOverride = null)
     {
         await EnsureDatabaseIsRunning(outputHelper);
 
         if (_factory == null) throw new ArgumentNullException();
 
-        var clientBuilder = ConfigureClient(outputHelper);
+        var clientBuilder = ConfigureClient(outputHelper, timeProviderOverride);
         await EnsureTransactionTableIsClearedAsync(clientBuilder);
         var client = CreateClient(clientBuilder);
 
@@ -85,35 +88,34 @@ public class TestFixture : IDisposable
         }
     }
 
-    private WebApplicationFactory<Program> ConfigureClient(ITestOutputHelper? outputHelper)
+    private WebApplicationFactory<Program> ConfigureClient(ITestOutputHelper? outputHelper, TimeProvider? timeProviderOverride)
     {
         return _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, conf) => { conf.AddJsonFile("appsettings.integration.json"); });
+
+            builder.ConfigureTestServices(services =>
             {
-                builder.ConfigureAppConfiguration((_, conf) =>
+                if (outputHelper != null)
                 {
-                    conf.AddJsonFile("appsettings.integration.json");
-                });
+                    services.AddLogging(logBuilder =>
+                        logBuilder.ClearProviders().AddXunit(outputHelper));
+                }
 
-                builder.ConfigureTestServices(services =>
+                services.AddAuthentication(defaultScheme: "TestScheme")
+                    .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
+                        "TestScheme", _ => { });
+
+                services.RemoveAll<TableClient>();
+                services.AddSingleton(timeProviderOverride ?? TimeProvider.System);
+                services.AddScoped(_ =>
                 {
-                    if (outputHelper != null)
-                    {
-                        services.AddLogging(logBuilder =>
-                            logBuilder.ClearProviders().AddXunit(outputHelper));
-                    }
-
-                    services.AddAuthentication(defaultScheme: "TestScheme")
-                        .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
-                            "TestScheme", _ => { });
-
-                    services.RemoveAll<TableClient>();
-                    services.AddScoped(_ =>
-                    {
-                        var service = new TableServiceClient($"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://{_container.Hostname}:{_container.GetMappedPublicPort(10002)}/devstoreaccount1");
-                        return service.GetTableClient("Transactions");
-                    });
+                    var service = new TableServiceClient(
+                        $"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://{_container.Hostname}:{_container.GetMappedPublicPort(10002)}/devstoreaccount1");
+                    return service.GetTableClient("Transactions");
                 });
             });
+        });
     }
 
     private async Task EnsureTransactionTableIsClearedAsync(WebApplicationFactory<Program> clientBuilder)
@@ -143,12 +145,13 @@ public class TestFixture : IDisposable
     }
 }
 
-
 [CollectionDefinition("integration")]
 public class IntegrationCollectionDefinition : ICollectionFixture<TestFixture>;
 
-public class TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
-    ILoggerFactory logger, UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+public class TestAuthHandler(
+    IOptionsMonitor<AuthenticationSchemeOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {

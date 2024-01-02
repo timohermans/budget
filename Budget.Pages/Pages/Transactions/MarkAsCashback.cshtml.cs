@@ -11,7 +11,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Budget.Pages.Pages.Transactions;
 
-public class MarkAsCashbackModel(TableClient table, IMemoryCache cache, ILogger<MarkAsCashbackModel> logger) : PageModel
+public class MarkAsCashbackModel(TableClient table, IMemoryCache cache, ILogger<MarkAsCashbackModel> logger, TimeProvider time) : PageModel
 {
     [BindProperty]
     public required string PartitionKey { get; set; }
@@ -19,7 +19,7 @@ public class MarkAsCashbackModel(TableClient table, IMemoryCache cache, ILogger<
     public required string RowKey { get; set; }
     [BindProperty]
     [DataType(DataType.Date)]
-    public required DateTime Date { get; set; } = DateTime.Now;
+    public required DateTime Date { get; set; }
 
 
     public IActionResult OnGet(string? partitionKey, string? rowKey, DateTime? date)
@@ -29,11 +29,7 @@ public class MarkAsCashbackModel(TableClient table, IMemoryCache cache, ILogger<
             return new EmptyResult();
         }
 
-        if (date != null)
-        {
-            Date = date.Value;
-        }
-
+        Date = date.GetValueOrDefault(time.GetUtcNow().Date);
         RowKey = rowKey;
         PartitionKey = partitionKey;
 

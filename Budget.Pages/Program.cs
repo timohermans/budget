@@ -1,5 +1,6 @@
 using Azure.Data.Tables;
 using Budget.Core.Constants;
+using Budget.Core.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 
@@ -27,6 +28,8 @@ builder.Services.Configure<RouteOptions>(options =>
     options.LowercaseUrls = true;
     options.LowercaseQueryStrings = true;
 });
+
+builder.Services.AddSingleton<LoginThrottler>();
 
 // Add UseCases
 typeof(Budget.Core.UseCases.TransactionFileUploadUseCase).Assembly.GetTypes()
