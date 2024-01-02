@@ -1,5 +1,5 @@
 using System.Net;
-using Microsoft.AspNetCore.Mvc.Testing;
+using Budget.IntegrationTests.Config;
 using Xunit.Abstractions;
 
 namespace Budget.IntegrationTests.Tests;

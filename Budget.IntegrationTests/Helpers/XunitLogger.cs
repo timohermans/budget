@@ -1,7 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 
-namespace Budget.Tests.Config;
+namespace Budget.IntegrationTests.Helpers;
 
 public class XunitLogger<T>(ITestOutputHelper output) : ILogger<T>, IDisposable
 {

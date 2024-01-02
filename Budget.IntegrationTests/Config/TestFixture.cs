@@ -4,6 +4,7 @@ using System.Text.Encodings.Web;
 using AngleSharp;
 using AngleSharp.Dom;
 using Azure.Data.Tables;
+using Budget.IntegrationTests.Helpers;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Microsoft.AspNetCore.Authentication;
@@ -15,7 +16,7 @@ using Xunit.Abstractions;
 
 namespace Budget.IntegrationTests.Config;
 
-public class TestFixture : IDisposable
+public class TestFixture : IAsyncLifetime
 {
     private readonly WebApplicationFactory<Program> _factory;
     private readonly IContainer _container;
@@ -68,7 +69,6 @@ public class TestFixture : IDisposable
     public async Task<HttpClient> CreateAuthenticatedAppClientAsync(ITestOutputHelper? outputHelper = null,
         TimeProvider? timeProviderOverride = null)
     {
-        await EnsureDatabaseIsRunning(outputHelper);
 
         if (_factory == null) throw new ArgumentNullException();
 
@@ -77,15 +77,6 @@ public class TestFixture : IDisposable
         var client = CreateClient(clientBuilder);
 
         return client ?? throw new NullReferenceException("Something went wrong creating the client");
-    }
-
-    private async Task EnsureDatabaseIsRunning(ITestOutputHelper? outputHelper)
-    {
-        if (_container.State != TestcontainersStates.Running)
-        {
-            outputHelper?.WriteLine("Starting container");
-            await _container.StartAsync().ConfigureAwait(false);
-        }
     }
 
     private WebApplicationFactory<Program> ConfigureClient(ITestOutputHelper? outputHelper, TimeProvider? timeProviderOverride)
@@ -142,6 +133,16 @@ public class TestFixture : IDisposable
     public void Dispose()
     {
         _container.DisposeAsync();
+    }
+
+    public async Task InitializeAsync()
+    {
+            await _container.StartAsync().ConfigureAwait(false);
+    }
+
+    public async Task DisposeAsync()
+    {
+        await _container.DisposeAsync();
     }
 }
 

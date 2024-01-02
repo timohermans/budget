@@ -15,9 +15,10 @@ public static class DateExtensions
         return date.ToDateTime(TimeOnly.MinValue).ToIsoWeekNumber();
     }
 
-    public static string TimePassed(this DateTime date, IDateProvider dateProvider)
+    public static string TimePassed(this DateTime date, TimeProvider dateProvider)
     {
-        var timePassed = dateProvider.Now() - date;
+        var now = dateProvider.GetUtcNow().DateTime;
+        var timePassed = now - date;
 
         if (timePassed.Days > 1) return $"{timePassed.Days} days";
         if (timePassed.Days == 1) return $"{timePassed.Days} day";
@@ -29,9 +30,10 @@ public static class DateExtensions
         return "Just now";
     }
 
-    public static string TimePassedShort(this DateTime date, IDateProvider dateProvider)
+    public static string TimePassedShort(this DateTime date, TimeProvider dateProvider)
     {
-        var timePassed = dateProvider.Now() - date;
+        var now = dateProvider.GetUtcNow().DateTime;
+        var timePassed = now - date;
 
         if (timePassed.Days > 1) return $"{timePassed.Days}d";
         if (timePassed.Days == 1) return $"{timePassed.Days}d";

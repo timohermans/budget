@@ -3,7 +3,7 @@
 using System.Text;
 using Xunit.Abstractions;
 
-namespace Budget.IntegrationTests.Config;
+namespace Budget.IntegrationTests.Helpers;
 
 public class XunitLoggerProvider : ILoggerProvider
 {
