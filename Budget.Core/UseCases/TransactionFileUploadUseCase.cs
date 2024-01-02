@@ -72,17 +72,17 @@ namespace Budget.Core.UseCases
 
             foreach (var partition in transactionsPerPartitionKey)
             {
-                Parallel.ForEach(partition.Value.Chunk(100), async transactions =>
+                Parallel.ForEach(partition.Value.Chunk(100), transactionsChunk =>
                 {
-                    List<TableTransactionAction> addEntitiesBatch = transactions
+                    List<TableTransactionAction> addEntitiesBatch = transactionsChunk
                         .Select(transaction =>
                             new TableTransactionAction(TableTransactionActionType.UpsertMerge, transaction))
                         .ToList();
 
-                    var response = await db.SubmitTransactionAsync(addEntitiesBatch);
+                    var response = db.SubmitTransaction(addEntitiesBatch);
 
                     logger.LogInformation("Saved {amount} transactions out of {count} in current batch",
-                        response.Value.Count(r => r.Status == 204), transactions.Count());
+                        response.Value.Count(r => r.Status == 204), transactionsChunk.Count());
                 });
             }
 
