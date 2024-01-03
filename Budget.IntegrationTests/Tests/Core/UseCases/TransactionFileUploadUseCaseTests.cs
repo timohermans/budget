@@ -19,7 +19,7 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
         var useCase = new TransactionFileUploadUseCase(client, logger);
 
         // Act
-        useCase.Handle(File.OpenRead("Data/transactions-2.csv"));
+        await useCase.HandleAsync(File.OpenRead("Data/transactions-2.csv"));
 
         // Assert
         var transactions = client.Query<Transaction>().ToList();

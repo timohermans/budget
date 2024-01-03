@@ -16,7 +16,7 @@ namespace Budget.Pages.Pages.Transactions
         [DisplayName("Rabobank csv bestand")]
         public required IFormFile TransactionsFile { get; set; }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPost()
         {
             if (!ModelState.IsValid)
             {
@@ -25,8 +25,8 @@ namespace Budget.Pages.Pages.Transactions
 
             // TODO: filetype validation
 
-            using var fileStream = TransactionsFile.OpenReadStream();
-            var response = useCase.Handle(fileStream);
+            await using var fileStream = TransactionsFile.OpenReadStream();
+            var response = await useCase.HandleAsync(fileStream);
 
             TempData[TmpAmountInsertedKey] = response.AmountInserted;
             TempData[TmpAmountMinDateKey] = response.DateMin.ToShortDateString();
