@@ -1,6 +1,6 @@
 using Azure.Data.Tables;
-using Azure.Identity;
 using Budget.Core.Constants;
+using Budget.Core.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 
@@ -16,6 +16,15 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(AuthConstants.TwoFactorLoginPolicy, policy => policy.RequireClaim(AuthConstants.TwoFactorLoginPolicy, "2fa"));
 
+// Culture settings
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    string[] supportedCultures = ["nl"];
+    options.SetDefaultCulture(supportedCultures[0])
+        .AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures);
+});
+
 // Razor Pages settings
 builder.Services.AddRazorPages(options =>
 {
@@ -28,6 +37,8 @@ builder.Services.Configure<RouteOptions>(options =>
     options.LowercaseUrls = true;
     options.LowercaseQueryStrings = true;
 });
+
+builder.Services.AddSingleton<LoginThrottler>();
 
 // Add UseCases
 typeof(Budget.Core.UseCases.TransactionFileUploadUseCase).Assembly.GetTypes()
@@ -62,6 +73,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseRequestLocalization();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -73,3 +85,5 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.Run();
+
+public partial class Program { }

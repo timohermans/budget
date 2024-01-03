@@ -7,15 +7,24 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Budget.Pages.Pages.Account;
 
-public class Login(IConfiguration config, ILogger<Login> logger) : PageModel
+public class Login : PageModel
 {
-    private readonly static LoginThrottler _loginThrottler = new(new DateProvider());
+    private readonly ILogger<Login> _logger;
+    private readonly IConfiguration _config;
+    private readonly LoginThrottler _loginThrottler;
+    
+    public Login(ILogger<Login> logger, IConfiguration config, LoginThrottler throttler)
+    {
+        _logger = logger;
+        _config = config;
+        _loginThrottler = throttler;
+    }
 
     [BindProperty] public new required User User { get; set; }
 
     public void OnGet()
     {
-        logger.LogInformation("Someone is trying to log in.");
+        _logger.LogInformation("Someone is trying to log in.");
     }
 
     public async Task<IActionResult> OnPostAsync(string? returnUrl = "/")
@@ -31,18 +40,18 @@ public class Login(IConfiguration config, ILogger<Login> logger) : PageModel
             return Page();
         }
 
-        var adminUsername = config.GetValue<string>("Admin:Username");
-        var adminPassword = config.GetValue<string>("Admin:Password");
+        var adminUsername = _config.GetValue<string>("Admin:Username");
+        var adminPassword = _config.GetValue<string>("Admin:Password");
 
         if (adminUsername != User.Username || adminPassword != User.Password)
         {
             _loginThrottler.Throttle();
-            logger.LogWarning("Someone failed login with username {Email} and a given password. Throttler: {SecondsLeft}s", User.Username, _loginThrottler.GetSecondsLeftToTryAgain());
+            _logger.LogWarning("Someone failed login with username {Email} and a given password. Throttler: {SecondsLeft}s", User.Username, _loginThrottler.GetSecondsLeftToTryAgain());
             ModelState.AddModelError("login", "Username or password is incorrect");
             return Page();
         }
 
-        logger.LogInformation("Successful login!");
+        _logger.LogInformation("Successful login!");
         // Login gebeurt hier
         var claims = new List<Claim>
         {
