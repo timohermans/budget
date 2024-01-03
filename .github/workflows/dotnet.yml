@@ -31,7 +31,7 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - name: Test
-        run: cd Budget.Tests && dotnet test --no-build --verbosity normal
+        run: cd Budget.Tests && dotnet test --verbosity normal
         
   integration-test:
     runs-on: self-hosted
@@ -43,4 +43,4 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - name: Test
-        run: cd Budget.IntegrationTests && dotnet test --no-build --verbosity normal
+        run: cd Budget.IntegrationTests && dotnet test --verbosity normal
