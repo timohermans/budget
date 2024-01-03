@@ -31,10 +31,11 @@ jobs:
     runs-on: self-hosted
     needs: build
     steps:
-      - name: Download build
-        uses: actions/download-artifact@v3
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
         with:
-          name: build
+          dotnet-version: 8.0.x
       - name: Test
         run: cd Budget.Tests && dotnet test --no-build --verbosity normal
         
@@ -42,9 +43,10 @@ jobs:
     runs-on: self-hosted
     needs: build
     steps:
-      - name: Download build
-        uses: actions/download-artifact@v3
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
         with:
-          name: build
+          dotnet-version: 8.0.x
       - name: Test
         run: cd Budget.IntegrationTests && dotnet test --no-build --verbosity normal
