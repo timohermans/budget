@@ -8,7 +8,7 @@ on: push
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v3
@@ -28,7 +28,7 @@ jobs:
           retention-days: 1
   
   unit-test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: build
     steps:
       - name: Download build
@@ -39,7 +39,7 @@ jobs:
         run: cd Budget.Tests && dotnet test --no-build --verbosity normal
         
   integration-test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: build
     steps:
       - name: Download build
