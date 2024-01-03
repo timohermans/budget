@@ -16,6 +16,15 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(AuthConstants.TwoFactorLoginPolicy, policy => policy.RequireClaim(AuthConstants.TwoFactorLoginPolicy, "2fa"));
 
+// Culture settings
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    string[] supportedCultures = ["nl"];
+    options.SetDefaultCulture(supportedCultures[0])
+        .AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures);
+});
+
 // Razor Pages settings
 builder.Services.AddRazorPages(options =>
 {
@@ -64,6 +73,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseRequestLocalization();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
