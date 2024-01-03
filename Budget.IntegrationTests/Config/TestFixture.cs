@@ -78,8 +78,6 @@ public class TestFixture : IAsyncLifetime
     {
         return _factory.WithWebHostBuilder(builder =>
         {
-            builder.ConfigureAppConfiguration((_, conf) => { conf.AddJsonFile("appsettings.integration.json"); });
-
             builder.ConfigureTestServices(services =>
             {
                 if (outputHelper != null)
