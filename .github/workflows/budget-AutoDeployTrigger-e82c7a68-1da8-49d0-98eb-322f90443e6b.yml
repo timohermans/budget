@@ -2,13 +2,14 @@ name: Trigger auto deployment for budget
 
 # When this action will be executed
 on:
-  # Automatically trigger it when detected changes in repo
-  push:
-    branches: 
-      [ main ]
+  workflow_run:
+    branches: [ main ]
+    workflows: [ .NET ]
+    types:
+      - completed
     paths:
-    - '**'
-    - '.github/workflows/budget-AutoDeployTrigger-e82c7a68-1da8-49d0-98eb-322f90443e6b.yml'
+      - '**'
+      - '.github/workflows/budget-AutoDeployTrigger-e82c7a68-1da8-49d0-98eb-322f90443e6b.yml'
 
   # Allow manual trigger 
   workflow_dispatch:      
@@ -16,6 +17,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions: 
       id-token: write #This is required for requesting the OIDC JWT Token
 
