@@ -20,12 +20,6 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
-      - name: Archive build
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          path: ./
-          retention-days: 1
   
   unit-test:
     runs-on: self-hosted
