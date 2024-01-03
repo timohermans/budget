@@ -113,7 +113,7 @@ namespace Budget.Core.UseCases
                 }
                 else
                 {
-                    throw new ArgumentException("Unable to parse line at index " + i + " with value " + line[i]);
+                    throw new ArgumentException("Unable to parse line at index " + i + " with value " + line[i] + " in line " + line);
                 }
             }
 

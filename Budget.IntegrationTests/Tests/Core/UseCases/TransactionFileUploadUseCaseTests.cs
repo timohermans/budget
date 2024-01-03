@@ -68,7 +68,7 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
                 t => t.Iban == "NL11RABO0104946666"
                      && t.Currency == "EUR"
                      && t.FollowNumber == 12111
-                     && t.DateTransaction == new DateTime(2023, 11, 28)
+                     && t.DateTransaction == new DateTime(2023, 12, 2)
                      && t.Amount == -90.75
                      && t.IbanOtherParty == "NL12INGB00044444"
                      && t.NameOtherParty == "Albert Heijn"

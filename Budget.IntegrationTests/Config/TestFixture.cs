@@ -50,11 +50,6 @@ public class TestFixture : IAsyncLifetime
     /// <returns>The table client to the transactions table</returns>
     public async Task<TableClient> CreateTableClientAsync()
     {
-        if (_container.State != TestcontainersStates.Running)
-        {
-            await _container.StartAsync().ConfigureAwait(false);
-        }
-
         var service = new TableServiceClient(
             $"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://{_container.Hostname}:{_container.GetMappedPublicPort(10002)}/devstoreaccount1");
         var client = service.GetTableClient("Transactions");
