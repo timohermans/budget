@@ -86,7 +86,6 @@ namespace Budget.Core.UseCases
                 });
             }
 
-
             var minDate = transactions.Min(t => t.DateTransaction);
             var maxDate = transactions.Max(t => t.DateTransaction);
 

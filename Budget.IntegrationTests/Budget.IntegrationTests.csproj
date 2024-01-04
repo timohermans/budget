@@ -33,7 +33,7 @@
 
   <ItemGroup>
     <None Update="Data\transactions-1.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Data\transactions-2.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
