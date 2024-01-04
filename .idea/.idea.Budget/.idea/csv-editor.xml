@@ -17,18 +17,17 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\Budget.IntegrationTests\Data\transactions-2.csv">
+        <entry key="/Budget.IntegrationTests/Data/transactions-3.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\Budget.Tests\Data\transactions-2.csv">
+        <entry key="\Budget.IntegrationTests\Data\transactions-2.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
-              <option name="escapeCharacter" value="&quot;" />
             </Attribute>
           </value>
         </entry>

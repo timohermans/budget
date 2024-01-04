@@ -20,6 +20,8 @@ public class TestFixture : IAsyncLifetime
 {
     private readonly WebApplicationFactory<Program> _factory;
     private readonly IContainer _container;
+    
+    public TableClient Db { get; private set; }
 
     public TestFixture()
     {
@@ -55,6 +57,7 @@ public class TestFixture : IAsyncLifetime
         var client = service.GetTableClient("Transactions");
         await client.DeleteAsync();
         await client.CreateIfNotExistsAsync();
+        Db = client;
         return client;
     }
 
@@ -64,11 +67,11 @@ public class TestFixture : IAsyncLifetime
     public async Task<HttpClient> CreateAuthenticatedAppClientAsync(ITestOutputHelper? outputHelper = null,
         TimeProvider? timeProviderOverride = null)
     {
+        Db = await CreateTableClientAsync();
 
         if (_factory == null) throw new ArgumentNullException();
 
         var clientBuilder = ConfigureClient(outputHelper, timeProviderOverride);
-        await EnsureTransactionTableIsClearedAsync(clientBuilder);
         var client = CreateClient(clientBuilder);
 
         return client ?? throw new NullReferenceException("Something went wrong creating the client");
@@ -92,22 +95,9 @@ public class TestFixture : IAsyncLifetime
 
                 services.RemoveAll<TableClient>();
                 services.AddSingleton(timeProviderOverride ?? TimeProvider.System);
-                services.AddScoped(_ =>
-                {
-                    var service = new TableServiceClient(
-                        $"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://{_container.Hostname}:{_container.GetMappedPublicPort(10002)}/devstoreaccount1");
-                    return service.GetTableClient("Transactions");
-                });
+                services.AddScoped(_ => Db);
             });
         });
-    }
-
-    private async Task EnsureTransactionTableIsClearedAsync(WebApplicationFactory<Program> clientBuilder)
-    {
-        using var scope = clientBuilder.Services.CreateScope();
-        var tableClient = scope.ServiceProvider.GetRequiredService<TableClient>();
-        await tableClient.DeleteAsync();
-        await tableClient.CreateIfNotExistsAsync();
     }
 
     private HttpClient CreateClient(WebApplicationFactory<Program> clientBuilder)

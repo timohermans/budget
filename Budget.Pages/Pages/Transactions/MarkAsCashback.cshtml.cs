@@ -8,10 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel.DataAnnotations;
+using Budget.Core.Infrastructure;
 
 namespace Budget.Pages.Pages.Transactions;
 
-public class MarkAsCashbackModel(TableClient table, IMemoryCache cache, ILogger<MarkAsCashbackModel> logger, TimeProvider time) : PageModel
+public class MarkAsCashbackModel(TransactionMarkAsCashbackUseCase useCase, IMemoryCache cache, ILogger<MarkAsCashbackModel> logger, TimeProvider time) : PageModel
 {
     [BindProperty]
     public required string PartitionKey { get; set; }
@@ -46,33 +47,14 @@ public class MarkAsCashbackModel(TableClient table, IMemoryCache cache, ILogger<
         var rowKey = RowKey.ToUpper(); // because of lowercase settings in program, the rowkey gets converted to lowercase
         Date = DateTime.SpecifyKind(Date, DateTimeKind.Utc);
         var dateNextMonth = Date.AddMonths(1);
-        var transaction = table.Query<Transaction>(t => t.PartitionKey == PartitionKey && t.RowKey == rowKey).FirstOrDefault();
 
-        if (transaction != null)
+        var result = useCase.Handle(new TransactionMarkAsCashbackUseCase.Request(RowKey, PartitionKey, Date));
+        
+        if (result is SuccessResult<Transaction>)
         {
-            cache.Remove(CacheKeys.GetTransactionOverviewKey(new TransactionGetOverviewUseCase.Request { Year = transaction.DateTransaction.Year, Month = transaction.DateTransaction.Month }));
+            cache.Remove(CacheKeys.GetTransactionOverviewKey(new TransactionGetOverviewUseCase.Request { Year = result.Data.DateTransaction.Year, Month = result.Data.DateTransaction.Month }));
             cache.Remove(CacheKeys.GetTransactionOverviewKey(new TransactionGetOverviewUseCase.Request { Year = Date.Year, Month = Date.Month }));
             cache.Remove(CacheKeys.GetTransactionOverviewKey(new TransactionGetOverviewUseCase.Request { Year = dateNextMonth.Year, Month = dateNextMonth.Month })); // the income needs to be recalculated for the next month
-
-            var transactionUpdated = transaction with
-            {
-                PartitionKey = Date.ToString("yyyy-MM"),
-                CashbackForDate = Date
-            };
-
-            table.DeleteEntity(PartitionKey, rowKey);
-
-            try
-            {
-                table.AddEntity(transactionUpdated);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error while marking cashback for {Transaction} for date {Date}", transactionUpdated, Date);
-                table.AddEntity(transaction);
-            }
-
-            logger.LogInformation("Changed {Transaction} from {PartitionKey} to {NewPartitionKey} with cashback date {Date}", transaction.RowKey, PartitionKey, transactionUpdated.PartitionKey, Date);
         }
 
         return RedirectToPage("Index");

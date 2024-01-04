@@ -1,5 +1,7 @@
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using Budget.Core.Models;
+using Budget.Core.UseCases;
 using Budget.IntegrationTests.Config;
 using Budget.IntegrationTests.Helpers;
 using FakeItEasy;
@@ -46,7 +48,6 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output)
         responseUpload.Should().BeRedirection("because we should be redirected to the transaction overview page");
         responseUpload.Headers.Location.Should().Be("/transactions");
 
-        // TODO: Make another call to transaction overview, as redirect doesn't show this (use Headers as the page to get!)
         var responseDashboard = await client.GetAsync(responseUpload.Headers.Location);
 
         var dashboardDoc = await fixture.OpenHtmlOf(responseDashboard.Content);
@@ -96,4 +97,5 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output)
                 );
         }
     }
+
 }

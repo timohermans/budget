@@ -48,7 +48,7 @@ namespace Budget.Core.UseCases
                 var transaction = new Transaction
                 {
                     RowKey = $"{iban}-{followNumber}",
-                    PartitionKey = $"{dateTransaction.Year}-{dateTransaction.Month}",
+                    PartitionKey = Transaction.CreatePartitionKey(dateTransaction),
                     Iban = values.ElementAt(ibanIndex),
                     Currency = values.ElementAt(currency),
                     FollowNumber = ParseCellToInt(followNumber, followNumberIndex),

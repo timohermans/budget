@@ -27,4 +27,5 @@ public record Transaction : ITableEntity
     public bool IsFixed => !string.IsNullOrWhiteSpace(AuthorizationCode);
     public bool IsFromOtherParty(IEnumerable<string> ibansOwned) => !ibansOwned.Contains(IbanOtherParty);
     public bool IsFromOwnAccount(IEnumerable<string> ibansOwned) => ibansOwned.Contains(IbanOtherParty);
+    public static string CreatePartitionKey(DateTime dateTransaction) => $"{dateTransaction.Year}-{dateTransaction.Month}";
 }
