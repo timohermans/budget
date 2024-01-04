@@ -138,6 +138,11 @@
                     </li>
                 }
                 <li class="row">
+                    <div class="col">Uitgegeven</div>
+                    <div class="col-auto">@(Model.ExpensesPerWeek.Values.Sum())</div>
+                    <div class="col-1"></div>
+                </li>
+                <li class="row">
                     <div class="col">Over</div>
                     <div class="col-auto">@(Model.BudgetAvailable + Model.ExpensesVariable)</div>
                     <div class="col-1"></div>

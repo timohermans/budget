@@ -19,7 +19,6 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output)
         A.CallTo(() => timeProvider.GetUtcNow()).Returns(new DateTime(2023, 12, 1));
 
         // arrange upload form 
-        output.WriteLine($"{DateTime.Now.ToString("HH:mm:ss.fff")} - creating client");
         var client = await fixture.CreateAuthenticatedAppClientAsync(output, timeProvider);
 
         // act upload form
@@ -76,8 +75,8 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output)
                 .Contain("-90,75", "I need to see what I spent in week 48");
             dashboardDoc.All.First(el => el.TextContent == "Week 48 👈").ParentElement?.TextContent.Should()
                 .Contain("749,25", "I need to see what I have left in week 48");
-            // dashboardDoc.All.First(el => el.TextContent == "Uitgegeven").ParentElement?.TextContent.Should()
-            //     .Contain("90,75", "I need to see what I spent in total"); // TODO: is nog niet geimplementeerd
+            dashboardDoc.All.First(el => el.TextContent == "Uitgegeven").ParentElement?.TextContent.Should()
+                .Contain("-90,75", "I need to see what I spent in total"); 
             dashboardDoc.All.First(el => el.TextContent == "Over").ParentElement?.TextContent.Should()
                 .Contain("4109,25", "I need to see what total budget I have left");
 
@@ -89,7 +88,5 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output)
                         .Contain("NL12INGB00044444")
                 );
         }
-
-        output.WriteLine($"{DateTime.Now.ToString("HH:mm:ss.fff")} - done");
     }
 }
