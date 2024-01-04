@@ -50,6 +50,8 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output)
         var responseDashboard = await client.GetAsync(responseUpload.Headers.Location);
 
         var dashboardDoc = await fixture.OpenHtmlOf(responseDashboard.Content);
+        
+        output.WriteLine(dashboardDoc.Body?.InnerHtml);
 
         using (new AssertionScope("Dashboard data"))
         {
@@ -61,30 +63,35 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output)
                 .Contain("2023-12", "I need to see the current month");
             dashboardDoc.QuerySelector("[href='/transactions/upload']").Should()
                 .NotBeNull("I need to be able to upload new transactions");
-            dashboardDoc.All.First(el => el.TextContent == "Inkomen").ParentElement?.TextContent.Should()
+            dashboardDoc.All.First(el => el.TextContent == "Inkomen").Closest("li")?.TextContent.Should()
                 .Contain("6000", "I need to see the income from last month");
-            dashboardDoc.All.First(el => el.TextContent == "Lasten").ParentElement?.TextContent.Should()
+            dashboardDoc.All.First(el => el.TextContent == "Lasten").Closest("li")?.TextContent.Should()
                 .Contain("1800", "I need to see the fixed expenses from last month");
-            dashboardDoc.All.First(el => el.TextContent == "Budget").ParentElement?.TextContent.Should()
+            dashboardDoc.All.First(el => el.TextContent == "Budget").Closest("li")?.TextContent.Should()
                 .Contain("4200", "I need to see the budget for this month");
-            dashboardDoc.All.First(el => el.TextContent == "Weken").ParentElement?.TextContent.Should()
+            dashboardDoc.All.First(el => el.TextContent == "Weken").Closest("li")?.TextContent.Should()
                 .Contain("5", "I need to see how many weeks there are in December");
-            dashboardDoc.All.First(el => el.TextContent == "Budget per week").ParentElement?.TextContent.Should()
+            dashboardDoc.All.First(el => el.TextContent == "Budget per week").Closest("li")?.TextContent.Should()
                 .Contain("840", "I need to see the budget per week");
-            dashboardDoc.All.First(el => el.TextContent == "Week 48 👈").ParentElement?.TextContent.Should()
+            dashboardDoc.All.First(el => el.TextContent == "Week 48 👈").Closest("li")?.TextContent.Should()
                 .Contain("-90,75", "I need to see what I spent in week 48");
-            dashboardDoc.All.First(el => el.TextContent == "Week 48 👈").ParentElement?.TextContent.Should()
+            dashboardDoc.All.First(el => el.TextContent == "Week 48 👈").Closest("li")?.TextContent.Should()
                 .Contain("749,25", "I need to see what I have left in week 48");
-            dashboardDoc.All.First(el => el.TextContent == "Uitgegeven").ParentElement?.TextContent.Should()
-                .Contain("-90,75", "I need to see what I spent in total"); 
-            dashboardDoc.All.First(el => el.TextContent == "Over").ParentElement?.TextContent.Should()
-                .Contain("4109,25", "I need to see what total budget I have left");
+            dashboardDoc.All.First(el => el.TextContent == "Week 49").Closest("li")?.TextContent.Should()
+                .Contain("-80,75", "I need to see what I spent in week 49");
+            dashboardDoc.All.First(el => el.TextContent == "Uitgegeven").Closest("li")?.TextContent.Should()
+                .Contain("-171,50", "I need to see what I spent in total"); 
+            dashboardDoc.All.First(el => el.TextContent == "Over").Closest("li")?.TextContent.Should()
+                .Contain("4028,50", "I need to see what total budget I have left");
 
-            dashboardDoc.QuerySelectorAll("tbody tr").Should().HaveCount(2)
+            dashboardDoc.QuerySelectorAll("tbody tr").Should().HaveCount(4)
                 .And
                 .SatisfyRespectively(
                     row => row.TextContent.Should().Contain("Week 48"),
                     row => row.TextContent.Should().Contain("-90,75").And.Contain("Albert Heijn").And
+                        .Contain("NL12INGB00044444"),
+                    row => row.TextContent.Should().Contain("Week 49"),
+                    row => row.TextContent.Should().Contain("-80,75").And.Contain("Albert Heijn").And
                         .Contain("NL12INGB00044444")
                 );
         }

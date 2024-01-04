@@ -14,12 +14,11 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
     {
         // Arrange
         var logger = new XunitLogger<TransactionFileUploadUseCase>(output);
-        output.WriteLine($"{DateTime.Now.ToString("HH:mm:ss.fff")} - creating client");
         var client = await fixture.CreateTableClientAsync();
         var useCase = new TransactionFileUploadUseCase(client, logger);
 
         // Act
-        await useCase.HandleAsync(File.OpenRead("Data/transactions-2.csv"));
+        await useCase.HandleAsync(File.OpenRead("Data/transactions-1.csv"));
 
         // Assert
         var transactions = client.Query<Transaction>().ToList();
@@ -75,7 +74,5 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
                      && t.IsFixed == false
                      && t.IsIncome == false
                      && t.Description == "Betaalautomaat 2023-11-xx");
-        
-        output.WriteLine($"{DateTime.Now.ToString("HH:mm:ss.fff")} - done");
     }
 }
