@@ -1,0 +1,3 @@
+"IBAN/BBAN","Munt","BIC","Volgnr","Datum","Rentedatum","Bedrag","Saldo na trn","Tegenrekening IBAN/BBAN","Naam tegenpartij","Naam uiteindelijke partij","Naam initi�rende partij","BIC tegenpartij","Code","Batch ID","Transactiereferentie",Machtigingskenmerk,"Incassant ID","Betalingskenmerk","Omschrijving-1","Omschrijving-2","Omschrijving-3","Reden retour","Oorspr bedrag","Oorspr munt","Koers"
+"NL11RABO0104946666","EUR","RABONL2U","000000000000012112","2024-01-02","2024-01-02","-177,00","-200","NL12INGB00044444","Coolblue",,,"INGBNL2A","id",,,,,,"Paypal",,,,,,
+"NL11RABO0104946666","EUR","RABONL2U","000000000000012113","2024-01-04","2024-01-04","+100,00","-200","NL11RABO0104947777","Hermans T.M.",,,"RABO0NL2A","id",,,,,,"Geld oordopjes",,,,,,
