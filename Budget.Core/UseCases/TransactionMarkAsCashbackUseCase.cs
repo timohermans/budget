@@ -38,6 +38,7 @@ public class TransactionMarkAsCashbackUseCase(TableClient table, ILogger<Transac
         {
             transactionUpdated = transaction with
             {
+                PartitionKey = Transaction.CreatePartitionKey(transaction.DateTransaction),
                 CashbackForDate = null
             };
         }
