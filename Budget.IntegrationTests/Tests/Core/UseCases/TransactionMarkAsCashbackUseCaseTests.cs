@@ -43,20 +43,21 @@ public class TransactionMarkAsCashbackUseCaseTests(TestFixture fixture, ITestOut
     {
         var db = await fixture.CreateTableClientAsync();
         var date = new DateTime(2024, 1, 5, 0, 0, 0, DateTimeKind.Utc);
+        var cashbackDate = new DateTime(2023, 12, 10, 0, 0, 0, DateTimeKind.Utc);
         var transactionToUnmark = new Transaction
         {
             Currency = "EUR",
             Iban = "NL22RABO0101044666",
             DateTransaction = date,
             FollowNumber = 1121,
-            PartitionKey = Transaction.CreatePartitionKey(date),
+            PartitionKey = Transaction.CreatePartitionKey(cashbackDate),
             RowKey = "NL22RABO0101044666-1121",
             Amount = 151,
             Description = "Cambrium Tweak BV",
             IbanOtherParty = "NL33INGB0000000000",
             AuthorizationCode = "CODE66",
             BalanceAfterTransaction = 1000,
-            CashbackForDate = date,
+            CashbackForDate = cashbackDate,
             NameOtherParty = "Cambrium BV",
         };
         await db.AddEntityAsync(transactionToUnmark);
@@ -72,6 +73,8 @@ public class TransactionMarkAsCashbackUseCaseTests(TestFixture fixture, ITestOut
         var transaction = db.Query<Transaction>(q => q.RowKey == transactionToUnmark.RowKey).First();
 
         transaction.Should().NotBeNull();
+        transaction.PartitionKey.Should().Be(Transaction.CreatePartitionKey(date),
+            "the partition key decides in which month the transaction is shown");
         transaction.CashbackForDate.Should().BeNull();
     }
 }
