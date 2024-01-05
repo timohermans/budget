@@ -10,18 +10,20 @@
         <form class="row align-items-center gap-2" method="post"
               hx-post="@Url.Page("MarkAsCashback")"
               hx-target="body">
-            <input type="hidden" asp-for="RowKey" />
-            <input type="hidden" asp-for="PartitionKey" />
-            <div class="col-auto"><label>Terugbetaling voor</label></div>
+            <input type="hidden" asp-for="RowKey"/>
+            <input type="hidden" asp-for="PartitionKey"/>
             <div class="col-auto">
-                <input class="form-control" placeholder="Terugbetaling voor..." asp-for="Date" value="@Model.Date.ToString("yyyy/MM/dd")" />
+                <label>Terugbetaling voor</label>
+            </div>
+            <div class="col-auto">
+                <input class="form-control" placeholder="Terugbetaling voor..." asp-for="Date" value="@(Model.Date.HasValue ? Model.Date.Value.ToString("yyyy/MM/dd") : "")"/>
             </div>
             <div class="col-auto">
                 <span asp-validation-for="Date" class="text-danger"></span>
             </div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-success">
-                    <partial name="_LoadingSpinner" />
+                    <partial name="_LoadingSpinner"/>
                     <i class="bi bi-send htmx-indicator-hide"></i>
                 </button>
             </div>
@@ -35,4 +37,3 @@
         </form>
     </td>
 </tr>
-

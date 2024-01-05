@@ -191,7 +191,7 @@
                                         <ul class="dropdown-menu">
                                             <li>
                                                 <button type="button" class="dropdown-item icon-link align-items-center"
-                                                hx-get="@Url.Page("MarkAsCashback", new { transaction.RowKey, transaction.PartitionKey, Date = transaction.DateTransaction })"
+                                                hx-get="@Url.Page("MarkAsCashback", new { transaction.RowKey, transaction.PartitionKey, Date = transaction.CashbackForDate })"
                                                 hx-target="closest tr"
                                                 hx-swap="afterend">
                                                     <div><i class="bi bi-sign-turn-left"></i></div> <span>Als terugbetaling markeren</span>
