@@ -12,7 +12,7 @@ using Budget.Core.Infrastructure;
 
 namespace Budget.Pages.Pages.Transactions;
 
-public class MarkAsCashbackModel(TransactionMarkAsCashbackUseCase useCase, IMemoryCache cache, ILogger<MarkAsCashbackModel> logger, TimeProvider time) : PageModel
+public class MarkAsCashbackModel(TransactionMarkAsCashbackUseCase useCase, IMemoryCache cache) : PageModel
 {
     [BindProperty]
     public required string PartitionKey { get; set; }
@@ -20,7 +20,7 @@ public class MarkAsCashbackModel(TransactionMarkAsCashbackUseCase useCase, IMemo
     public required string RowKey { get; set; }
     [BindProperty]
     [DataType(DataType.Date)]
-    public required DateTime Date { get; set; }
+    public DateTime? Date { get; set; }
 
 
     public IActionResult OnGet(string? partitionKey, string? rowKey, DateTime? date)
@@ -30,9 +30,9 @@ public class MarkAsCashbackModel(TransactionMarkAsCashbackUseCase useCase, IMemo
             return new EmptyResult();
         }
 
-        Date = date.GetValueOrDefault(time.GetUtcNow().Date);
         RowKey = rowKey;
         PartitionKey = partitionKey;
+        Date = date;
 
         return Page();
     }
@@ -45,15 +45,15 @@ public class MarkAsCashbackModel(TransactionMarkAsCashbackUseCase useCase, IMemo
             return Page();
         }
         var rowKey = RowKey.ToUpper(); // because of lowercase settings in program, the rowkey gets converted to lowercase
-        Date = DateTime.SpecifyKind(Date, DateTimeKind.Utc);
-        var dateNextMonth = Date.AddMonths(1);
 
         var result = useCase.Handle(new TransactionMarkAsCashbackUseCase.Request(RowKey, PartitionKey, Date));
+        Date = DateTime.SpecifyKind(Date ?? result.Data.DateTransaction, DateTimeKind.Utc);
+        var dateNextMonth = Date.Value.AddMonths(1);
         
         if (result is SuccessResult<Transaction>)
         {
             cache.Remove(CacheKeys.GetTransactionOverviewKey(new TransactionGetOverviewUseCase.Request { Year = result.Data.DateTransaction.Year, Month = result.Data.DateTransaction.Month }));
-            cache.Remove(CacheKeys.GetTransactionOverviewKey(new TransactionGetOverviewUseCase.Request { Year = Date.Year, Month = Date.Month }));
+            cache.Remove(CacheKeys.GetTransactionOverviewKey(new TransactionGetOverviewUseCase.Request { Year = Date.Value.Year, Month = Date.Value.Month }));
             cache.Remove(CacheKeys.GetTransactionOverviewKey(new TransactionGetOverviewUseCase.Request { Year = dateNextMonth.Year, Month = dateNextMonth.Month })); // the income needs to be recalculated for the next month
         }
 

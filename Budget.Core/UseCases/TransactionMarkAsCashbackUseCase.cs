@@ -7,7 +7,7 @@ namespace Budget.Core.UseCases;
 
 public class TransactionMarkAsCashbackUseCase(TableClient table, ILogger<TransactionMarkAsCashbackUseCase> logger)
 {
-    public record Request(string RowKey, string PartitionKey, DateTime Date);
+    public record Request(string RowKey, string PartitionKey, DateTime? Date);
 
     public record Response(Transaction transaction);
 
@@ -24,11 +24,24 @@ public class TransactionMarkAsCashbackUseCase(TableClient table, ILogger<Transac
             return new ErrorResult<Transaction>("Transaction not found");
         }
 
-        var transactionUpdated = transaction with
+        Transaction transactionUpdated;
+
+        if (request.Date.HasValue)
         {
-            PartitionKey = Transaction.CreatePartitionKey(request.Date),
-            CashbackForDate = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc)
-        };
+            transactionUpdated = transaction with
+            {
+                PartitionKey = Transaction.CreatePartitionKey(request.Date.Value),
+                CashbackForDate = DateTime.SpecifyKind(request.Date.Value, DateTimeKind.Utc)
+            };
+        }
+        else
+        {
+            transactionUpdated = transaction with
+            {
+                PartitionKey = Transaction.CreatePartitionKey(transaction.DateTransaction),
+                CashbackForDate = null
+            };
+        }
 
         table.DeleteEntity(request.PartitionKey, rowKey);
 
@@ -48,6 +61,6 @@ public class TransactionMarkAsCashbackUseCase(TableClient table, ILogger<Transac
             "Changed {Transaction} from {PartitionKey} to {NewPartitionKey} with cashback date {request.Date}",
             transaction.RowKey, request.PartitionKey, transactionUpdated.PartitionKey, request.Date);
 
-        return new SuccessResult<Transaction>(transaction);
+        return new SuccessResult<Transaction>(transactionUpdated);
     }
 }
