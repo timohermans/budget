@@ -24,6 +24,7 @@ public class TransactionGetOverviewUseCase(TableClient table)
         public required List<int> WeeksInMonth { get; init; }
         public required decimal ExpensesVariable { get; init; }
         public required Dictionary<int, decimal> ExpensesPerWeek { get; init; }
+        public required Dictionary<string, decimal> BalancePerAccount { get; init; }
         public required decimal IncomeFromOwnAccounts { get; init; }
         public required Dictionary<int, List<Transaction>> TransactionsPerWeek { get; init; }
     }
@@ -64,6 +65,7 @@ public class TransactionGetOverviewUseCase(TableClient table)
         decimal incomeLastMonth = 0;
         decimal expensesFixedLastMonth = 0;
         var expensesPerWeek = new Dictionary<int, decimal>();
+        var balancePerAccount = new Dictionary<string, decimal>();
         decimal incomeFromOwnAccounts = 0;
         decimal expensesVariable = 0;
 
@@ -86,9 +88,15 @@ public class TransactionGetOverviewUseCase(TableClient table)
                 expensesFixedLastMonth += amount;
             }
 
-            if (isThisMonth && !expensesPerWeek.ContainsKey(week))
+            if (isThisMonth)
             {
-                expensesPerWeek.Add(week, 0);
+                expensesPerWeek.TryAdd(week, 0);
+            }
+
+            if (isThisMonth && transaction.IbanOtherParty != null && transaction.IsFromOwnAccount(ibans))
+            {
+                balancePerAccount.TryAdd(transaction.IbanOtherParty, 0);
+                balancePerAccount[transaction.IbanOtherParty] += amount;
             }
 
             if (isThisMonth && transaction.IsIncome && transaction.IsFromOwnAccount(ibans) && transaction.CashbackForDate == null)
@@ -126,7 +134,8 @@ public class TransactionGetOverviewUseCase(TableClient table)
             ExpensesVariable = expensesVariable,
             ExpensesPerWeek = expensesPerWeek,
             IncomeFromOwnAccounts = incomeFromOwnAccounts,
-            TransactionsPerWeek = transactionsPerWeek
+            TransactionsPerWeek = transactionsPerWeek,
+            BalancePerAccount = balancePerAccount
         };
     }
 
