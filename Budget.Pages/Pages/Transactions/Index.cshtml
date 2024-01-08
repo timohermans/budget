@@ -28,7 +28,10 @@
         </div>
 
         <div>
-            Hello, @HttpContext.User.Identity?.Name (<form class="d-inline" method="post" asp-page="/Account/Logout"><button type="submit" class="btn btn-link p-0">Logout</button></form>)
+            Hello, @HttpContext.User.Identity?.Name (
+            <form class="d-inline" method="post" asp-page="/Account/Logout">
+                <button type="submit" class="btn btn-link p-0">Logout</button>
+            </form>)
         </div>
     </div>
 </nav>
@@ -52,8 +55,8 @@
             </a>
         </div>
         <form x-data="{}" method="get" class="col">
-            <input type="hidden" name="year" value="@Model.Date.Year" />
-            <input type="hidden" name="month" value="@Model.Date.Month" />
+            <input type="hidden" name="year" value="@Model.Date.Year"/>
+            <input type="hidden" name="month" value="@Model.Date.Month"/>
             <div class="form-floating">
                 <select name="iban" asp-items="Model.IbansToSelect" class="form-select" x-on:change="$event.target.form.submit()">
                 </select>
@@ -116,7 +119,7 @@
                     var isLast = index == Model.WeeksInMonth.Count - 1;
                     var expenseOfWeek = Model.ExpensesPerWeek.GetValueOrDefault(week, 0);
 
-                    <li class="row @(isLast ? "border-bottom pb-1": "")">
+                    <li class="row @(isLast ? "border-bottom pb-1" : "")">
                         <div class="col">Week <a href="#week@(week)">@week</a> @(Model.IsThisWeek(week) ? "👈" : "")</div>
                         <div class="col-auto">
                             <span class="badge text-bg-light">
@@ -147,13 +150,24 @@
                     <div class="col-auto">@(Model.BudgetAvailable + Model.ExpensesVariable)</div>
                     <div class="col-1"></div>
                 </li>
-                <li class="row">
-                    <div class="col">Van eigen rekening</div>
+                <li class="row" data-bs-toggle="collapse" data-bs-target=".balanceOther" aria-expanded="false" aria-controls="balanceOther">
+                    <div class="col">Spaarmeter</div>
                     <div class="col-auto">
-                        <span class="badge text-bg-@(Model.IncomeFromOwnAccounts == 0 ? "light" : "danger")">@(Model.IncomeFromOwnAccounts)</span>
+                        @{ var totalBalance = Model.BalancePerAccount.Values.Sum() * -1; }
+                        <span class="badge text-bg-@(totalBalance > 0 ? "success" : "danger")">@totalBalance</span>
                     </div>
                     <div class="col-1"></div>
                 </li>
+                @foreach (var balanceKvp in Model.BalancePerAccount)
+                {
+                    <li class="row collapse balanceOther">
+                        <div class="col">@balanceKvp.Key</div>
+                        <div class="col-auto">
+                            <span class="badge text-bg-@(balanceKvp.Value * -1 > 0 ? "success" : "danger")">@(balanceKvp.Value * -1)</span>
+                        </div>
+                        <div class="col-1"></div>
+                    </li>
+                }
             </ul>
         </div>
     </section>
@@ -162,67 +176,69 @@
         <h2>Transacties</h2>
         <table class="table">
             <thead>
-                <tr>
-                    <th></th>
-                    <th>Datum</th>
-                    <th>Naam</th>
-                    <th>Bedrag</th>
-                    <th>Is vast</th>
-                    <th>Omschrijving</th>
-                </tr>
+            <tr>
+                <th></th>
+                <th>Datum</th>
+                <th>Naam</th>
+                <th>Bedrag</th>
+                <th>Is vast</th>
+                <th>Omschrijving</th>
+            </tr>
             </thead>
             <tbody>
-                @foreach (var weekKvp in Model.TransactionsPerWeek)
+            @foreach (var weekKvp in Model.TransactionsPerWeek)
+            {
+                <tr id="week@(weekKvp.Key)">
+                    <td class="fw-bold fst-italic" colspan="6">Week @weekKvp.Key</td>
+                </tr>
+
+                @foreach (var transaction in weekKvp.Value)
                 {
-                    <tr id="week@(weekKvp.Key)">
-                        <td class="fw-bold fst-italic" colspan="6">Week @weekKvp.Key</td>
-                    </tr>
-
-                    @foreach (var transaction in weekKvp.Value)
-                    {
-                        <tr class="align-middle">
-                            <td>
-                                @if (transaction.Amount > 0)
-                                {
-                                    <div class="btn-group">
-                                        <button type="button" class="btn dropdown-toggle dropdown-toggle-no-arrow" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li>
-                                                <button type="button" class="dropdown-item icon-link align-items-center"
-                                                hx-get="@Url.Page("MarkAsCashback", new { transaction.RowKey, transaction.PartitionKey, Date = transaction.CashbackForDate })"
-                                                hx-target="closest tr"
-                                                hx-swap="afterend">
-                                                    <div><i class="bi bi-sign-turn-left"></i></div> <span>Als terugbetaling markeren</span>
-                                                </button>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                }
-                            </td>
-                            <td>@transaction.DateTransaction.ToShortDateString()</td>
-                            <td>@transaction.NameOtherParty</td>
-                            <td class="text-center">
-                                <span class="badge text-bg-@(transaction.Amount < 0 ? "danger" : "success")">
-                                    @transaction.Amount
-                                </span>
-                            </td>
-                            <td>
-                                <span>@(string.IsNullOrWhiteSpace(transaction.AuthorizationCode) ? "" : "🔒")</span>
-
-                                @if (transaction.CashbackForDate != null)
-                                {
-                                    <button type="button" class="btn" data-bs-toggle="popover" data-bs-content="Cashback voor datum: @(transaction?.CashbackForDate?.ToShortDateString())" data-bs-placement="top">
-                                        <i class="bi bi-sign-turn-left"></i>
+                    <tr class="align-middle">
+                        <td>
+                            @if (transaction.Amount > 0)
+                            {
+                                <div class="btn-group">
+                                    <button type="button" class="btn dropdown-toggle dropdown-toggle-no-arrow" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
                                     </button>
-                                }
-                            </td>
-                            <td>@transaction?.Description</td>
-                            <td>@transaction?.IbanOtherParty -> @transaction?.Iban</td>
-                        </tr>
-                    }
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <button type="button" class="dropdown-item icon-link align-items-center"
+                                                    hx-get="@Url.Page("MarkAsCashback", new { transaction.RowKey, transaction.PartitionKey, Date = transaction.CashbackForDate })"
+                                                    hx-target="closest tr"
+                                                    hx-swap="afterend">
+                                                <div>
+                                                    <i class="bi bi-sign-turn-left"></i>
+                                                </div> <span>Als terugbetaling markeren</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
+                        </td>
+                        <td>@transaction.DateTransaction.ToShortDateString()</td>
+                        <td>@transaction.NameOtherParty</td>
+                        <td class="text-center">
+                            <span class="badge text-bg-@(transaction.Amount < 0 ? "danger" : "success")">
+                                @transaction.Amount
+                            </span>
+                        </td>
+                        <td>
+                            <span>@(string.IsNullOrWhiteSpace(transaction.AuthorizationCode) ? "" : "🔒")</span>
+
+                            @if (transaction.CashbackForDate != null)
+                            {
+                                <button type="button" class="btn" data-bs-toggle="popover" data-bs-content="Cashback voor datum: @(transaction?.CashbackForDate?.ToShortDateString())" data-bs-placement="top">
+                                    <i class="bi bi-sign-turn-left"></i>
+                                </button>
+                            }
+                        </td>
+                        <td>@transaction?.Description</td>
+                        <td>@transaction?.IbanOtherParty -> @transaction?.Iban</td>
+                    </tr>
                 }
+            }
             </tbody>
         </table>
     </section>

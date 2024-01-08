@@ -31,6 +31,7 @@ public class IndexModel(
     public List<int> WeeksInMonth { get; set; } = [];
     public decimal ExpensesVariable { get; set; }
     public Dictionary<int, decimal> ExpensesPerWeek { get; set; } = [];
+    public Dictionary<string, decimal> BalancePerAccount { get; set; }
     public decimal IncomeFromOwnAccounts { get; set; }
     public Dictionary<int, List<Transaction>> TransactionsPerWeek { get; set; } = [];
 
@@ -66,6 +67,7 @@ public class IndexModel(
         IbansToSelect = result.IbansToSelect.Select(ib => new SelectListItem(ib, ib, ib == Iban)).ToList();
         WeeksInMonth = result.WeeksInMonth;
         TransactionsPerWeek = result.TransactionsPerWeek;
+        BalancePerAccount = result.BalancePerAccount;
 
         logger.LogInformation("Loaded {Iban}'s transactions of {Date}", this.Iban, Date);
 
