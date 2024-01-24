@@ -4,6 +4,7 @@ using ArchUnitNET.Fluent;
 
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 using ArchUnitNET.xUnit;
+using Azure.Data.Tables;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 
@@ -18,30 +19,40 @@ public class LayeringTests
 
     //declare variables you'll use throughout your tests up here
     //use As() to give them a custom description
-    private readonly IObjectProvider<IType> PresentationLayer =
+    private readonly IObjectProvider<IType> _presentationLayer =
         Types().That().ResideInAssembly("Budget.Pages.Pages.*", true).As("Presentation Layer");
 
-    private readonly IObjectProvider<Class> PageModels =
+    private readonly IObjectProvider<Class> _pageModels =
         Classes().That().ImplementInterface(nameof(PageModel)).As(nameof(PageModel));
 
-    private readonly IObjectProvider<Class> UseCases =
+    private readonly IObjectProvider<Class> _useCases =
         Classes().That().HaveNameEndingWith("UseCase").As("Use cases");
 
-    private readonly IObjectProvider<IType> CoreLayer =
+    private readonly IObjectProvider<IType> _coreLayer =
         Types().That().ResideInNamespace("Budget.Core.UseCases.*", true).As("Core Layer");
 
-    private readonly IObjectProvider<Interface> ForbiddenInterfaces =
+    private readonly IObjectProvider<Interface> _forbiddenInterfaces =
         Interfaces().That().HaveFullNameContaining("forbidden").As("Forbidden Interfaces");
 
 
     [Fact]
     public void Types_should_be_in_correct_layer()
     {
-        var useCaseRule = Classes().That().Are(UseCases).Should().Be(CoreLayer);
-        var tableClientRule = Classes().That().Are(PageModels).Should().Be(PresentationLayer);
+        var useCaseRule = Classes().That().Are(_useCases).Should().Be(_coreLayer);
+        var tableClientRule = Classes().That().Are(_pageModels).Should().Be(_presentationLayer);
 
         IArchRule rules =  useCaseRule.And(tableClientRule);
 
         rules.Check(Architecture);
+    }
+
+    [Fact]
+    public void Use_cases_should_only_use_the_table_client()
+    {
+        var rule = Types().That().AreNot(_useCases)
+            .Should().NotDependOnAny(typeof(TableClient))
+            .Because("Only use cases should use the table client to query");
+
+        rule.Check(Architecture);
     }
 }
