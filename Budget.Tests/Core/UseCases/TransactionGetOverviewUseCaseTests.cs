@@ -3,6 +3,7 @@ using Azure;
 using Azure.Data.Tables;
 using Budget.Core.Models;
 using Budget.Core.UseCases;
+using Budget.Core.UseCases.Transactions.Overview;
 using Budget.Tests.Helpers;
 using FakeItEasy;
 
@@ -11,7 +12,7 @@ namespace Budget.Tests.Core.UseCases;
 public class TransactionGetOverviewUseCaseTests
 {
     [Fact]
-    public void Keeps_check_of_how_much_each_own_account_saved()
+    public async Task Keeps_check_of_how_much_each_own_account_saved()
     {
         var paymentIban = "NL22OWN01010100";
         var savingsIban = "NL33OWN01010100";
@@ -54,9 +55,9 @@ public class TransactionGetOverviewUseCaseTests
         A.CallTo(() => tableClientMock.Query(A<Expression<Func<Transaction, bool>>>._, A<int?>._, A<IEnumerable<string>>._, A<CancellationToken>._))
             .Returns(transactions.ToPageable());
 
-        var useCase = new TransactionGetOverviewUseCase(tableClientMock);
+        var useCase = new UseCase(tableClientMock);
 
-        var actual = useCase.Handle(new TransactionGetOverviewUseCase.Request
+        var actual = await useCase.HandleAsync(new Request
         {
             Iban = paymentIban,
             Month = date.Month,

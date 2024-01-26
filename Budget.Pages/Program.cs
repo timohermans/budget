@@ -1,6 +1,7 @@
 using Azure.Data.Tables;
 using Budget.Core.Constants;
 using Budget.Core.Infrastructure;
+using Budget.Core.UseCases.Transactions.FileEtl;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 
@@ -14,7 +15,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie();
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy(AuthConstants.TwoFactorLoginPolicy, policy => policy.RequireClaim(AuthConstants.TwoFactorLoginPolicy, "2fa"));
+    .AddPolicy(AuthConstants.TwoFactorLoginPolicy,
+        policy => policy.RequireClaim(AuthConstants.TwoFactorLoginPolicy, "2fa"));
 
 // Culture settings
 builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -40,9 +42,13 @@ builder.Services.Configure<RouteOptions>(options =>
 
 builder.Services.AddSingleton<LoginThrottler>();
 
+
 // Add UseCases
-typeof(Budget.Core.UseCases.TransactionFileUploadUseCase).Assembly.GetTypes()
-    .Where(t => t.Namespace == "Budget.Core.UseCases")
+var coreTypes = typeof(UseCase).Assembly.GetTypes();
+var useCaseTypes = coreTypes
+    .Where(t => t.Namespace != null && t.Namespace.Contains("Budget.Core.UseCases"))
+    .ToList();
+useCaseTypes
     .Where(t => t.Name.EndsWith("UseCase"))
     .ToList()
     .ForEach(t => builder.Services.AddScoped(t));
@@ -86,4 +92,6 @@ app.MapRazorPages();
 
 app.Run();
 
-public partial class Program { }
+public partial class Program
+{
+}

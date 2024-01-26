@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel;
+using Budget.Core.UseCases.Transactions.Overview;
+using UseCase = Budget.Core.UseCases.Transactions.FileEtl.UseCase;
 
 namespace Budget.Pages.Pages.Transactions
 {
-    public class UploadModel(TransactionFileUploadUseCase useCase, IMemoryCache cache) : PageModel
+    public class UploadModel(UseCase useCase, IMemoryCache cache) : PageModel
     {
         public static string TmpAmountInsertedKey = nameof(UploadModel) + "_AmountInserted";
         public static string TmpAmountMinDateKey = nameof(UploadModel) + "_MinDate";
@@ -39,7 +41,7 @@ namespace Budget.Pages.Pages.Transactions
                 .ToList()
                 .ForEach(pair =>
                 {
-                    var cacheKey = CacheKeys.GetTransactionOverviewKey(new TransactionGetOverviewUseCase.Request
+                    var cacheKey = CacheKeys.GetTransactionOverviewKey(new Request
                     {
                         Year = pair.Year,
                         Month = pair.Month

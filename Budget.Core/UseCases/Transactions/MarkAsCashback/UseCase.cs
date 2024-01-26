@@ -3,14 +3,10 @@ using Budget.Core.Infrastructure;
 using Budget.Core.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Budget.Core.UseCases;
+namespace Budget.Core.UseCases.Transactions.MarkAsCashback;
 
-public class TransactionMarkAsCashbackUseCase(TableClient table, ILogger<TransactionMarkAsCashbackUseCase> logger)
+public class UseCase(TableClient table, ILogger<UseCase> logger)
 {
-    public record Request(string RowKey, string PartitionKey, DateTime? Date);
-
-    public record Response(Transaction transaction);
-
     public Result<Transaction> Handle(Request request)
     {
         var rowKey =

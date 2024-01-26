@@ -1,5 +1,6 @@
 using Budget.Core.Models;
 using Budget.Core.UseCases;
+using Budget.Core.UseCases.Transactions.FileEtl;
 using Budget.IntegrationTests.Config;
 using Budget.IntegrationTests.Helpers;
 using Xunit.Abstractions;
@@ -13,9 +14,9 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
     public async Task Saves_transactions_successfully_in_the_table()
     {
         // Arrange
-        var logger = new XunitLogger<TransactionFileUploadUseCase>(output);
+        var logger = new XunitLogger<UseCase>(output);
         var client = await fixture.CreateTableClientAsync();
-        var useCase = new TransactionFileUploadUseCase(client, logger);
+        var useCase = new UseCase(client, logger);
 
         // Act
         await useCase.HandleAsync(File.OpenRead("Data/transactions-1.csv"));

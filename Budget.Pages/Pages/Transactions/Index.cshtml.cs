@@ -9,11 +9,12 @@ using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel;
 using System.Globalization;
 using Budget.Core.Extensions;
+using Budget.Core.UseCases.Transactions.Overview;
 
 namespace Budget.Pages.Pages.Transactions;
 
 public class IndexModel(
-    TransactionGetOverviewUseCase useCase,
+    UseCase useCase,
     ILogger<IndexModel> logger,
     IMemoryCache cache,
     TimeProvider timeProvider) : PageModel
@@ -35,13 +36,13 @@ public class IndexModel(
     public decimal IncomeFromOwnAccounts { get; set; }
     public Dictionary<int, List<Transaction>> TransactionsPerWeek { get; set; } = [];
 
-    public void OnGet(int? year, int? month, string? iban)
+    public async Task OnGetAsync(int? year, int? month, string? iban)
     {
         logger.LogInformation("Loading {Iban}'s transactions of {Date}", iban, $"{year}-{month}");
 
         var now = timeProvider.GetUtcNow().DateTime;
         
-        var request = new TransactionGetOverviewUseCase.Request
+        var request = new Request
         {
             Year = year ?? now.Year,
             Month = month ?? now.Month,
@@ -49,9 +50,9 @@ public class IndexModel(
         };
         var cacheKey = CacheKeys.GetTransactionOverviewKey(request);
 
-        if (!cache.TryGetValue(cacheKey, out TransactionGetOverviewUseCase.Response? result))
+        if (!cache.TryGetValue(cacheKey, out Response? result))
         {
-            result = useCase.Handle(request);
+            result = await useCase.HandleAsync(request);
             cache.Set(cacheKey, result, new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromMinutes(5) });
         }
 

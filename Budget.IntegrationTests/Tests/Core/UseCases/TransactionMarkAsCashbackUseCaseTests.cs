@@ -1,6 +1,8 @@
 using Budget.Core.Infrastructure;
 using Budget.Core.Models;
 using Budget.Core.UseCases;
+using Budget.Core.UseCases.Transactions.MarkAsCashback;
+using FileEtl = Budget.Core.UseCases.Transactions.FileEtl;
 using Budget.IntegrationTests.Config;
 using Budget.IntegrationTests.Helpers;
 using FakeItEasy;
@@ -18,16 +20,16 @@ public class TransactionMarkAsCashbackUseCaseTests(TestFixture fixture, ITestOut
         A.CallTo(() => timeProvider.GetUtcNow()).Returns(new DateTime(2023, 12, 1));
         var db = await fixture.CreateTableClientAsync();
 
-        await new TransactionFileUploadUseCase(db, new XunitLogger<TransactionFileUploadUseCase>(output))
+        await new FileEtl.UseCase(db, new XunitLogger<FileEtl.UseCase>(output))
             .HandleAsync(File.OpenRead("Data/transactions-3.csv"));
 
         var transactionToMark = db.Query<Transaction>(q => q.Amount == 100).First();
 
         transactionToMark.PartitionKey.Should().Be("2024-1");
 
-        var result = new TransactionMarkAsCashbackUseCase(db, new XunitLogger<TransactionMarkAsCashbackUseCase>(output))
+        var result = new UseCase(db, new XunitLogger<UseCase>(output))
             .Handle(
-                new TransactionMarkAsCashbackUseCase.Request(transactionToMark.RowKey,
+                new Request(transactionToMark.RowKey,
                     transactionToMark.PartitionKey,
                     new DateTime(2024, 1, 2)));
 
@@ -62,11 +64,10 @@ public class TransactionMarkAsCashbackUseCaseTests(TestFixture fixture, ITestOut
         };
         await db.AddEntityAsync(transactionToUnmark);
 
-        var actual = new TransactionMarkAsCashbackUseCase(db, new XunitLogger<TransactionMarkAsCashbackUseCase>(output))
-            .Handle(
-                new TransactionMarkAsCashbackUseCase.Request(transactionToUnmark.RowKey,
-                    transactionToUnmark.PartitionKey,
-                    null));
+        var actual = new UseCase(db, new XunitLogger<UseCase>(output))
+            .Handle(new Request(transactionToUnmark.RowKey,
+                transactionToUnmark.PartitionKey,
+                null));
 
         actual.Should().BeAssignableTo<SuccessResult<Transaction>>();
 

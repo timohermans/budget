@@ -1,4 +1,5 @@
 ﻿using Budget.Core.UseCases;
+using Budget.Core.UseCases.Transactions.Overview;
 
 namespace Budget.Pages.Constants
 {
@@ -6,6 +7,6 @@ namespace Budget.Pages.Constants
     {
         private const string TransactionOverview = "TransactionOverview";
 
-        public static string GetTransactionOverviewKey(TransactionGetOverviewUseCase.Request useCase) => $"{TransactionOverview}-{useCase.Year}-{useCase.Month}-{useCase.Iban}";
+        public static string GetTransactionOverviewKey(Request useCase) => $"{TransactionOverview}-{useCase.Year}-{useCase.Month}-{useCase.Iban}";
     }
 }
