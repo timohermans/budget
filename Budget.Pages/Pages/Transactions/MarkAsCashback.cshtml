@@ -4,14 +4,13 @@
     Layout = null;
 }
 
-<tr id="cashbackForm@(Model.RowKey)" x-data="{}" x-ref="row">
+<tr id="cashbackForm@(Model.Id)" x-data="{}" x-ref="row">
     <td></td>
     <td colspan="5">
         <form class="row align-items-center gap-2" method="post"
               hx-post="@Url.Page("MarkAsCashback")"
               hx-target="body">
-            <input type="hidden" asp-for="RowKey"/>
-            <input type="hidden" asp-for="PartitionKey"/>
+            <input type="hidden" asp-for="Id"/>
             <div class="col-auto">
                 <label>Terugbetaling voor</label>
             </div>

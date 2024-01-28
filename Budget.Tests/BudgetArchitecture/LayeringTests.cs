@@ -4,7 +4,7 @@ using ArchUnitNET.Fluent;
 
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 using ArchUnitNET.xUnit;
-using Azure.Data.Tables;
+using Budget.Core.DataAccess;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 
@@ -27,6 +27,9 @@ public class LayeringTests
 
     private readonly IObjectProvider<Class> _useCases =
         Classes().That().HaveNameEndingWith("UseCase").As("Use cases");
+    
+    private readonly IObjectProvider<IType> _migrations =
+        Types().That().ResideInNamespace("Budget.Pages.Migrations").As("Migrations");
 
     private readonly IObjectProvider<IType> _coreLayer =
         Types().That().ResideInNamespace("Budget.Core.UseCases.*", true).As("Core Layer");
@@ -49,8 +52,13 @@ public class LayeringTests
     [Fact]
     public void Use_cases_should_only_use_the_table_client()
     {
-        var rule = Types().That().AreNot(_useCases)
-            .Should().NotDependOnAny(typeof(TableClient))
+        var rule = Types().That()
+            .AreNot(_useCases)
+            .And()
+            .AreNot(_migrations)
+            .And()
+            .AreNot(typeof(BudgetContext))
+            .Should().NotDependOnAny(typeof(BudgetContext))
             .Because("Only use cases should use the table client to query");
 
         rule.Check(Architecture);

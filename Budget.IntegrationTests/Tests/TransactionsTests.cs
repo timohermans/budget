@@ -1,7 +1,5 @@
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
-using Budget.Core.Models;
-using Budget.Core.UseCases;
 using Budget.IntegrationTests.Config;
 using Budget.IntegrationTests.Helpers;
 using FakeItEasy;

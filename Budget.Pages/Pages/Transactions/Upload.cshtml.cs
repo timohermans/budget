@@ -1,4 +1,3 @@
-using Budget.Core.UseCases;
 using Budget.Pages.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -34,7 +33,10 @@ namespace Budget.Pages.Pages.Transactions
             TempData[TmpAmountMinDateKey] = response.DateMin.ToShortDateString();
             TempData[TmpAmountMaxDateKey] = response.DateMax.ToShortDateString();
 
-            Enumerable.Range(0, 1 + response.DateMax.Subtract(response.DateMin).Days)
+            var dateMin = response.DateMin.ToDateTime(TimeOnly.MinValue);
+            var dateMax = response.DateMax.ToDateTime(TimeOnly.MaxValue);
+
+            Enumerable.Range(0, 1 + dateMax.Subtract(dateMin).Days)
                 .Select(offset => response.DateMin.AddDays(offset))
                 .Select(date => (date.Year, date.Month))
                 .Distinct()

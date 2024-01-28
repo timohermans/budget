@@ -14,39 +14,35 @@ namespace Budget.Pages.Pages.Transactions;
 public class MarkAsCashbackModel(UseCase useCase, IMemoryCache cache) : PageModel
 {
     [BindProperty]
-    public required string PartitionKey { get; set; }
-    [BindProperty]
-    public required string RowKey { get; set; }
+    public required int Id { get; set; }
     [BindProperty]
     [DataType(DataType.Date)]
-    public DateTime? Date { get; set; }
+    public DateOnly? Date { get; set; }
 
 
-    public IActionResult OnGet(string? partitionKey, string? rowKey, DateTime? date)
+    public IActionResult OnGet(int? id, DateOnly? date)
     {
-        if (partitionKey == null || rowKey == null)
+        if (!id.HasValue)
         {
             return new EmptyResult();
         }
 
-        RowKey = rowKey;
-        PartitionKey = partitionKey;
+        Id = id.Value;
         Date = date;
 
         return Page();
     }
 
-    public IActionResult OnPost()
+    public async Task<IActionResult> OnPost()
     {
         if (!ModelState.IsValid)
         {
-            Response.Htmx(h => h.Retarget($"#cashbackForm{RowKey}").Reswap("outerHTML"));
+            Response.Htmx(h => h.Retarget($"#cashbackForm{Id}").Reswap("outerHTML"));
             return Page();
         }
-        var rowKey = RowKey.ToUpper(); // because of lowercase settings in program, the rowkey gets converted to lowercase
 
-        var result = useCase.Handle(new Request(RowKey, PartitionKey, Date));
-        Date = DateTime.SpecifyKind(Date ?? result.Data.DateTransaction, DateTimeKind.Utc);
+        var result = await useCase.Handle(new Request(Id, Date));
+        Date ??= result.Data.DateTransaction;
         var dateNextMonth = Date.Value.AddMonths(1);
         
         if (result is SuccessResult<Transaction>)

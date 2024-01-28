@@ -1,62 +1,37 @@
-using Azure.Data.Tables;
+using Budget.Core.DataAccess;
 using Budget.Core.Infrastructure;
 using Budget.Core.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Budget.Core.UseCases.Transactions.MarkAsCashback;
 
-public class UseCase(TableClient table, ILogger<UseCase> logger)
+public class UseCase(BudgetContext db, ILogger<UseCase> logger)
 {
-    public Result<Transaction> Handle(Request request)
+    public async Task<Result<Transaction>> Handle(Request request)
     {
-        var rowKey =
-            request.RowKey
-                .ToUpper(); // because of lowercase settings in program, the rowkey gets converted to lowercase
-        var transaction = table.Query<Transaction>(t => t.PartitionKey == request.PartitionKey && t.RowKey == rowKey)
-            .FirstOrDefault();
+        var transaction = await db.Transactions.SingleOrDefaultAsync(t => t.Id == request.Id);
 
         if (transaction == null)
         {
             return new ErrorResult<Transaction>("Transaction not found");
         }
 
-        Transaction transactionUpdated;
-
         if (request.Date.HasValue)
         {
-            transactionUpdated = transaction with
-            {
-                PartitionKey = Transaction.CreatePartitionKey(request.Date.Value),
-                CashbackForDate = DateTime.SpecifyKind(request.Date.Value, DateTimeKind.Utc)
-            };
+            transaction.CashbackForDate = request.Date.Value;
         }
         else
         {
-            transactionUpdated = transaction with
-            {
-                PartitionKey = Transaction.CreatePartitionKey(transaction.DateTransaction),
-                CashbackForDate = null
-            };
+            transaction.CashbackForDate = null;
         }
 
-        table.DeleteEntity(request.PartitionKey, rowKey);
-
-        try
-        {
-            table.AddEntity(transactionUpdated);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error while marking cashback for {Transaction} for date {request.Date}",
-                transactionUpdated, request.Date);
-            table.AddEntity(transaction);
-            return new ErrorResult<Transaction>("Error while marking cashback");
-        }
+        await db.SaveChangesAsync();
 
         logger.LogInformation(
-            "Changed {Transaction} from {PartitionKey} to {NewPartitionKey} with cashback date {request.Date}",
-            transaction.RowKey, request.PartitionKey, transactionUpdated.PartitionKey, request.Date);
+            "{Mark} {Transaction} with(out) cashback date {request.Date}",
+            request.Date.HasValue ? "Marked" : "Unmarked", transaction.Id, request.Date);
 
-        return new SuccessResult<Transaction>(transactionUpdated);
+        return new SuccessResult<Transaction>(transaction);
     }
 }

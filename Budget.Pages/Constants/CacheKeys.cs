@@ -1,5 +1,4 @@
-﻿using Budget.Core.UseCases;
-using Budget.Core.UseCases.Transactions.Overview;
+﻿using Budget.Core.UseCases.Transactions.Overview;
 
 namespace Budget.Pages.Constants
 {

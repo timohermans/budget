@@ -1,24 +1,25 @@
-using Azure.Data.Tables;
+using Budget.Core.DataAccess;
 using Budget.Core.Extensions;
-using Budget.Core.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Core.UseCases.Transactions.Overview;
 
-public class UseCase(TableClient dataAccess)
+public class UseCase(BudgetContext dataAccess)
 {
     public async Task<Response> HandleAsync(Request request)
     {
         var iban = request.Iban;
-        var date = new DateTime(request.Year, request.Month, 1);
-        var dateMin = new DateTime(date.Year, date.Month, 1);
+        var date = new DateOnly(request.Year, request.Month, 1);
+        var dateMin = new DateOnly(date.Year, date.Month, 1);
         var dateMax = dateMin.AddMonths(1).AddDays(-1);
         var (year, month, _) = date;
-        var (previousYear, previousMonth, _) = date.AddMonths(-1);
-        var partitionKeyPrevious = $"{previousYear}-{previousMonth}";
-        var partitionKey = $"{year}-{month}";
-        IEnumerable<Transaction> transactionsAll = dataAccess
-            .Query<Transaction>(e => e.PartitionKey == partitionKey || e.PartitionKey == partitionKeyPrevious);
-        var dateFirstOfMonth = new DateTime(previousYear, previousMonth, 1);
+        var previousMonthDate = date.AddMonths(-1);
+        var (previousYear, previousMonth, _) = previousMonthDate;
+        var transactionsAll = await dataAccess.Transactions
+            .Where(t => t.DateTransaction >= previousMonthDate && t.DateTransaction < date.AddMonths(1))
+            .OrderBy(t => t.DateTransaction)
+            .ToListAsync();
+
         var ibansOrdered = transactionsAll
             .Select(t => t.Iban)
             .GroupBy(i => i)
@@ -28,7 +29,7 @@ public class UseCase(TableClient dataAccess)
             .ToList();
         var ibans = ibansOrdered;
         var ibanSelected = iban == null || !ibansOrdered.Contains(iban) ? ibansOrdered.FirstOrDefault("") : iban;
-        var transactions = transactionsAll.Where(t => t.Iban == ibanSelected && t.PartitionKey == partitionKey)
+        var transactions = transactionsAll.Where(t => t.Iban == ibanSelected && t.DateTransaction.Year == year && t.DateTransaction.Month == month)
             .ToList();
 
         var weeksInMonth = Enumerable.Range(0, dateMax.Day)
@@ -49,10 +50,11 @@ public class UseCase(TableClient dataAccess)
 
         foreach (var transaction in transactionsAll)
         {
-            var isLastMonth = transaction.PartitionKey == partitionKeyPrevious;
-            var isThisMonth = transaction.PartitionKey == partitionKey;
+            var isLastMonth = transaction.DateTransaction.Year == previousYear &&
+                              transaction.DateTransaction.Month == previousMonth;
+            var isThisMonth = transaction.DateTransaction.Year == year && transaction.DateTransaction.Month == month;
             var week = transaction.DateTransaction.ToIsoWeekNumber();
-            var amount = (decimal)transaction.Amount;
+            var amount = transaction.Amount;
 
             if (transaction.Iban != ibanSelected) continue;
 
@@ -84,21 +86,18 @@ public class UseCase(TableClient dataAccess)
                 incomeFromOwnAccounts += amount;
             }
 
-            if (isThisMonth && !transaction.IsIncome && !transaction.IsFixed && transaction.IsFromOtherParty(ibans))
+            if (isThisMonth && transaction is { IsIncome: false, IsFixed: false } && transaction.IsFromOtherParty(ibans))
             {
                 expensesVariable += amount;
                 expensesPerWeek[week] += amount;
             }
 
-            if (isThisMonth && transaction.IsIncome && transaction.CashbackForDate != null)
+            if (isThisMonth && transaction is { IsIncome: true, CashbackForDate: not null })
             {
                 expensesVariable += amount;
                 var cashbackWeek = transaction.CashbackForDate.Value.ToIsoWeekNumber();
-                if (!expensesPerWeek.ContainsKey(cashbackWeek))
-                {
-                    expensesPerWeek.Add(cashbackWeek, 0);
-                }
-
+                
+                expensesPerWeek.TryAdd(cashbackWeek, 0);
                 expensesPerWeek[cashbackWeek] += amount;
             }
         }
@@ -107,7 +106,7 @@ public class UseCase(TableClient dataAccess)
         {
             IbanSelected = ibanSelected,
             IbansToSelect = ibansOrdered,
-            Date = DateOnly.FromDateTime(date),
+            Date = date,
             DatePreviousMonth = new DateOnly(previousYear, previousMonth, 1),
             ExpensesFixedLastMonth = expensesFixedLastMonth,
             IncomeLastMonth = incomeLastMonth,

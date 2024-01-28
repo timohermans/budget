@@ -1,11 +1,12 @@
 using System.Globalization;
-using Azure.Data.Tables;
+using Budget.Core.DataAccess;
 using Budget.Core.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Budget.Core.UseCases.Transactions.FileEtl;
 
-public class UseCase(TableClient dataAccess, ILogger<UseCase> logger)
+public class UseCase(BudgetContext dataAccess, ILogger<UseCase> logger)
 {
     public async Task<Response> HandleAsync(Stream stream)
     {
@@ -44,8 +45,6 @@ public class UseCase(TableClient dataAccess, ILogger<UseCase> logger)
             var dateTransaction = ParseCellToDate(values.ElementAt(date), date);
             var transaction = new Transaction
             {
-                RowKey = $"{iban}-{followNumber}",
-                PartitionKey = Transaction.CreatePartitionKey(dateTransaction),
                 Iban = values.ElementAt(ibanIndex),
                 Currency = values.ElementAt(currency),
                 FollowNumber = ParseCellToInt(followNumber, followNumberIndex),
@@ -63,28 +62,23 @@ public class UseCase(TableClient dataAccess, ILogger<UseCase> logger)
             transactions.Add(transaction);
         }
 
-        var transactionsPerPartitionKey = transactions
-            .GroupBy(t => t.PartitionKey)
-            .ToDictionary(kvp => kvp.Key, g => g.ToList());
-
-        foreach (var partition in transactionsPerPartitionKey)
-        {
-            await Parallel.ForEachAsync(partition.Value.Chunk(100), async (transactionsChunk, cancelToken) =>
-            {
-                var addEntitiesBatch = transactionsChunk
-                    .Select(transaction =>
-                        new TableTransactionAction(TableTransactionActionType.UpsertMerge, transaction))
-                    .ToList();
-
-                var response = await dataAccess.SubmitTransactionAsync(addEntitiesBatch, cancelToken);
-
-                logger.LogInformation("Saved {amount} transactions out of {count} in current batch",
-                    response.Value.Count(r => r.Status == 204), transactionsChunk.Count());
-            });
-        }
-
         var minDate = transactions.Min(t => t.DateTransaction);
         var maxDate = transactions.Max(t => t.DateTransaction);
+
+        await dataAccess.Transactions
+            .Where(t => t.DateTransaction >= minDate && t.DateTransaction <= maxDate)
+            .Select(t => new { t.FollowNumber, t.Iban, t.Id })
+            .ForEachAsync(t =>
+            {
+                var transaction =
+                    transactions.FirstOrDefault(t2 => t2.FollowNumber == t.FollowNumber && t2.Iban == t.Iban);
+                if (transaction == null) return;
+                transaction.Id = t.Id;
+                dataAccess.Entry(transaction).State = EntityState.Modified;
+            });
+
+        dataAccess.UpdateRange(transactions);
+        await dataAccess.SaveChangesAsync();
 
         return new Response(transactions.Count, minDate, maxDate);
     }
@@ -127,10 +121,10 @@ public class UseCase(TableClient dataAccess, ILogger<UseCase> logger)
         return number;
     }
 
-    private double ParseCellToDouble(string value, int columnIndex)
+    private decimal ParseCellToDouble(string value, int columnIndex)
     {
-        string doubleInput = value.Replace(",", ".");
-        if (!double.TryParse(doubleInput, CultureInfo.InvariantCulture, out double number))
+        string decimalInput = value.Replace(",", ".");
+        if (!decimal.TryParse(decimalInput, CultureInfo.InvariantCulture, out decimal number))
         {
             logger.LogWarning("Unable to parse number {value} at column {columnIndex} to int", value, columnIndex);
         }
@@ -138,13 +132,13 @@ public class UseCase(TableClient dataAccess, ILogger<UseCase> logger)
         return number;
     }
 
-    private DateTime ParseCellToDate(string value, int columnIndex)
+    private DateOnly ParseCellToDate(string value, int columnIndex)
     {
-        if (!DateTime.TryParse(value, out var date))
+        if (!DateOnly.TryParse(value, out var date))
         {
             logger.LogWarning("Unable to parse {value} at {columnIndex} to date", value, columnIndex);
         }
 
-        return DateTime.SpecifyKind(date, DateTimeKind.Utc);
+        return date;
     }
 }

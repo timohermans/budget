@@ -1,31 +1,38 @@
-﻿using Azure;
-using Azure.Data.Tables;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Core.Models;
 
+[Index(nameof(FollowNumber), nameof(Iban), IsUnique = true)]
 [DebuggerDisplay("{DateTransaction} {Iban} <- {NameOtherParty} {Amount} {Description}")]
-public record Transaction : ITableEntity
+public class Transaction
 {
     public int Id { get; set; }
-    public required string PartitionKey { get; set; }
-    public required string RowKey { get; set; }
-    public DateTimeOffset? Timestamp { get; set; } = DateTimeOffset.Now;
-    public ETag ETag { get; set; } = default!;
-    public required int FollowNumber { get; set; }
+    public int FollowNumber { get; set; }
+    [StringLength(34)]
     public required string Iban { get; set; }
+    [StringLength(5)]
     public required string Currency { get; set; }
-    public double Amount { get; set; }
-    public required DateTime DateTransaction { get; set; }
-    public double BalanceAfterTransaction { get; set; }
+    [Precision(12, 2)]
+    public decimal Amount { get; set; }
+    public DateOnly DateTransaction { get; set; }
+    [Precision(12, 2)]
+    public decimal BalanceAfterTransaction { get; set; }
+    [StringLength(255)]
     public string? NameOtherParty { get; set; }
+    [StringLength(34)]
     public string? IbanOtherParty { get; set; }
+    [StringLength(255)]
     public string? AuthorizationCode { get; set; }
+    [StringLength(255)]
     public string? Description { get; set; }
-    public DateTime? CashbackForDate { get; set; }
+    public DateOnly? CashbackForDate { get; set; }
+
     public bool IsIncome => Amount > 0;
     public bool IsFixed => !string.IsNullOrWhiteSpace(AuthorizationCode);
+
     public bool IsFromOtherParty(IEnumerable<string> ibansOwned) => !ibansOwned.Contains(IbanOtherParty);
     public bool IsFromOwnAccount(IEnumerable<string> ibansOwned) => ibansOwned.Contains(IbanOtherParty);
-    public static string CreatePartitionKey(DateTime dateTransaction) => $"{dateTransaction.Year}-{dateTransaction.Month}";
+
 }

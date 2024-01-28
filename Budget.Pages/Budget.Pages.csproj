@@ -23,12 +23,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Azure.Data.Tables" Version="12.8.2" />
-      <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.3.2" />
-      <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.2.2" />
-      <PackageReference Include="azure.identity" Version="1.10.4" />
       <PackageReference Include="Htmx" Version="1.6.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
       <PackageReference Include="Otp.NET" Version="1.3.0" />
     </ItemGroup>
 

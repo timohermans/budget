@@ -1,9 +1,10 @@
-using Azure.Data.Tables;
 using Budget.Core.Constants;
+using Budget.Core.DataAccess;
 using Budget.Core.Infrastructure;
 using Budget.Core.UseCases.Transactions.FileEtl;
+using Budget.Pages.Pages;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +43,6 @@ builder.Services.Configure<RouteOptions>(options =>
 
 builder.Services.AddSingleton<LoginThrottler>();
 
-
 // Add UseCases
 var coreTypes = typeof(UseCase).Assembly.GetTypes();
 var useCaseTypes = coreTypes
@@ -53,21 +53,10 @@ useCaseTypes
     .ToList()
     .ForEach(t => builder.Services.AddScoped(t));
 
-// Add azure table storage
-builder.Services.AddScoped(_ =>
-{
-    var service = new TableServiceClient(builder.Configuration.GetConnectionString("TransactionTable"));
-    var client = service.GetTableClient("Transactions");
-    client.CreateIfNotExists();
-    return client;
-});
-
-if (!builder.Environment.IsDevelopment())
-{
-    builder.Services.AddDataProtection()
-        .SetApplicationName("Budget")
-        .PersistKeysToAzureBlobStorage(builder.Configuration.GetConnectionString("Storage"), "keys", "keys.xml");
-}
+builder.Services.AddDbContext<BudgetContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("BudgetContext"),
+        b => b.MigrationsAssembly(typeof(IndexModel).Assembly.FullName))
+);
 
 var app = builder.Build();
 

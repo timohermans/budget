@@ -1,8 +1,7 @@
-using Budget.Core.Models;
-using Budget.Core.UseCases;
 using Budget.Core.UseCases.Transactions.FileEtl;
 using Budget.IntegrationTests.Config;
 using Budget.IntegrationTests.Helpers;
+using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
 namespace Budget.IntegrationTests.Tests.Core.UseCases;
@@ -22,7 +21,7 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
         await useCase.HandleAsync(File.OpenRead("Data/transactions-1.csv"));
 
         // Assert
-        var transactions = client.Query<Transaction>().ToList();
+        var transactions = await client.Transactions.ToListAsync();
         transactions.Should()
             .HaveCount(5)
             .And
@@ -31,7 +30,7 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
                     t.Iban == "NL11RABO0104946666"
                     && t.Currency == "EUR"
                     && t.FollowNumber == 12107
-                    && t.DateTransaction == new DateTime(2023, 11, 20)
+                    && t.DateTransaction == new DateOnly(2023, 11, 20)
                     && t.Amount == 4000
                     && t.IbanOtherParty == "NL11INGB00022222"
                     && t.NameOtherParty == "Werkgever 1"
@@ -39,7 +38,7 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
                 t => t.Iban == "NL11RABO0104946666"
                      && t.Currency == "EUR"
                      && t.FollowNumber == 12108
-                     && t.DateTransaction == new DateTime(2023, 11, 23)
+                     && t.DateTransaction == new DateOnly(2023, 11, 23)
                      && t.Amount == 2000
                      && t.IbanOtherParty == "NL11INGB00033333"
                      && t.NameOtherParty == "Werkgever 2"
@@ -48,7 +47,7 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
                 t => t.Iban == "NL11RABO0104946666"
                      && t.Currency == "EUR"
                      && t.FollowNumber == 12109
-                     && t.DateTransaction == new DateTime(2023, 11, 23)
+                     && t.DateTransaction == new DateOnly(2023, 11, 23)
                      && t.Amount == -800
                      && t.IbanOtherParty == "NL51DEUT0265262461"
                      && t.NameOtherParty == "Kinderopvang"
@@ -58,7 +57,7 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
                 t => t.Iban == "NL11RABO0104946666"
                      && t.Currency == "EUR"
                      && t.FollowNumber == 12110
-                     && t.DateTransaction == new DateTime(2023, 11, 27)
+                     && t.DateTransaction == new DateOnly(2023, 11, 27)
                      && t.Amount == -1000
                      && t.IbanOtherParty == "NL12INGB00033333"
                      && t.NameOtherParty == "Hypotheek"
@@ -68,8 +67,8 @@ public class TransactionFileUploadUseCaseTests(TestFixture fixture, ITestOutputH
                 t => t.Iban == "NL11RABO0104946666"
                      && t.Currency == "EUR"
                      && t.FollowNumber == 12111
-                     && t.DateTransaction == new DateTime(2023, 12, 2)
-                     && t.Amount == -90.75
+                     && t.DateTransaction == new DateOnly(2023, 12, 2)
+                     && t.Amount == -90.75M
                      && t.IbanOtherParty == "NL12INGB00044444"
                      && t.NameOtherParty == "Albert Heijn"
                      && t.IsFixed == false

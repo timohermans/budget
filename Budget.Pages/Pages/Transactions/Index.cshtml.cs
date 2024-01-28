@@ -1,5 +1,4 @@
 ﻿using Budget.Core.Models;
-using Budget.Core.UseCases;
 using Budget.Pages.Constants;
 using Htmx;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel;
-using System.Globalization;
 using Budget.Core.Extensions;
 using Budget.Core.UseCases.Transactions.Overview;
 
