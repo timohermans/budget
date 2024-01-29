@@ -1,0 +1,35 @@
+name: Deployment on home server
+
+# When this action will be executed
+on:
+  workflow_run:
+    branches: [ home ]
+    workflows: [ .NET ]
+    types:
+      - completed
+
+  # Allow manual trigger 
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        run: docker build . --file Budget.Pages/Dockerfile --tag ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget
+      - name: Tag Image Commit sha
+        run: docker tag ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget:${{github.sha}}
+      - name: Tag Image Latest
+        run: docker tag ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget:latest
+      - name: Push To Registry
+        uses: redhat-actions/push-to-registry@v2.7
+        with:
+          image: budget
+          tags: latest ${{github.sha}}
+          registry: ${{secrets.HOME_BUDGET_REGISTRY_HOST}}
+          username: ${{secrets.HOME_BUDGET_REGISTRY_USERNAME}}
+          password: ${{secrets.HOME_BUDGET_REGISTRY_PASSWORD}}      
