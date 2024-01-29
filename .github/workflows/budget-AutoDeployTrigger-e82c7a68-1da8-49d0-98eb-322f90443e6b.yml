@@ -1,4 +1,4 @@
-name: Deploy
+name: Trigger auto deployment for budget
 
 # When this action will be executed
 on:
