@@ -1,12 +1,13 @@
 name: Deploy
 
+# When this action will be executed
 on:
   workflow_run:
     branches: [ home ]
     workflows: [ .NET ]
     types:
       - completed
-        
+
   # Allow manual trigger 
   workflow_dispatch:
 
