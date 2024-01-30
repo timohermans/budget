@@ -34,7 +34,7 @@ public class TransactionMarkAsCashbackUseCaseTests(TestFixture fixture, ITestOut
         result.Should().BeAssignableTo<SuccessResult<Transaction>>();
         result.Data.Id.Should().Be(transactionToMark.Id);
         var actual = await db.Transactions.FirstOrDefaultAsync(q => q.Id == transactionToMark.Id);
-        actual?.DateTransaction.Should().Be(new DateOnly(2024, 1, 4));
+        actual?.DateTransaction.Should().Be(new DateOnly(2024, 1, 2));
         actual?.CashbackForDate.Should().Be(new DateOnly(2024, 1, 2));
     }
 

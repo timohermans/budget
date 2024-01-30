@@ -7,7 +7,7 @@ namespace Budget.IntegrationTests.Tests.UseCases.Transactions;
 [Collection("integration")]
 public class OverviewTests(TestFixture fixture)
 {
-   [Fact]
+    [Fact]
     public async Task Keeps_check_of_how_much_each_own_account_saved()
     {
         var paymentIban = "NL22OWN01010100";
@@ -29,22 +29,21 @@ public class OverviewTests(TestFixture fixture)
         List<Transaction> transactions =
         [
             CreateFrom(baseTransaction, 2, -100, paymentIban, savingsIban),
-            CreateFrom(baseTransaction,3, 100, savingsIban, paymentIban),
-            CreateFrom(baseTransaction,4, -200, paymentIban, savingsIban),
-            CreateFrom(baseTransaction,5, 200, savingsIban, paymentIban),
-            CreateFrom(baseTransaction,6, 50, paymentIban, savingsIban),
-            CreateFrom(baseTransaction,7, -50, savingsIban, paymentIban),
+            CreateFrom(baseTransaction, 3, 100, savingsIban, paymentIban),
+            CreateFrom(baseTransaction, 4, -200, paymentIban, savingsIban),
+            CreateFrom(baseTransaction, 5, 200, savingsIban, paymentIban),
+            CreateFrom(baseTransaction, 6, 50, paymentIban, savingsIban),
+            CreateFrom(baseTransaction, 7, -50, savingsIban, paymentIban),
             // savings2
-            CreateFrom(baseTransaction,8, -1000, paymentIban, savingsIban2),
-            CreateFrom(baseTransaction,9, 1000, savingsIban2, paymentIban),
-            CreateFrom(baseTransaction,10, -2000, paymentIban, savingsIban2),
-            CreateFrom(baseTransaction,11, 2000, savingsIban2, paymentIban),
-            CreateFrom(baseTransaction,12, 500, paymentIban, savingsIban2),
-            CreateFrom(baseTransaction,13, -500, savingsIban2, paymentIban),
+            CreateFrom(baseTransaction, 8, -1000, paymentIban, savingsIban2),
+            CreateFrom(baseTransaction, 9, 1000, savingsIban2, paymentIban),
+            CreateFrom(baseTransaction, 10, -2000, paymentIban, savingsIban2),
+            CreateFrom(baseTransaction, 11, 2000, savingsIban2, paymentIban),
+            CreateFrom(baseTransaction, 12, 500, paymentIban, savingsIban2),
+            CreateFrom(baseTransaction, 13, -500, savingsIban2, paymentIban),
             // other
-            CreateFrom(baseTransaction,14, -500, paymentIban, storeIban),
+            CreateFrom(baseTransaction, 14, -500, paymentIban, storeIban),
         ];
-
 
         var db = await fixture.CreateTableClientAsync();
 
@@ -64,10 +63,50 @@ public class OverviewTests(TestFixture fixture)
         actual.BalancePerAccount[savingsIban].Should().Be(-250);
         actual.BalancePerAccount[savingsIban2].Should().Be(-2500);
     }
-    
-    // TODO: Create test to see where the cashback transaction should be in the list
 
-    private Transaction CreateFrom(Transaction transaction, int id, decimal amount, string fromIban, string toIban)
+    [Fact]
+    public async Task Previous_month_cashback_should_not_be_in_current_list()
+    {
+        var date = new DateOnly(2024, 1, 1);
+        var payment = new Transaction
+        {
+            Currency = "EUR",
+            Iban = "payment_iban",
+            IbanOtherParty = "savings_iban",
+            DateTransaction = date,
+            FollowNumber = 1,
+            Id = 1,
+            Amount = -100,
+            NameOtherParty = "Savings 1"
+        };
+        var cashback = new Transaction
+        {
+            Currency = "EUR",
+            Iban = "payment_iban",
+            IbanOtherParty = "third_party_iban",
+            DateTransaction = date,
+            FollowNumber = 2,
+            Id = 2,
+            Amount = 100,
+            NameOtherParty = "friend",
+            CashbackForDate = date.AddMonths(-1)
+        };
+
+        List<Transaction> transactions = [payment, cashback];
+        await using (var db = await fixture.CreateTableClientAsync())
+        {
+            await db.AddRangeAsync(transactions);
+            await db.SaveChangesAsync();
+        }
+
+        var result = await new UseCase(await fixture.CreateTableClientAsync(false))
+            .HandleAsync(new Request { Month = date.Month, Year = date.Year });
+
+        result.ExpensesVariable.Should().Be(-100);
+    }
+
+    private Transaction CreateFrom(Transaction transaction, int id, decimal amount, string fromIban, string toIban,
+        DateOnly? cashbackDate = null)
     {
         return new Transaction
         {
@@ -81,8 +120,8 @@ public class OverviewTests(TestFixture fixture)
             NameOtherParty = transaction.NameOtherParty,
             AuthorizationCode = transaction.AuthorizationCode,
             BalanceAfterTransaction = transaction.BalanceAfterTransaction,
-            CashbackForDate = transaction.CashbackForDate,
+            CashbackForDate = cashbackDate ?? transaction.CashbackForDate,
             Description = transaction.Description
         };
-    } 
+    }
 }

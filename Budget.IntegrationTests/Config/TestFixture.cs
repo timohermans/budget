@@ -42,7 +42,7 @@ public class TestFixture : IAsyncLifetime
     /// Opens connection to transaction azure table and clears it. Use this when you only want to use table, not html
     /// </summary>
     /// <returns>The table client to the transactions table</returns>
-    public async Task<BudgetContext> CreateTableClientAsync()
+    public async Task<BudgetContext> CreateTableClientAsync(bool ensureCleanDb = true)
     {
         var options = new DbContextOptionsBuilder<BudgetContext>()
             .UseNpgsql(GetDbConnectionString())
@@ -50,7 +50,7 @@ public class TestFixture : IAsyncLifetime
 
         var db = new BudgetContext(options);
 
-        if (await db.Database.EnsureCreatedAsync() == false)
+        if (ensureCleanDb && await db.Database.EnsureCreatedAsync() == false)
         {
             await db.Database.ExecuteSqlRawAsync(@"DELETE FROM transactions;");
         }

@@ -8,6 +8,8 @@ namespace Budget.Core.Models;
 [DebuggerDisplay("{DateTransaction} {Iban} <- {NameOtherParty} {Amount} {Description}")]
 public class Transaction
 {
+    private DateOnly _dateTransaction;
+    
     public int Id { get; set; }
     public int FollowNumber { get; set; }
     [StringLength(34)]
@@ -16,7 +18,14 @@ public class Transaction
     public required string Currency { get; set; }
     [Precision(12, 2)]
     public decimal Amount { get; set; }
-    public DateOnly DateTransaction { get; set; }
+    
+    [BackingField(nameof(_dateTransaction))]
+    public DateOnly DateTransaction
+    {
+        get => CashbackForDate ?? _dateTransaction;
+        set => _dateTransaction = value;
+    }
+    
     [Precision(12, 2)]
     public decimal BalanceAfterTransaction { get; set; }
     [StringLength(255)]
