@@ -30,7 +30,7 @@ public class TestFixture : IAsyncLifetime
     /// Opens html string content into a DOM document like object that your can QuerySelector on
     /// </summary>
     /// <param name="htmlContent">response from `await client.GetAsync("url");`</param>
-    public async Task<IDocument> OpenHtmlOf(HttpContent htmlContent)
+    public async Task<IDocument> OpenHtmlOfAsync(HttpContent htmlContent)
     {
         var browser = BrowsingContext.New(Configuration.Default);
         var contentStream = await htmlContent.ReadAsStreamAsync();
@@ -68,12 +68,12 @@ public class TestFixture : IAsyncLifetime
     /// inspired by https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-7.0
     /// </summary>
     public async Task<HttpClient> CreateAuthenticatedAppClientAsync(ITestOutputHelper? outputHelper = null,
-        TimeProvider? timeProviderOverride = null)
+        TimeProvider? timeProviderOverride = null, bool ensureCleanDb = true)
     {
         if (_factory == null) throw new ArgumentNullException();
 
         var clientBuilder = ConfigureClient(outputHelper, timeProviderOverride);
-        var client = CreateClient(clientBuilder);
+        var client = CreateClient(clientBuilder, ensureCleanDb);
 
         return client ?? throw new NullReferenceException("Something went wrong creating the client");
     }
@@ -106,12 +106,12 @@ public class TestFixture : IAsyncLifetime
         });
     }
 
-    private HttpClient CreateClient(WebApplicationFactory<Program> clientBuilder)
+    private HttpClient CreateClient(WebApplicationFactory<Program> clientBuilder, bool ensureCleanDb)
     {
         using var serviceScope = clientBuilder.Services.CreateScope();
         var db = (BudgetContext?)serviceScope.ServiceProvider.GetService(typeof(BudgetContext));
 
-        if (db != null && db.Database.EnsureCreated() == false)
+        if (db != null && db.Database.EnsureCreated() == false && ensureCleanDb)
         {
             db.Database.ExecuteSqlRaw("DELETE FROM transactions;");
         }

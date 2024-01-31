@@ -26,6 +26,8 @@ public class Transaction
         set => _dateTransaction = value;
     }
     
+    public DateOnly OriginalDate => _dateTransaction;
+    
     [Precision(12, 2)]
     public decimal BalanceAfterTransaction { get; set; }
     [StringLength(255)]

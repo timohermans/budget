@@ -47,11 +47,13 @@ public class MarkAsCashbackModel(UseCase useCase, IMemoryCache cache) : PageMode
         
         if (result is SuccessResult<Transaction>)
         {
-            cache.Remove(CacheKeys.GetTransactionOverviewKey(new Overview.Request { Year = result.Data.DateTransaction.Year, Month = result.Data.DateTransaction.Month }));
+            cache.Remove(CacheKeys.GetTransactionOverviewKey(new Overview.Request { Year = result.Data.DateTransaction.Year, Month = result.Data.DateTransaction.Month, Iban = result.Data.Iban}));
             cache.Remove(CacheKeys.GetTransactionOverviewKey(new Overview.Request { Year = Date.Value.Year, Month = Date.Value.Month }));
             cache.Remove(CacheKeys.GetTransactionOverviewKey(new Overview.Request { Year = dateNextMonth.Year, Month = dateNextMonth.Month })); // the income needs to be recalculated for the next month
         }
 
-        return RedirectToPage("Index");
+        var (redirectYear, redirectMonth, _) = result.Data.OriginalDate;
+
+        return RedirectToPage("./Index", new { Year = redirectYear, Month = redirectMonth, Iban = result.Data.Iban });
     }
 }
