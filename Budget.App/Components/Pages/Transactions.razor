@@ -1,0 +1,26 @@
+﻿@page "/transactions/{year:int?}/{month:int?}"
+@inject TimeProvider Time
+
+<PageTitle>@_date.ToString("yyyy-MM") Transacties</PageTitle>
+
+<h3>Transactions</h3>
+
+@code {
+    private DateTime _date;
+
+    [Parameter]
+    public int? Year { get; set; }
+    [Parameter]
+    public int? Month { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _date = Time.GetUtcNow().DateTime;
+        if (Year == null || Month == null)
+        {
+            Year = _date.Year;
+            Month = _date.Month;
+        }
+    }
+
+}

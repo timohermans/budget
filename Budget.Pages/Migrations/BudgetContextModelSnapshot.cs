@@ -92,7 +92,7 @@ namespace Budget.Pages.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_transactions_follow_number_iban");
 
-                    b.ToTable("transactions");
+                    b.ToTable("transactions", (string)null);
                 });
 #pragma warning restore 612, 618
         }
