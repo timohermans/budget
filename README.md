@@ -36,6 +36,7 @@ The development process for the bare metal version is as follows:
 
 - Create a new feature branch
 - Develop the feature
+  - In case of changing the model, cd to `Budget.Core` and perform `dotnet ef migrations add CreateTransaction -s ../Budget.Pages`
 - Create a pull request to merge the feature branch into the `home` branch
   - From this point, the project will be unit- and integration tested automatically
 - Merge the pull request

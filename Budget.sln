@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.Tests", "Budget.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.IntegrationTests", "Budget.IntegrationTests\Budget.IntegrationTests.csproj", "{A64DF4A3-2B5A-4815-85BA-AC033B11FBC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.App", "Budget.App\Budget.App.csproj", "{D55B5BB8-15CF-4C73-8DE2-05E7FC3E3F27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.App", "Budget.App\Budget.App.csproj", "{D55B5BB8-15CF-4C73-8DE2-05E7FC3E3F27}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

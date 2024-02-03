@@ -16,4 +16,6 @@ public class Response
     public required Dictionary<string, decimal> BalancePerAccount { get; init; }
     public required decimal IncomeFromOwnAccounts { get; init; }
     public required Dictionary<int, List<Transaction>> TransactionsPerWeek { get; init; }
+    public required decimal BudgetAvailable { get; init; }
+    public required decimal BudgetPerWeek { get; init; }
 }

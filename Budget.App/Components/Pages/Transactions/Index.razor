@@ -1,0 +1,271 @@
+﻿@page "/transactions/{year:int?}/{month:int?}"
+@rendermode InteractiveServerRenderModeNoPreRender
+@using Budget.Core.Models
+@using Budget.Core.UseCases.Transactions.Overview
+@using System.Globalization
+@inject TimeProvider Time
+@inject ILogger<Index> Logger
+@inject IDbContextFactory<BudgetContext> DbContextFactory
+@inject NavigationManager Navigator
+
+<PageTitle>@_date?.ToString("yyyy-MM") Transacties</PageTitle>
+
+<nav class="navbar">
+    <div class="container-fluid">
+        <div class="navbar-brand">
+            <button class="btn" @onclick="GoPrevious">
+                <i class="bi bi-arrow-left-circle fs-4"></i>
+            </button>
+            <button class="btn fs-4" @onclick="GoToday">@_date?.ToString("yyyy-MM")</button>
+            <button class="btn" @onclick="GoNext">
+                <i class="bi bi-arrow-right-circle fs-4"></i>
+            </button>
+        </div>
+
+        @*         <div>
+        Hello, @HttpContext.User.Identity?.Name (
+        <form class="d-inline" method="post" asp-page="/Account/Logout">
+        <button type="submit" class="btn btn-link p-0">Logout</button>
+        </form>)
+        </div>
+        *@
+    </div>
+</nav>
+
+
+<main class="container flex-grow-1 vstack gap-3">
+    <div class="row mb-3">
+        <div class="col-auto align-self-center">
+            <NavLink href="/transactions/upload" class="btn btn-primary fs-4">
+                <i class="bi bi-cloud-arrow-up"></i>
+            </NavLink>
+        </div>
+        <div class="col">
+            <div class="form-floating">
+                <InputSelect name="iban" class="form-select" @bind-Value="Iban" @bind-Value:after="LoadData">
+                    @foreach (var iban in _data?.IbansToSelect ?? [])
+                    {
+                        <option value="@iban" @key="iban">@iban</option>
+                    }
+                    @if (_data == null)
+                    {
+                        <option>Loading...</option>
+                    }
+                </InputSelect>
+                <label>Iban</label>
+            </div>
+        </div>
+    </div>
+
+    <section class="row justify-content-center">
+        <h2 class="text-center">Overzicht</h2>
+        <div class="col-xs-8 col-sm-6 col-md-5 col-lg-4">
+            <ul class="vstack gap-1">
+                <li class="row">
+                    <div class="col fst-italic text-capitalize">@_data?.DatePreviousMonth.ToString("MMMM", dutch)</div>
+                </li>
+                <li class="row">
+                    <div class="col">Inkomen</div>
+                    <div class="col-auto">@(_data?.IncomeLastMonth ?? 0)</div>
+                    <div class="col-1"></div>
+                </li>
+                <li class="row border-bottom">
+                    <div class="col">Lasten</div>
+                    <div class="col-auto">@(_data?.ExpensesFixedLastMonth ?? 0 * -1)</div>
+                    <div class="col-1">-</div>
+                </li>
+                <li class="row mb-3">
+                    <div class="col">Budget</div>
+                    <div class="col-auto">@(_data?.BudgetAvailable ?? 0)</div>
+                    <div class="col-1"></div>
+                </li>
+                <li class="row">
+                    <div class="col fst-italic text-capitalize">@_data?.Date.ToString("MMMM", dutch)</div>
+                </li>
+                <li class="row border-bottom">
+                    <div class="col">Weken</div>
+                    <div class="col-auto">@_data?.WeeksInMonth.Count</div>
+                    <div class="col-1">÷</div>
+                </li>
+                <li class="row">
+                    <div class="col">Budget per week</div>
+                    <div class="col-auto">
+                        <span class="badge text-bg-info"> @(_data?.BudgetPerWeek ?? 0)</span>
+                    </div>
+                    <div class="col-1"></div>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-8 col-sm-6 col-md-5 col-lg-4">
+            <ul class="vstack gap-1">
+                <li class="row">
+                    <div class="col fst-italic text-capitalize">@_data?.Date.ToString("MMMM", dutch)</div>
+                </li>
+                <li class="row">
+                    <div class="col">Budget</div>
+                    <div class="col-auto">@_data?.BudgetAvailable</div>
+                    <div class="col-1"></div>
+                </li>
+                @foreach (var (week, index) in (_data?.WeeksInMonth ?? [1, 2, 3, 4]).Select((w, i) => (w, i)))
+                {
+                    var isLast = index == _data?.WeeksInMonth.Count - 1;
+                    var expenseOfWeek = _data?.ExpensesPerWeek.GetValueOrDefault(week, 0);
+
+                    <li class="row @(isLast ? "border-bottom pb-1" : "")">
+                        <div class="col">Week <a href="#week@(week)">@week</a> @(week.IsCurrentWeek(Time) ? "👈" : "")</div>
+                        <div class="col-auto">
+                            <span class="badge text-bg-light">
+                                @expenseOfWeek
+                            </span>
+                        </div>
+                        <div class="col-1">
+                            @if (expenseOfWeek < 0)
+                            {
+                                <span class="badge @((_data?.BudgetPerWeek + expenseOfWeek) < 0 ? "text-bg-danger" : "text-bg-success")">
+                                    @(_data?.BudgetPerWeek + expenseOfWeek)
+                                </span>
+                            }
+                            else if (isLast)
+                            {
+                                <span>+</span>
+                            }
+                        </div>
+                    </li>
+                }
+                <li class="row">
+                    <div class="col">Uitgegeven</div>
+                    <div class="col-auto">@(_data?.ExpensesPerWeek.Values.Sum())</div>
+                    <div class="col-1"></div>
+                </li>
+                <li class="row">
+                    <div class="col">Over</div>
+                    <div class="col-auto">@(_data?.BudgetAvailable + _data?.ExpensesVariable)</div>
+                    <div class="col-1"></div>
+                </li>
+                <li class="row" data-bs-toggle="collapse" data-bs-target=".balanceOther" aria-expanded="false" aria-controls="balanceOther">
+                    <div class="col">Spaarmeter</div>
+                    <div class="col-auto">
+                        @{
+                            var totalBalance = _data?.BalancePerAccount.Values.Sum() * -1;
+                        }
+                        <span class="badge text-bg-@(totalBalance > 0 ? "success" : "danger")">@totalBalance</span>
+                    </div>
+                    <div class="col-1"></div>
+                </li>
+                @foreach (var balanceKvp in _data?.BalancePerAccount ?? [])
+                {
+                    <li class="row collapse balanceOther">
+                        <div class="col">@balanceKvp.Key</div>
+                        <div class="col-auto">
+                            <span class="badge text-bg-@(balanceKvp.Value * -1 > 0 ? "success" : "danger")">@(balanceKvp.Value * -1)</span>
+                        </div>
+                        <div class="col-1"></div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2 class="text-center">Transacties</h2>
+
+        <QuickGrid Items="@GetTransactions()">
+            <PropertyColumn Title="Datum" Format="dd-MM" Property="@(p => p.DateTransaction)" Sortable="true" />
+            <PropertyColumn Title="Naam" Property="@(p => p.NameOtherParty)" Sortable="true" />
+            <TemplateColumn Title="Bedrag" SortBy="@(GridSort<Transaction>.ByDescending(p => p.Amount))" Sortable="true">
+                <span class="badge text-bg-@(context.Amount < 0 ? "danger" : "success")">
+                    @context.Amount
+                </span>
+            </TemplateColumn>
+            <TemplateColumn Title="Is vast" SortBy="@fixedSort">
+                @(context.IsFixed ? "🔒" : "")
+            </TemplateColumn>
+            <PropertyColumn Title="Description" Property="@(p => p.Description)" Sortable="true" />
+        </QuickGrid>
+    </section>
+</main>
+
+@code {
+    private DateOnly? _date;
+    private Response? _data;
+    private CultureInfo dutch = new CultureInfo("nl-NL");
+    private GridSort<Transaction> fixedSort = GridSort<Transaction>
+        .ByDescending(p => p.IsFixed)
+        .ThenDescending(p => p.DateTransaction);
+
+    [Parameter]
+    public int? Year { get; set; }
+    [Parameter]
+    public int? Month { get; set; }
+
+    public string? Iban { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Year == null || Month == null)
+        {
+            _date = DateOnly.FromDateTime(Time.GetUtcNow().DateTime);
+            Year = _date.Value.Year;
+            Month = _date.Value.Month;
+        }
+        else
+        {
+            _date = new DateOnly(Year.Value, Month.Value, 1);
+        }
+
+        Logger.LogInformation("Loading transactions for {Year}-{Month} -> {Iban}", Year, Month, Iban);
+
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        await using var db = DbContextFactory.CreateDbContext();
+        var useCase = new UseCase(db);
+
+        if (_date == null)
+        {
+            Logger.LogWarning("Trying to load data without a date");
+            return;
+        }
+
+        Logger.LogInformation(Iban);
+
+        _data = await useCase.HandleAsync(new Request
+            {
+                Year = _date.Value.Year,
+                Month = _date.Value.Month,
+                Iban = Iban
+            });
+    }
+
+    private async Task SwitchIban()
+    {
+        await OnInitializedAsync();
+    }
+
+    private async Task GoPrevious()
+    {
+        _date = _date?.AddMonths(-1);
+        await LoadData();
+    }
+
+    private async Task GoNext()
+    {
+        Logger.LogInformation("Loading next month");
+        _date = _date?.AddMonths(1);
+        await LoadData();
+    }
+
+    private async Task GoToday()
+    {
+        _date = DateOnly.FromDateTime(Time.GetUtcNow().DateTime);
+        await LoadData();
+    }
+
+    private IQueryable<Transaction> GetTransactions()
+    {
+        return _data?.TransactionsPerWeek?.SelectMany(kvp => kvp.Value)?
+                .AsQueryable() ?? new List<Transaction>().AsQueryable();
+    }
+}

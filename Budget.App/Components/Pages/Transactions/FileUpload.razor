@@ -1,0 +1,59 @@
+﻿@page "/transactions/upload"
+@using Budget.Core.UseCases.Transactions.FileEtl
+@using System.ComponentModel.DataAnnotations
+@inject IDbContextFactory<BudgetContext> ContextFactory
+@inject ILogger<UseCase> UseCaseLogger
+@inject NavigationManager Navigator
+
+<main class="container">
+    <h2>Nieuwe transacties</h2>
+
+    <EditForm method="post" enctype="multipart/form-data" Model="@Model" OnSubmit="@OnPost" FormName="fileUpload">
+        <div class="mb-3">
+            <label class="form-label">Rabobank CSV bestand</label>
+            <InputFile name="Model.Files" class="form-control" />
+            @if (_errors != null)
+            {
+                <div class="invalid-feedback d-block">@_errors</div>
+            }
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-floppy"></i>
+                <span>Opslaan</span>
+            </button>
+        </div>
+    </EditForm>
+</main>
+
+@code {
+    [SupplyParameterFromForm]
+    public UploadModel? Model { get; set; }
+
+    private string? _errors;
+
+    protected override void OnInitialized() => Model ??= new();
+
+    public async Task OnPost()
+    {
+        await using var db = ContextFactory.CreateDbContext();
+        var useCase = new UseCase(db, UseCaseLogger);
+
+        if (Model!.Files!.Count == 0)
+        {
+            _errors = "Een bestand is wel nodig... 😅";
+            return;
+        }
+
+        await using var fileStream = Model!.Files[0].OpenReadStream();
+        await useCase.HandleAsync(fileStream);
+
+        Navigator.NavigateTo("/transactions");
+    }
+
+    public class UploadModel
+    {
+        [SupplyParameterFromForm]
+        public IFormFileCollection? Files { get; set; }
+    }
+}

@@ -14,7 +14,7 @@ builder.Services.AddSingleton(_ => TimeProvider.System);
 
 builder.Services.AddDbContextFactory<BudgetContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("BudgetContext"),
-        b => b.MigrationsAssembly(typeof(App).Assembly.FullName))
+        b => b.MigrationsAssembly(typeof(BudgetContext).Assembly.FullName))
 );
 // TODO: Move migrations to Budget.Core and upate docs
 

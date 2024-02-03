@@ -102,6 +102,7 @@ public class UseCase(BudgetContext dataAccess)
             }
         }
 
+        decimal budgetAvailable = incomeLastMonth + expensesFixedLastMonth;
         return new Response
         {
             IbanSelected = ibanSelected,
@@ -115,7 +116,9 @@ public class UseCase(BudgetContext dataAccess)
             ExpensesPerWeek = expensesPerWeek,
             IncomeFromOwnAccounts = incomeFromOwnAccounts,
             TransactionsPerWeek = transactionsPerWeek,
-            BalancePerAccount = balancePerAccount
+            BalancePerAccount = balancePerAccount,
+            BudgetAvailable = budgetAvailable,
+            BudgetPerWeek = weeksInMonth.Count > 0 ? Math.Floor(budgetAvailable / weeksInMonth.Count) : 0
         };
     }
 }
