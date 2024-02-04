@@ -1,4 +1,4 @@
-﻿@page "/transactions/{year:int?}/{month:int?}"
+﻿@page "/transactions"
 @rendermode InteractiveServerRenderModeNoPreRender
 @using Budget.Core.Models
 @using Budget.Core.UseCases.Transactions.Overview
@@ -13,13 +13,15 @@
 <nav class="navbar">
     <div class="container-fluid">
         <div class="navbar-brand">
-            <button class="btn" @onclick="GoPrevious">
+            <NavLink class="btn" href="@GetPreviousDate()">
                 <i class="bi bi-arrow-left-circle fs-4"></i>
-            </button>
-            <button class="btn fs-4" @onclick="GoToday">@_date?.ToString("yyyy-MM")</button>
-            <button class="btn" @onclick="GoNext">
+            </NavLink>
+            <NavLink class="btn fs-4" href="@GetToday()">@_date?.ToString("yyyy-MM")</NavLink>
+
+            <NavLink class="btn" href="@GetNextDate()">
                 <i class="bi bi-arrow-right-circle fs-4"></i>
-            </button>
+            </NavLink>
+
         </div>
 
         @*         <div>
@@ -42,7 +44,7 @@
         </div>
         <div class="col">
             <div class="form-floating">
-                <InputSelect name="iban" class="form-select" @bind-Value="Iban" @bind-Value:after="LoadData">
+                <InputSelect name="iban" class="form-select" @bind-Value="Iban" @bind-Value:after="SwitchIban">
                     @foreach (var iban in _data?.IbansToSelect ?? [])
                     {
                         <option value="@iban" @key="iban">@iban</option>
@@ -193,27 +195,26 @@
         .ByDescending(p => p.IsFixed)
         .ThenDescending(p => p.DateTransaction);
 
-    [Parameter]
+    [SupplyParameterFromQuery(Name = "year")]
     public int? Year { get; set; }
-    [Parameter]
+    [SupplyParameterFromQuery(Name = "month")]
     public int? Month { get; set; }
 
+    [SupplyParameterFromQuery(Name = "iban")]
     public string? Iban { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
+        Logger.LogInformation("Loading transactions for {Year}-{Month} -> {Iban}", _date?.Year, _date?.Month, Iban);
+
         if (Year == null || Month == null)
         {
             _date = DateOnly.FromDateTime(Time.GetUtcNow().DateTime);
-            Year = _date.Value.Year;
-            Month = _date.Value.Month;
         }
         else
         {
             _date = new DateOnly(Year.Value, Month.Value, 1);
         }
-
-        Logger.LogInformation("Loading transactions for {Year}-{Month} -> {Iban}", Year, Month, Iban);
 
         await LoadData();
     }
@@ -229,8 +230,6 @@
             return;
         }
 
-        Logger.LogInformation(Iban);
-
         _data = await useCase.HandleAsync(new Request
             {
                 Year = _date.Value.Year,
@@ -239,33 +238,34 @@
             });
     }
 
-    private async Task SwitchIban()
-    {
-        await OnInitializedAsync();
-    }
 
-    private async Task GoPrevious()
-    {
-        _date = _date?.AddMonths(-1);
-        await LoadData();
-    }
-
-    private async Task GoNext()
-    {
-        Logger.LogInformation("Loading next month");
-        _date = _date?.AddMonths(1);
-        await LoadData();
-    }
-
-    private async Task GoToday()
-    {
-        _date = DateOnly.FromDateTime(Time.GetUtcNow().DateTime);
-        await LoadData();
-    }
 
     private IQueryable<Transaction> GetTransactions()
     {
         return _data?.TransactionsPerWeek?.SelectMany(kvp => kvp.Value)?
                 .AsQueryable() ?? new List<Transaction>().AsQueryable();
+    }
+
+    private string GetPreviousDate()
+    {
+        var dateNext = _date?.AddMonths(-1);
+        return $"/transactions?year={dateNext?.Year}&month={dateNext?.Month}&iban={Iban}";
+    }
+
+    private string GetNextDate()
+    {
+        var dateNext = _date?.AddMonths(1);
+        return $"/transactions?year={dateNext?.Year}&month={dateNext?.Month}&iban={Iban}";
+    }
+
+    private string GetToday()
+    {
+        var dateNext = DateOnly.FromDateTime(Time.GetUtcNow().DateTime);
+        return $"/transactions?year={dateNext.Year}&month={dateNext.Month}&iban={Iban}";
+    }
+
+    private void SwitchIban()
+    {
+        Navigator.NavigateTo($"/transactions?year={_date?.Year}&month={_date?.Month}&iban={Iban}");
     }
 }
