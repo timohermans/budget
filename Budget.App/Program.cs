@@ -28,7 +28,6 @@ builder.Services.AddDbContextFactory<BudgetContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("BudgetContext"),
         b => b.MigrationsAssembly(typeof(BudgetContext).Assembly.FullName))
 );
-// TODO: Move migrations to Budget.Core and upate docs
 
 var app = builder.Build();
 

@@ -29,7 +29,9 @@ public class LayeringTests
         Classes().That().HaveNameEndingWith("UseCase").As("Use cases");
     
     private readonly IObjectProvider<IType> _migrations =
-        Types().That().ResideInNamespace("Budget.Pages.Migrations").As("Migrations");
+        Types().That().ResideInNamespace("Budget.Pages.Migrations")
+            .Or().ResideInNamespace("Budget.Core.Migrations")
+            .As("Migrations");
 
     private readonly IObjectProvider<IType> _coreLayer =
         Types().That().ResideInNamespace("Budget.Core.UseCases.*", true).As("Core Layer");
