@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Budget.Core.Extensions;
 using Budget.Core.Infrastructure;
 using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -9,8 +10,13 @@ namespace Budget.App.Apis.LoginLogout;
 
 public static class LoginController
 {
-    public static IResult GetLogin(ILogger<LoginView> logger)
+    public static IResult GetLogin(HttpContext context, ILogger<LoginView> logger)
     {
+        if (context.User.IsFullyAuthenticated())
+        {
+            return Results.Redirect("/");
+        }
+        
         logger.LogInformation("Someone is trying to log in.");
 
         return new RazorComponentResult<LoginView>();
@@ -24,6 +30,8 @@ public static class LoginController
         HttpContext context,
         ILogger<LoginView> logger)
     {
+      
+        
         var validationResult = await validator.ValidateAsync(model);
         var errors = validationResult.ToDictionary() as Dictionary<string, string[]> ?? new();
 
