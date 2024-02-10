@@ -1,6 +1,10 @@
+using Budget.App.Apis.LoginLogout;
 using Budget.App.Components;
+using Budget.Core.Constants;
 using Budget.Core.DataAccess;
 using Budget.Core.Infrastructure;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +13,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie();
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(AuthConstants.TwoFactorLoginPolicy,
+        policy => policy.RequireClaim(AuthConstants.TwoFactorLoginPolicy, "2fa"));
+
+builder.Services.AddValidatorsFromAssemblyContaining<LoginModel.Validator>();
 builder.Services.AddSingleton<LoginThrottler>();
 builder.Services.AddSingleton(_ => TimeProvider.System);
 
@@ -31,9 +43,15 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
+
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapGroup("/account")
+    .MapLoginLogoutApis(); 
 
 app.Run();

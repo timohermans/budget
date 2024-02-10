@@ -3,10 +3,13 @@
 @using Budget.Core.Models
 @using Budget.Core.UseCases.Transactions.Overview
 @using System.Globalization
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
 @inject TimeProvider Time
 @inject ILogger<Index> Logger
 @inject IDbContextFactory<BudgetContext> DbContextFactory
 @inject NavigationManager Navigator
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>@_date?.ToString("yyyy-MM") Transacties</PageTitle>
 
@@ -24,13 +27,13 @@
 
         </div>
 
-        @*         <div>
-        Hello, @HttpContext.User.Identity?.Name (
-        <form class="d-inline" method="post" asp-page="/Account/Logout">
-        <button type="submit" class="btn btn-link p-0">Logout</button>
-        </form>)
+        <div>
+            Hello, @_user?.Identity?.Name (
+            <form class="d-inline" method="post" asp-page="/Account/Logout">
+                <button type="submit" class="btn btn-link p-0">Logout</button>
+            </form>)
         </div>
-        *@
+
     </div>
 </nav>
 
@@ -172,8 +175,8 @@
         <h2 class="text-center">Transacties</h2>
 
         <QuickGrid Items="@GetTransactions()">
-            <PropertyColumn Title="Datum" Format="dd-MM" Property="@(p => p.DateTransaction)" Sortable="true" />
-            <PropertyColumn Title="Naam" Property="@(p => p.NameOtherParty)" Sortable="true" />
+            <PropertyColumn Title="Datum" Format="dd-MM" Property="@(p => p.DateTransaction)" Sortable="true"/>
+            <PropertyColumn Title="Naam" Property="@(p => p.NameOtherParty)" Sortable="true"/>
             <TemplateColumn Title="Bedrag" SortBy="@(GridSort<Transaction>.ByDescending(p => p.Amount))" Sortable="true">
                 <span class="badge text-bg-@(context.Amount < 0 ? "danger" : "success")">
                     @context.Amount
@@ -182,7 +185,7 @@
             <TemplateColumn Title="Is vast" SortBy="@fixedSort">
                 @(context.IsFixed ? "🔒" : "")
             </TemplateColumn>
-            <PropertyColumn Title="Description" Property="@(p => p.Description)" Sortable="true" />
+            <PropertyColumn Title="Description" Property="@(p => p.Description)" Sortable="true"/>
         </QuickGrid>
     </section>
 </main>
@@ -191,17 +194,26 @@
     private DateOnly? _date;
     private Response? _data;
     private CultureInfo dutch = new CultureInfo("nl-NL");
+    private ClaimsPrincipal? _user;
+
     private GridSort<Transaction> fixedSort = GridSort<Transaction>
         .ByDescending(p => p.IsFixed)
         .ThenDescending(p => p.DateTransaction);
 
     [SupplyParameterFromQuery(Name = "year")]
     public int? Year { get; set; }
+
     [SupplyParameterFromQuery(Name = "month")]
     public int? Month { get; set; }
 
     [SupplyParameterFromQuery(Name = "iban")]
     public string? Iban { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _user = state.User;
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -231,19 +243,18 @@
         }
 
         _data = await useCase.HandleAsync(new Request
-            {
-                Year = _date.Value.Year,
-                Month = _date.Value.Month,
-                Iban = Iban
-            });
+        {
+            Year = _date.Value.Year,
+            Month = _date.Value.Month,
+            Iban = Iban
+        });
     }
-
 
 
     private IQueryable<Transaction> GetTransactions()
     {
         return _data?.TransactionsPerWeek?.SelectMany(kvp => kvp.Value)?
-                .AsQueryable() ?? new List<Transaction>().AsQueryable();
+            .AsQueryable() ?? new List<Transaction>().AsQueryable();
     }
 
     private string GetPreviousDate()
@@ -268,4 +279,5 @@
     {
         Navigator.NavigateTo($"/transactions?year={_date?.Year}&month={_date?.Month}&iban={Iban}");
     }
+
 }
