@@ -3,7 +3,7 @@ name: Deployment on home server
 # When this action will be executed
 on:
   workflow_run:
-    branches: [ home ]
+    branches: [ blazor ]
     workflows: [ .NET ]
     types:
       - completed
@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build the Docker image
-        run: docker build . --file Budget.Pages/Dockerfile --tag ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget
+        run: docker build . --file Budget.App/Dockerfile --tag ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget
       - name: Tag Image Commit sha
         run: docker tag ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget:${{github.sha}}
       - name: Tag Image Latest
