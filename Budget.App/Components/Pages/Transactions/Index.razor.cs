@@ -89,7 +89,7 @@ public partial class Index
     private IQueryable<Transaction> GetTransactions()
     {
         return _data?.TransactionsPerWeek?.SelectMany(kvp => kvp.Value)?
-            .AsQueryable() ?? new List<Transaction>().AsQueryable();
+            .AsQueryable().OrderByDescending(t => t.DateTransaction) ?? new List<Transaction>().AsQueryable();
     }
 
     private string GetPreviousDate()

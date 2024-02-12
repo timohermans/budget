@@ -1,4 +1,8 @@
-﻿::deep .quickgrid[theme=default] .col-title:hover {
+﻿::deep .quickgrid[theme=default] {
+    --col-gap: 0.3rem;
+}
+
+::deep .quickgrid[theme=default] .col-title:hover {
     border-radius: 0.5rem;
 }
 

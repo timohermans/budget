@@ -108,7 +108,7 @@
                     var expenseOfWeek = _data?.ExpensesPerWeek.GetValueOrDefault(week, 0);
 
                     <li class="row @(isLast ? "border-bottom pb-1" : "")">
-                        <div class="col">Week <a href="#week@(week)">@week</a> @(week.IsCurrentWeek(Time) ? "👈" : "")</div>
+                        <div class="col">Week @week @(week.IsCurrentWeek(Time) ? "👈" : "")</div>
                         <div class="col-auto">
                             <span class="badge text-bg-light">
                                 @expenseOfWeek
@@ -172,8 +172,11 @@
                     <TransactionRowOptions OnSelected="option => HandleOptionSelected(option, context.Id)"/>
                 }
             </TemplateColumn>
-            <PropertyColumn Title="Datum" Format="dd-MM" Property="@(p => p.DateTransaction)" Sortable="true"/>
-            <TemplateColumn SortBy="@(GridSort<Transaction>.ByAscending(p => p.NameOtherParty))" Sortable="true">
+            <TemplateColumn Title="Wk" SortBy="@(GridSort<Transaction>.ByAscending(p => p.DateTransaction.ToIsoWeekNumber()))" Sortable="true">
+                @context.OriginalDate.ToIsoWeekNumber()
+            </TemplateColumn>
+            <PropertyColumn Title="Datum" Format="dd-MM" Property="@(p => p.DateTransaction)" InitialSortDirection="SortDirection.Descending" Sortable="true"/>
+            <TemplateColumn Title="Naam" SortBy="@(GridSort<Transaction>.ByAscending(p => p.NameOtherParty))" Sortable="true">
                 @if (_transactionIdMarkingAsCashback == context.Id)
                 {
                     <TransactionMarkAsCashback Transaction="@context" OnDone="HandleCashbackDone"/>
@@ -193,7 +196,7 @@
 
                 @if (context.CashbackForDate != null)
                 {
-                    <button type="button" class="btn" data-bs-toggle="popover" data-bs-content="Originele datum: @(context.OriginalDate.ToShortDateString())" data-bs-placement="top">
+                    <button type="button" class="btn btn-sm" data-bs-toggle="popover" data-bs-content="Originele datum: @(context.OriginalDate.ToShortDateString())" data-bs-placement="top">
                         <i class="bi bi-sign-turn-left"></i>
                     </button>
                 }
