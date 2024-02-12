@@ -13,6 +13,7 @@ public static class LoginLogoutApi
         group.MapPost(GetMapPartOf(LoginEndpoint), LoginController.PostLogin);
         group.MapGet(GetMapPartOf(TwoFactoryEndpoint), TwoFactorController.Get);
         group.MapPost(GetMapPartOf(TwoFactoryEndpoint), TwoFactorController.Post);
+        group.MapPost(GetMapPartOf(LogoutEndpoint), LogoutController.Post);
 
         return group;
     }

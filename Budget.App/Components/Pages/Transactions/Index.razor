@@ -1,6 +1,7 @@
 ﻿@page "/transactions"
 @rendermode InteractiveServerRenderModeNoPreRender
 @using Budget.Core.Models
+@using Budget.App.Apis.LoginLogout
 @inject TimeProvider Time
 
 <PageTitle>@_date?.ToString("yyyy-MM") Transacties</PageTitle>
@@ -20,9 +21,11 @@
 
         <div>
             Hello, @_user?.Identity?.Name (
-            <form class="d-inline" method="post" asp-page="/Account/Logout">
+            <form class="d-inline" method="post" action="@(LoginLogoutApi.LogoutEndpoint)" formname="logout">
+                <AntiforgeryToken/>
                 <button type="submit" class="btn btn-link p-0">Logout</button>
-            </form>)
+            </form>
+            )
         </div>
 
     </div>
