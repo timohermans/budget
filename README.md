@@ -18,8 +18,8 @@ docker run --name postgres -e POSTGRES_PASSWORD=budget -e POSTGRES_USER=budget -
 Then run the migrations to get the database up to date.
 
 ```shell
-cd Budget.Pages
-dotnet ef database update
+cd Budget.Core
+dotnet ef database update -s ../Budget.App
 ```
 
 Then run the app.
@@ -30,14 +30,14 @@ dotnet run
 
 ## Development process
 
-Right now, there are two versions of the app: one for Azure and one for bare metal.
+Right now, there are three versions of the app: one for Azure and two for bare metal (a Blazor one and a Razor Pages with HTMX one).
 The Azure version uses Azure Table Storage, but I will not develop any further on that version.
 The development process for the bare metal version is as follows:
 
 - Create a new feature branch
 - Develop the feature
   - In case of changing the model, cd to `Budget.Core` and perform `dotnet ef migrations add CreateTransaction -s ../Budget.Pages`
-- Create a pull request to merge the feature branch into the `home` branch
+- Create a pull request to merge the feature branch into the `home` or `blazor` branch
   - From this point, the project will be unit- and integration tested automatically
 - Merge the pull request
 - Delete the feature branch
