@@ -1,12 +1,21 @@
+@using Budget.App.Components.Pages
 @using Microsoft.AspNetCore.Components.Forms
 
 @layout Layout
 
 <section class="d-flex justify-content-center mt-5">
     <form method="post" class="form mx-auto">
-        <AntiforgeryToken />
+        <AntiforgeryToken/>
         <h2>Budget 💶</h2>
-        <div asp-validation-summary="All"></div>
+        @if (Errors.TryGetValue("summary", out var errors))
+        {
+            <div class="alert alert-danger">
+                @string.Join(Environment.NewLine, errors)
+            </div>
+        }
+        <div>
+
+        </div>
         <p class="form-floating">
             <input type="text" id="username" name="username" class="form-control" placeholder="Gebruikersnaam" autofocus>
             <label>Gebruikersnaam</label>

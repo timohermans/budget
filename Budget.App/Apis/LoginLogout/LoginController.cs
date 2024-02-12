@@ -45,7 +45,7 @@ public static class LoginController
         var adminUsername = config.GetValue<string>("Admin:Username");
         var adminPassword = config.GetValue<string>("Admin:Password");
 
-        if (adminUsername != model.Username || adminPassword != model.Password)
+        if (errors.Count == 0 && (adminUsername != model.Username || adminPassword != model.Password))
         {
             loginThrottler.Throttle();
             logger.LogWarning(
