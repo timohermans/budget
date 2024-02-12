@@ -1,15 +1,7 @@
 ﻿@page "/transactions"
 @rendermode InteractiveServerRenderModeNoPreRender
 @using Budget.Core.Models
-@using Budget.Core.UseCases.Transactions.Overview
-@using System.Globalization
-@using System.Security.Claims
-@using Microsoft.AspNetCore.Components.Authorization
 @inject TimeProvider Time
-@inject ILogger<Index> Logger
-@inject IDbContextFactory<BudgetContext> DbContextFactory
-@inject NavigationManager Navigator
-@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>@_date?.ToString("yyyy-MM") Transacties</PageTitle>
 
@@ -24,7 +16,6 @@
             <NavLink class="btn" href="@GetNextDate()">
                 <i class="bi bi-arrow-right-circle fs-4"></i>
             </NavLink>
-
         </div>
 
         <div>
@@ -39,7 +30,7 @@
 
 
 <main class="container flex-grow-1 vstack gap-3">
-    <div class="row mb-3">
+    <section id="actions" class="row mb-3">
         <div class="col-auto align-self-center">
             <NavLink href="/transactions/upload" class="btn btn-primary fs-4">
                 <i class="bi bi-cloud-arrow-up"></i>
@@ -60,14 +51,14 @@
                 <label>Iban</label>
             </div>
         </div>
-    </div>
+    </section>
 
-    <section class="row justify-content-center">
+    <section id="budgetOverview" class="row justify-content-center">
         <h2 class="text-center">Overzicht</h2>
         <div class="col-xs-8 col-sm-6 col-md-5 col-lg-4">
             <ul class="vstack gap-1">
                 <li class="row">
-                    <div class="col fst-italic text-capitalize">@_data?.DatePreviousMonth.ToString("MMMM", dutch)</div>
+                    <div class="col fst-italic text-capitalize">@_data?.DatePreviousMonth.ToString("MMMM", _dutch)</div>
                 </li>
                 <li class="row">
                     <div class="col">Inkomen</div>
@@ -85,7 +76,7 @@
                     <div class="col-1"></div>
                 </li>
                 <li class="row">
-                    <div class="col fst-italic text-capitalize">@_data?.Date.ToString("MMMM", dutch)</div>
+                    <div class="col fst-italic text-capitalize">@_data?.Date.ToString("MMMM", _dutch)</div>
                 </li>
                 <li class="row border-bottom">
                     <div class="col">Weken</div>
@@ -104,7 +95,7 @@
         <div class="col-xs-8 col-sm-6 col-md-5 col-lg-4">
             <ul class="vstack gap-1">
                 <li class="row">
-                    <div class="col fst-italic text-capitalize">@_data?.Date.ToString("MMMM", dutch)</div>
+                    <div class="col fst-italic text-capitalize">@_data?.Date.ToString("MMMM", _dutch)</div>
                 </li>
                 <li class="row">
                     <div class="col">Budget</div>
@@ -171,113 +162,43 @@
         </div>
     </section>
 
-    <section>
+    <section id="transactionOverview">
         <h2 class="text-center">Transacties</h2>
 
         <QuickGrid Items="@GetTransactions()">
+            <TemplateColumn Sortable="false">
+                @if (context.IsIncome)
+                {
+                    <TransactionRowOptions OnSelected="option => HandleOptionSelected(option, context.Id)"/>
+                }
+            </TemplateColumn>
             <PropertyColumn Title="Datum" Format="dd-MM" Property="@(p => p.DateTransaction)" Sortable="true"/>
-            <PropertyColumn Title="Naam" Property="@(p => p.NameOtherParty)" Sortable="true"/>
+            <TemplateColumn SortBy="@(GridSort<Transaction>.ByAscending(p => p.NameOtherParty))" Sortable="true">
+                @if (_transactionIdMarkingAsCashback == context.Id)
+                {
+                    <TransactionMarkAsCashback Transaction="@context" OnDone="HandleCashbackDone"/>
+                }
+                else
+                {
+                    <span>@context.NameOtherParty</span>
+                }
+            </TemplateColumn>
             <TemplateColumn Title="Bedrag" SortBy="@(GridSort<Transaction>.ByDescending(p => p.Amount))" Sortable="true">
                 <span class="badge text-bg-@(context.Amount < 0 ? "danger" : "success")">
                     @context.Amount
                 </span>
             </TemplateColumn>
-            <TemplateColumn Title="Is vast" SortBy="@fixedSort">
+            <TemplateColumn Title="Is vast" SortBy="@_fixedSort">
                 @(context.IsFixed ? "🔒" : "")
+
+                @if (context.CashbackForDate != null)
+                {
+                    <button type="button" class="btn" data-bs-toggle="popover" data-bs-content="Originele datum: @(context.OriginalDate.ToShortDateString())" data-bs-placement="top">
+                        <i class="bi bi-sign-turn-left"></i>
+                    </button>
+                }
             </TemplateColumn>
             <PropertyColumn Title="Description" Property="@(p => p.Description)" Sortable="true"/>
         </QuickGrid>
     </section>
 </main>
-
-@code {
-    private DateOnly? _date;
-    private Response? _data;
-    private CultureInfo dutch = new CultureInfo("nl-NL");
-    private ClaimsPrincipal? _user;
-
-    private GridSort<Transaction> fixedSort = GridSort<Transaction>
-        .ByDescending(p => p.IsFixed)
-        .ThenDescending(p => p.DateTransaction);
-
-    [SupplyParameterFromQuery(Name = "year")]
-    public int? Year { get; set; }
-
-    [SupplyParameterFromQuery(Name = "month")]
-    public int? Month { get; set; }
-
-    [SupplyParameterFromQuery(Name = "iban")]
-    public string? Iban { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        _user = state.User;
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        Logger.LogInformation("Loading transactions for {Year}-{Month} -> {Iban}", _date?.Year, _date?.Month, Iban);
-
-        if (Year == null || Month == null)
-        {
-            _date = DateOnly.FromDateTime(Time.GetUtcNow().DateTime);
-        }
-        else
-        {
-            _date = new DateOnly(Year.Value, Month.Value, 1);
-        }
-
-        await LoadData();
-    }
-
-    private async Task LoadData()
-    {
-        await using var db = DbContextFactory.CreateDbContext();
-        var useCase = new UseCase(db);
-
-        if (_date == null)
-        {
-            Logger.LogWarning("Trying to load data without a date");
-            return;
-        }
-
-        _data = await useCase.HandleAsync(new Request
-        {
-            Year = _date.Value.Year,
-            Month = _date.Value.Month,
-            Iban = Iban
-        });
-    }
-
-
-    private IQueryable<Transaction> GetTransactions()
-    {
-        return _data?.TransactionsPerWeek?.SelectMany(kvp => kvp.Value)?
-            .AsQueryable() ?? new List<Transaction>().AsQueryable();
-    }
-
-    private string GetPreviousDate()
-    {
-        var dateNext = _date?.AddMonths(-1);
-        return $"/transactions?year={dateNext?.Year}&month={dateNext?.Month}&iban={Iban}";
-    }
-
-    private string GetNextDate()
-    {
-        var dateNext = _date?.AddMonths(1);
-        return $"/transactions?year={dateNext?.Year}&month={dateNext?.Month}&iban={Iban}";
-    }
-
-    private string GetToday()
-    {
-        var dateNext = DateOnly.FromDateTime(Time.GetUtcNow().DateTime);
-        return $"/transactions?year={dateNext.Year}&month={dateNext.Month}&iban={Iban}";
-    }
-
-    private void SwitchIban()
-    {
-        Navigator.NavigateTo($"/transactions?year={_date?.Year}&month={_date?.Month}&iban={Iban}");
-    }
-
-}

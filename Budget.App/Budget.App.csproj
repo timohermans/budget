@@ -20,7 +20,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\bootstrap-icons\fonts\fonts\" />
+    <Folder Include="wwwroot\lib\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\bootstrap-icons\bootstrap-icons@1.11.3.min.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\bootstrap-icons\fonts\bootstrap-icons.woff" />
+    <_ContentIncludedByDefault Remove="wwwroot\bootstrap-icons\fonts\bootstrap-icons.woff2" />
   </ItemGroup>
 
 </Project>
