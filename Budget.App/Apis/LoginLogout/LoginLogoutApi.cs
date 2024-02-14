@@ -9,7 +9,7 @@ public static class LoginLogoutApi
     public static RouteGroupBuilder MapLoginLogoutApis(this RouteGroupBuilder group)
     {
         group.MapGet(GetMapPartOf(LoginEndpoint), LoginController.GetLogin);
-        group.MapPost(GetMapPartOf(LogoutEndpoint), LogoutController.Post);
+        group.MapGet(GetMapPartOf(LogoutEndpoint), LogoutController.Get);
 
         return group;
     }

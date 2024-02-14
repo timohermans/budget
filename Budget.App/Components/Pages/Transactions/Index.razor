@@ -1,7 +1,6 @@
 ﻿@page "/transactions"
-@rendermode InteractiveServerRenderModeNoPreRender
-@using Budget.Core.Models
 @using Budget.App.Apis.LoginLogout
+@rendermode InteractiveServerRenderModeNoPreRender
 @inject TimeProvider Time
 
 <PageTitle>@_date?.ToString("yyyy-MM") Transacties</PageTitle>
@@ -21,10 +20,7 @@
 
         <div>
             Hello, @_user?.Identity?.Name (
-            <form class="d-inline" method="post" action="@(LoginLogoutApi.LogoutEndpoint)" formname="logout">
-                <AntiforgeryToken/>
-                <button type="submit" class="btn btn-link p-0">Logout</button>
-            </form>
+            <button type="submit" class="btn btn-link p-0" @onclick="@(() => Navigator.NavigateTo(LoginLogoutApi.LogoutEndpoint, true))">log uit</button>
             )
         </div>
 
