@@ -31,7 +31,8 @@ builder.Services.AddAuthentication(options =>
         options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            NameClaimType = "preferred_username"
+            NameClaimType = "preferred_username",
+            RoleClaimType = "roles"
         };
     });
 
