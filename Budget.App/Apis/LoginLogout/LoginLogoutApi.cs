@@ -3,6 +3,7 @@ namespace Budget.App.Apis.LoginLogout;
 
 public static class LoginLogoutApi
 {
+    public const string GroupName = "/account";
     public const string LoginEndpoint = "/account/login";
     public const string LogoutEndpoint = "/account/logout";
    

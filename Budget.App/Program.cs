@@ -1,81 +1,62 @@
 using Budget.App.Apis.LoginLogout;
 using Budget.App.Components;
-using Budget.Core.DataAccess;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Budget.App.Config;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-    })
-    .AddCookie()
-    .AddOpenIdConnect(options =>
-    {
-        options.Authority = builder.Configuration.GetValue<string>("Auth:Authority");
-        options.ClientId = builder.Configuration.GetValue<string>("Auth:ClientId");
-        options.ClientSecret = builder.Configuration.GetValue<string>("Auth:ClientSecret");
-        options.ResponseType = "id_token token";
-        options.SaveTokens = true;
-        options.Scope.Add("openid");
-        options.Scope.Add("profile");
-        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            NameClaimType = "preferred_username",
-            RoleClaimType = "roles"
-        };
-    });
-
-builder.Services.AddSingleton(_ => TimeProvider.System);
-
-builder.Services.AddDbContextFactory<BudgetContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("BudgetContext"),
-        b => b.MigrationsAssembly(typeof(BudgetContext).Assembly.FullName))
-);
-
-if (!builder.Environment.IsDevelopment())
+try
 {
-    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+
+    Log.Information("Starting application");
+
+    var builder = WebApplication.CreateBuilder(args);
+    var config = builder.Configuration;
+
+    builder.Host.AddLogging(config);
+
+    builder.Services.AddRazorComponents()
+        .AddInteractiveServerComponents();
+
+    builder.Services
+        .AddAuthentication(config)
+        .AddDatabase(config)
+        .AddServices()
+        .AddProxyConfig(builder.Environment);
+
+    var app = builder.Build();
+
+    if (!app.Environment.IsDevelopment())
     {
-        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-        options.KnownNetworks.Clear();
-        options.KnownProxies.Clear();
-    });
+        app.UseExceptionHandler("/Error", createScopeForErrors: true);
+        app.UseHsts();
+        app.UseForwardedHeaders();
+    }
+
+    app.UseHttpsRedirection();
+
+    app.UseStaticFiles();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.UseAntiforgery();
+
+    app.MapRazorComponents<App>()
+        .AddInteractiveServerRenderMode();
+
+    app.MapGroup(LoginLogoutApi.GroupName)
+        .MapLoginLogoutApis();
+
+    app.Run();
+    Log.Information("Stopped cleanly");
 }
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+catch (Exception ex)
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-    app.UseForwardedHeaders();
+    Log.Fatal(ex, "An unhandled exception occurred during bootstrapping");
 }
-
-app.UseHttpsRedirection();
-
-app.UseStaticFiles();
-
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseAntiforgery();
-
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
-
-app.MapGroup("/account")
-    .MapLoginLogoutApis(); 
-
-app.Run();
+finally
+{
+    Log.CloseAndFlush();
+}

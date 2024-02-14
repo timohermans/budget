@@ -20,7 +20,6 @@
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
-        Logger.LogInformation("User is {authenticated}authenticated", authState.User.Identity?.IsAuthenticated ?? false ? "" : "not ");
         if (!authState.User.Identity?.IsAuthenticated ?? true)
         {
             Navigator.NavigateTo(LoginLogoutApi.LoginEndpoint, forceLoad: true);
