@@ -1,9 +1,6 @@
 using Budget.App.Apis.LoginLogout;
 using Budget.App.Components;
-using Budget.Core.Constants;
 using Budget.Core.DataAccess;
-using Budget.Core.Infrastructure;
-using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -38,9 +35,6 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-
-builder.Services.AddValidatorsFromAssemblyContaining<LoginModel.Validator>();
-builder.Services.AddSingleton<LoginThrottler>();
 builder.Services.AddSingleton(_ => TimeProvider.System);
 
 builder.Services.AddDbContextFactory<BudgetContext>(options =>
