@@ -5,7 +5,9 @@ using Budget.Core.DataAccess;
 using Budget.Core.Infrastructure;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,12 +15,28 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie();
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+    })
+    .AddCookie()
+    .AddOpenIdConnect(options =>
+    {
+        options.Authority = builder.Configuration.GetValue<string>("Auth:Authority");
+        options.ClientId = builder.Configuration.GetValue<string>("Auth:ClientId");
+        options.ClientSecret = builder.Configuration.GetValue<string>("Auth:ClientSecret");
+        options.ResponseType = "id_token token";
+        options.SaveTokens = true;
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            NameClaimType = "preferred_username"
+        };
+    });
 
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy(AuthConstants.TwoFactorLoginPolicy,
-        policy => policy.RequireClaim(AuthConstants.TwoFactorLoginPolicy, "2fa"));
 
 builder.Services.AddValidatorsFromAssemblyContaining<LoginModel.Validator>();
 builder.Services.AddSingleton<LoginThrottler>();

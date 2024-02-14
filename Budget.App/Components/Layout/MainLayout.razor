@@ -14,12 +14,14 @@
 </div>
 
 @code {
+    [Inject] ILogger<MainLayout> Logger { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
-        if (!authState.User.IsFullyAuthenticated())
+        Logger.LogInformation("User is {authenticated}authenticated", authState.User.Identity?.IsAuthenticated ?? false ? "" : "not ");
+        if (!authState.User.Identity?.IsAuthenticated ?? true)
         {
             Navigator.NavigateTo(LoginLogoutApi.LoginEndpoint, forceLoad: true);
         }

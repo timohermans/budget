@@ -5,21 +5,20 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace Budget.App.Apis.LoginLogout;
 
 public static class LoginController
 {
-    public static IResult GetLogin(HttpContext context, ILogger<LoginView> logger)
+    public static async Task GetLogin(HttpContext context, ILogger<LoginView> logger)
     {
-        if (context.User.IsFullyAuthenticated())
-        {
-            return Results.Redirect("/");
-        }
-        
         logger.LogInformation("Someone is trying to log in.");
-
-        return new RazorComponentResult<LoginView>();
+        
+        await context.ChallengeAsync(new AuthenticationProperties
+        {
+            RedirectUri = "/"
+        });
     }
 
     public static async Task<IResult> PostLogin(
