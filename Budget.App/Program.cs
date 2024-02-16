@@ -1,4 +1,5 @@
 using Budget.App.Apis.LoginLogout;
+using Budget.App.Common;
 using Budget.App.Components;
 using Budget.App.Config;
 using Serilog;
@@ -42,6 +43,8 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseAntiforgery();
+
+    app.UseMiddleware<LogUsernameMiddleware>();
 
     app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode();
