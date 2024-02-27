@@ -18,18 +18,20 @@ variables:
 steps:
 - task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
+- task: CmdLine@2
+  displayName: 'Restore'
   inputs:
-    restoreSolution: '$(solution)'
+    script: 'dotnet restore $(solution)'
 
-- task: VSBuild@1
+- task: CmdLine@2
+  displayName: 'Build'
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    script: 'dotnet build $(solution)'
 
-- task: VSTest@2
+- task: CmdLine@2
+  displayName: 'Test'
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    script: 'dotnet test $(solution)'
+
+
+
