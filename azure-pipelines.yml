@@ -11,7 +11,7 @@ pool: Default
 container: 'mcr.microsoft.com/dotnet/sdk:8.0' 
 
 variables:
-  solution: '**/*.sln'
+  solution: 'Budget.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
