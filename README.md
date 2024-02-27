@@ -9,33 +9,58 @@
 
 ## Getting started
 
-### Azurite
+First off, get a postgres database running locally with a `budget` user, password and database.
 
-Make sure you have Azurite, the emulator for Azure Storage, running. You can do this with Docker:
-
-```bash
-docker run -p 10000:10000 -p 10001:10001 -p 10002:10002 -v C:/Users/<user>/data/azurite:/data -d --name azurite mcr.microsoft.com/azure-storage/azurite
+```shell
+docker run --name postgres -e POSTGRES_PASSWORD=budget -e POSTGRES_USER=budget -e POSTGRES_DB=budget -p 5432:5432 -d postgres
 ```
 
-Note that if `C:/Users/<user>/data/azurite:/data` doesn't exist, you need to create the directory
+Then run the migrations to get the database up to date.
 
-### (Optional) Azure Storage Explorer
-
-You can use Azure Storage Explorer to view the data in the emulator.
-You can download it [here](https://azure.microsoft.com/en-us/features/storage-explorer/).
-Or install it via winget:
-
-```bash
-winget install Microsoft.Azure.StorageExplorer
+```shell
+cd Budget.Core
+dotnet ef database update -s ../Budget.App
 ```
+
+Then run the app.
+
+```shell
+dotnet run
+```
+
+## Development process
+
+Right now, there are three versions of the app: one for Azure and two for bare metal (a Blazor one and a Razor Pages with HTMX one).
+The Azure version uses Azure Table Storage, but I will not develop any further on that version.
+The development process for the bare metal version is as follows:
+
+- Create a new feature branch
+- Develop the feature
+  - In case of changing the model, cd to `Budget.Core` and perform `dotnet ef migrations add CreateTransaction -s ../Budget.Pages`
+- Create a pull request to merge the feature branch into the `home` or `blazor` branch
+  - From this point, the project will be unit- and integration tested automatically
+- Merge the pull request
+- Delete the feature branch
+- When the tests succeed on the home branch, the following happens:
+  - A docker image is built and tagged with `the commit hash` and `latest`
+  - The docker image is pushed to my personal registry
+  - The Github webhook triggers a deployment to my personal server automatically
+- Before or after deployment, make sure new migrations are run on the production database
+  - Run `dotnet ef migrations script <last-migration>` to get the SQL script for the new migrations
+  - Ssh into the server (`ssh <docker-user>@<server-ip>`)
+  - Run `docker exec -it database bash` to get a bash shell in the container (or `docker ps` first to see the running database)
+  - Run `psql -U budget` to get a psql shell in the database
+  - Run the SQL script to update the database
+
+
 
 ## Misc topics
 
 ### Running docker image
 
-The docker image can be run as follows
+The `Budget.Pages` docker image can be run as follows
 
-```
+```csharp
 docker run -d -p 8080:8080 --name budget `
  -e "ConnectionStrings__TransactionTable=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://azurite:10002/devstoreaccount1" `
  -e "Admin__Username=timo" `
@@ -59,22 +84,3 @@ Note this run command is used to test locally. This will give inspiration as to 
 
         _logger.LogCritical(base32String);
 ```
-
-### Making the app work on horizontal scaling architectures
-
-So at one point I got an error and redirected immediately to the login page.
-What happened is that I logged in on one instance that the container app was running.
-The session took quite a long time, so I think the sessions got booted up on another instance that had a different anti-forgery key.
-To solve this issue I had to add the following code to the `program.cs`:
-
-```csharp
-if (!builder.Environment.IsDevelopment())
-{
-    builder.Services.AddDataProtection()
-        .SetApplicationName("Budget")
-        .PersistKeysToAzureBlobStorage(builder.Configuration.GetConnectionString("Storage"), "keys", "keys.xml");
-}
-```
-
-Note that this is not 100% secure.
-I should also be looking at encrypting the keys, though I haven't gotten around trying to fix that.

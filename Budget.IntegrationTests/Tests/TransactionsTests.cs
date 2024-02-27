@@ -1,11 +1,13 @@
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using AngleSharp.Io;
 using Budget.Core.Models;
-using Budget.Core.UseCases;
 using Budget.IntegrationTests.Config;
 using Budget.IntegrationTests.Helpers;
+using Budget.Pages.Pages.Transactions;
 using FakeItEasy;
 using FluentAssertions.Execution;
+using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
 namespace Budget.IntegrationTests.Tests;
@@ -27,7 +29,7 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output)
         var responseForm = await client.GetAsync("/transactions/upload");
 
         // assert upload form
-        var document = await fixture.OpenHtmlOf(responseForm.Content);
+        var document = await fixture.OpenHtmlOfAsync(responseForm.Content);
         var form = document.QuerySelector<IHtmlFormElement>("form");
         using (new AssertionScope("Assert upload form"))
         {
@@ -50,8 +52,8 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output)
 
         var responseDashboard = await client.GetAsync(responseUpload.Headers.Location);
 
-        var dashboardDoc = await fixture.OpenHtmlOf(responseDashboard.Content);
-        
+        var dashboardDoc = await fixture.OpenHtmlOfAsync(responseDashboard.Content);
+
         output.WriteLine(dashboardDoc.Body?.InnerHtml);
 
         using (new AssertionScope("Dashboard data"))
@@ -81,7 +83,7 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output)
             dashboardDoc.All.First(el => el.TextContent == "Week 49").Closest("li")?.TextContent.Should()
                 .Contain("-80,75", "I need to see what I spent in week 49");
             dashboardDoc.All.First(el => el.TextContent == "Uitgegeven").Closest("li")?.TextContent.Should()
-                .Contain("-171,50", "I need to see what I spent in total"); 
+                .Contain("-171,50", "I need to see what I spent in total");
             dashboardDoc.All.First(el => el.TextContent == "Over").Closest("li")?.TextContent.Should()
                 .Contain("4028,50", "I need to see what total budget I have left");
 
@@ -98,4 +100,54 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output)
         }
     }
 
+    [Fact]
+    public async Task Marks_transaction_as_cashback()
+    {
+        // Arrange
+        var cashbackUrl = "/transactions/markascashback";
+        var timeProvider = A.Fake<TimeProvider>();
+        A.CallTo(() => timeProvider.GetUtcNow()).Returns(new DateTimeOffset(new DateTime(2024, 1, 1)));
+
+        var transactionToCashback = new Transaction
+        {
+            Currency = "EUR",
+            Iban = "NL22RABO0101010100",
+            Description = "Factuur x001",
+            DateTransaction = new DateOnly(2023, 12, 7),
+            Amount = 173,
+            FollowNumber = 1,
+            BalanceAfterTransaction = 173,
+            IbanOtherParty = "NL00TEGENBANK",
+            NameOtherParty = "Cambrium B.V.",
+        };
+
+        await using (var db = await fixture.CreateTableClientAsync())
+        {
+            await db.Transactions.AddAsync(transactionToCashback);
+            await db.SaveChangesAsync();
+        }
+
+        var client = await fixture.CreateAuthenticatedAppClientAsync(output, timeProvider, false);
+
+        // GET and set
+        var response = await client.GetAsync($"{cashbackUrl}?id={transactionToCashback.Id}");
+        var document = await fixture.OpenHtmlOfAsync(response.Content);
+        var form = document.QuerySelector<IHtmlFormElement>("form");
+        form.Should().NotBeNull();
+        form!.SetValues(new Dictionary<string, string> { { nameof(MarkAsCashbackModel.Date), "2023-12-07" } });
+        form!.Attributes["hx-post"]!.Value.Should().Be(cashbackUrl);
+
+        // POST and assert
+        var finalResponse = await client.SendAsync(cashbackUrl, form);
+        finalResponse.StatusCode.IsRedirected();
+        finalResponse.Headers.Location.Should()
+            .Be("/transactions?year=2023&month=12&iban=" + transactionToCashback.Iban.ToLower()
+                , "it should stay on the same transactions page to ensure smooth results");
+
+        await using (var db = await fixture.CreateTableClientAsync(false))
+        {
+            (await db.Transactions.SingleAsync(t => t.Id == transactionToCashback.Id))
+                .CashbackForDate.Should().Be(new DateOnly(2023, 12, 7));
+        }
+    }
 }

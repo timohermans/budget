@@ -1,5 +1,6 @@
-﻿using Budget.Core.Models;
-using Budget.Core.UseCases;
+﻿using Budget.Core.Extensions;
+using Budget.Core.Models;
+using Budget.Core.UseCases.Transactions.Overview;
 using Budget.Pages.Constants;
 using Htmx;
 using Microsoft.AspNetCore.Mvc;
@@ -7,13 +8,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel;
-using System.Globalization;
-using Budget.Core.Extensions;
 
 namespace Budget.Pages.Pages.Transactions;
 
 public class IndexModel(
-    TransactionGetOverviewUseCase useCase,
+    UseCase useCase,
     ILogger<IndexModel> logger,
     IMemoryCache cache,
     TimeProvider timeProvider) : PageModel
@@ -31,17 +30,17 @@ public class IndexModel(
     public List<int> WeeksInMonth { get; set; } = [];
     public decimal ExpensesVariable { get; set; }
     public Dictionary<int, decimal> ExpensesPerWeek { get; set; } = [];
-    public Dictionary<string, decimal> BalancePerAccount { get; set; }
+    public Dictionary<string, decimal> BalancePerAccount { get; set; } = new Dictionary<string, decimal>();
     public decimal IncomeFromOwnAccounts { get; set; }
     public Dictionary<int, List<Transaction>> TransactionsPerWeek { get; set; } = [];
 
-    public void OnGet(int? year, int? month, string? iban)
+    public async Task OnGetAsync(int? year, int? month, string? iban)
     {
         logger.LogInformation("Loading {Iban}'s transactions of {Date}", iban, $"{year}-{month}");
 
         var now = timeProvider.GetUtcNow().DateTime;
-        
-        var request = new TransactionGetOverviewUseCase.Request
+
+        var request = new Request
         {
             Year = year ?? now.Year,
             Month = month ?? now.Month,
@@ -49,9 +48,9 @@ public class IndexModel(
         };
         var cacheKey = CacheKeys.GetTransactionOverviewKey(request);
 
-        if (!cache.TryGetValue(cacheKey, out TransactionGetOverviewUseCase.Response? result))
+        if (!cache.TryGetValue(cacheKey, out Response? result))
         {
-            result = useCase.Handle(request);
+            result = await useCase.HandleAsync(request);
             cache.Set(cacheKey, result, new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromMinutes(5) });
         }
 

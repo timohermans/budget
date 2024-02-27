@@ -1,44 +1,36 @@
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text.Encodings.Web;
 using AngleSharp;
 using AngleSharp.Dom;
-using Azure.Data.Tables;
+using Budget.Core.DataAccess;
 using Budget.IntegrationTests.Helpers;
-using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using Testcontainers.PostgreSql;
 using Xunit.Abstractions;
 
 namespace Budget.IntegrationTests.Config;
 
 public class TestFixture : IAsyncLifetime
 {
-    private readonly WebApplicationFactory<Program> _factory;
-    private readonly IContainer _container;
-    
-    public TableClient Db { get; private set; }
+    private readonly WebApplicationFactory<Program> _factory = new();
 
-    public TestFixture()
-    {
-        _factory = new WebApplicationFactory<Program>();
-        _container = new ContainerBuilder()
-            .WithImage("mcr.microsoft.com/azure-storage/azurite")
-            .WithPortBinding(10002, true)
-            .WithWaitStrategy(Wait.ForUnixContainer()
-                .UntilMessageIsLogged("Azurite Table service is successfully listening at http://0.0.0.0:10002"))
-            .Build();
-    }
+    private readonly IContainer _container = new PostgreSqlBuilder()
+        .WithDatabase("budget")
+        .WithUsername("budget")
+        .WithPassword("budget")
+        .Build();
 
     /// <summary>
     /// Opens html string content into a DOM document like object that your can QuerySelector on
     /// </summary>
     /// <param name="htmlContent">response from `await client.GetAsync("url");`</param>
-    public async Task<IDocument> OpenHtmlOf(HttpContent htmlContent)
+    public async Task<IDocument> OpenHtmlOfAsync(HttpContent htmlContent)
     {
         var browser = BrowsingContext.New(Configuration.Default);
         var contentStream = await htmlContent.ReadAsStreamAsync();
@@ -50,34 +42,47 @@ public class TestFixture : IAsyncLifetime
     /// Opens connection to transaction azure table and clears it. Use this when you only want to use table, not html
     /// </summary>
     /// <returns>The table client to the transactions table</returns>
-    public async Task<TableClient> CreateTableClientAsync()
+    public async Task<BudgetContext> CreateTableClientAsync(bool ensureCleanDb = true)
     {
-        var service = new TableServiceClient(
-            $"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://{_container.Hostname}:{_container.GetMappedPublicPort(10002)}/devstoreaccount1");
-        var client = service.GetTableClient("Transactions");
-        await client.DeleteAsync();
-        await client.CreateIfNotExistsAsync();
-        Db = client;
-        return client;
+        var options = new DbContextOptionsBuilder<BudgetContext>()
+            .UseNpgsql(GetDbConnectionString())
+            .Options;
+
+        var db = new BudgetContext(options);
+
+        if (ensureCleanDb && await db.Database.EnsureCreatedAsync() == false)
+        {
+            await db.Database.ExecuteSqlRawAsync(@"DELETE FROM transactions;");
+        }
+
+        return new BudgetContext(options);
+    }
+
+    private string GetDbConnectionString()
+    {
+        return
+            $"Server={_container.Hostname};Port={_container.GetMappedPublicPort(5432)};Database=budget;User Id=budget;Password=budget;";
     }
 
     /// <summary>
     /// inspired by https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-7.0
     /// </summary>
-    public async Task<HttpClient> CreateAuthenticatedAppClientAsync(ITestOutputHelper? outputHelper = null,
-        TimeProvider? timeProviderOverride = null)
+    public Task<HttpClient> CreateAuthenticatedAppClientAsync(ITestOutputHelper? outputHelper = null,
+        TimeProvider? timeProviderOverride = null, bool ensureCleanDb = true)
     {
-        Db = await CreateTableClientAsync();
-
-        if (_factory == null) throw new ArgumentNullException();
+        if (_factory == null)
+        {
+            throw new ArgumentNullException();
+        }
 
         var clientBuilder = ConfigureClient(outputHelper, timeProviderOverride);
-        var client = CreateClient(clientBuilder);
+        var client = CreateClient(clientBuilder, ensureCleanDb);
 
-        return client ?? throw new NullReferenceException("Something went wrong creating the client");
+        return Task.FromResult(client) ?? throw new NullReferenceException("Something went wrong creating the client");
     }
 
-    private WebApplicationFactory<Program> ConfigureClient(ITestOutputHelper? outputHelper, TimeProvider? timeProviderOverride)
+    private WebApplicationFactory<Program> ConfigureClient(ITestOutputHelper? outputHelper,
+        TimeProvider? timeProviderOverride)
     {
         return _factory.WithWebHostBuilder(builder =>
         {
@@ -93,15 +98,30 @@ public class TestFixture : IAsyncLifetime
                     .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
                         "TestScheme", _ => { });
 
-                services.RemoveAll<TableClient>();
+                var descriptor =
+                    services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<BudgetContext>));
+                if (descriptor != null)
+                {
+                    services.Remove(descriptor);
+                }
+
                 services.AddSingleton(timeProviderOverride ?? TimeProvider.System);
-                services.AddScoped(_ => Db);
+                services.AddDbContext<BudgetContext>(options =>
+                    options.UseNpgsql(GetDbConnectionString()));
             });
         });
     }
 
-    private HttpClient CreateClient(WebApplicationFactory<Program> clientBuilder)
+    private HttpClient CreateClient(WebApplicationFactory<Program> clientBuilder, bool ensureCleanDb)
     {
+        using var serviceScope = clientBuilder.Services.CreateScope();
+        var db = (BudgetContext?)serviceScope.ServiceProvider.GetService(typeof(BudgetContext));
+
+        if (db != null && db.Database.EnsureCreated() == false && ensureCleanDb)
+        {
+            db.Database.ExecuteSqlRaw("DELETE FROM transactions;");
+        }
+
         var client = clientBuilder.CreateClient(new WebApplicationFactoryClientOptions
         {
             AllowAutoRedirect = false, // this makes sure you will not get a 200 at the /login page automatically
@@ -118,14 +138,14 @@ public class TestFixture : IAsyncLifetime
         _container.DisposeAsync();
     }
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync()
     {
-            await _container.StartAsync().ConfigureAwait(false);
+        return _container.StartAsync();
     }
 
-    public async Task DisposeAsync()
+    public Task DisposeAsync()
     {
-        await _container.DisposeAsync();
+        return _container.DisposeAsync().AsTask();
     }
 }
 

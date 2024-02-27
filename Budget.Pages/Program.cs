@@ -1,8 +1,10 @@
-using Azure.Data.Tables;
 using Budget.Core.Constants;
+using Budget.Core.DataAccess;
 using Budget.Core.Infrastructure;
+using Budget.Core.UseCases.Transactions.FileEtl;
+using Budget.Pages.Pages;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +16,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie();
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy(AuthConstants.TwoFactorLoginPolicy, policy => policy.RequireClaim(AuthConstants.TwoFactorLoginPolicy, "2fa"));
+    .AddPolicy(AuthConstants.TwoFactorLoginPolicy,
+        policy => policy.RequireClaim(AuthConstants.TwoFactorLoginPolicy, "2fa"));
 
 // Culture settings
 builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -41,27 +44,19 @@ builder.Services.Configure<RouteOptions>(options =>
 builder.Services.AddSingleton<LoginThrottler>();
 
 // Add UseCases
-typeof(Budget.Core.UseCases.TransactionFileUploadUseCase).Assembly.GetTypes()
-    .Where(t => t.Namespace == "Budget.Core.UseCases")
+var coreTypes = typeof(UseCase).Assembly.GetTypes();
+var useCaseTypes = coreTypes
+    .Where(t => t.Namespace != null && t.Namespace.Contains("Budget.Core.UseCases"))
+    .ToList();
+useCaseTypes
     .Where(t => t.Name.EndsWith("UseCase"))
     .ToList()
     .ForEach(t => builder.Services.AddScoped(t));
 
-// Add azure table storage
-builder.Services.AddScoped(_ =>
-{
-    var service = new TableServiceClient(builder.Configuration.GetConnectionString("TransactionTable"));
-    var client = service.GetTableClient("Transactions");
-    client.CreateIfNotExists();
-    return client;
-});
-
-if (!builder.Environment.IsDevelopment())
-{
-    builder.Services.AddDataProtection()
-        .SetApplicationName("Budget")
-        .PersistKeysToAzureBlobStorage(builder.Configuration.GetConnectionString("Storage"), "keys", "keys.xml");
-}
+builder.Services.AddDbContext<BudgetContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("BudgetContext"),
+        b => b.MigrationsAssembly(typeof(IndexModel).Assembly.FullName))
+);
 
 var app = builder.Build();
 
@@ -86,4 +81,6 @@ app.MapRazorPages();
 
 app.Run();
 
-public partial class Program { }
+public partial class Program
+{
+}

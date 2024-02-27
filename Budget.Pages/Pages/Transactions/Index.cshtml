@@ -1,6 +1,4 @@
 ﻿@page
-@using Budget.Core.Extensions
-@using Budget.Core.UseCases
 @using System.Globalization
 @model Budget.Pages.Pages.Transactions.IndexModel
 
@@ -205,7 +203,7 @@
                                     <ul class="dropdown-menu">
                                         <li>
                                             <button type="button" class="dropdown-item icon-link align-items-center"
-                                                    hx-get="@Url.Page("MarkAsCashback", new { transaction.RowKey, transaction.PartitionKey, Date = transaction.CashbackForDate })"
+                                                    hx-get="@Url.Page("MarkAsCashback", new { transaction.Id, Date = transaction.CashbackForDate })"
                                                     hx-target="closest tr"
                                                     hx-swap="afterend">
                                                 <div>
@@ -229,13 +227,13 @@
 
                             @if (transaction.CashbackForDate != null)
                             {
-                                <button type="button" class="btn" data-bs-toggle="popover" data-bs-content="Cashback voor datum: @(transaction?.CashbackForDate?.ToShortDateString())" data-bs-placement="top">
+                                <button type="button" class="btn" data-bs-toggle="popover" data-bs-content="Cashback voor datum: @(transaction.CashbackForDate?.ToShortDateString())" data-bs-placement="top">
                                     <i class="bi bi-sign-turn-left"></i>
                                 </button>
                             }
                         </td>
-                        <td>@transaction?.Description</td>
-                        <td>@transaction?.IbanOtherParty -> @transaction?.Iban</td>
+                        <td>@transaction.Description</td>
+                        <td>@transaction.IbanOtherParty -> @transaction.Iban</td>
                     </tr>
                 }
             }
