@@ -1,6 +1,3 @@
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text.Encodings.Web;
 using AngleSharp;
 using AngleSharp.Dom;
 using Budget.Core.DataAccess;
@@ -11,6 +8,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
 using Testcontainers.PostgreSql;
 using Xunit.Abstractions;
 
@@ -67,15 +67,18 @@ public class TestFixture : IAsyncLifetime
     /// <summary>
     /// inspired by https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-7.0
     /// </summary>
-    public async Task<HttpClient> CreateAuthenticatedAppClientAsync(ITestOutputHelper? outputHelper = null,
+    public Task<HttpClient> CreateAuthenticatedAppClientAsync(ITestOutputHelper? outputHelper = null,
         TimeProvider? timeProviderOverride = null, bool ensureCleanDb = true)
     {
-        if (_factory == null) throw new ArgumentNullException();
+        if (_factory == null)
+        {
+            throw new ArgumentNullException();
+        }
 
         var clientBuilder = ConfigureClient(outputHelper, timeProviderOverride);
         var client = CreateClient(clientBuilder, ensureCleanDb);
 
-        return client ?? throw new NullReferenceException("Something went wrong creating the client");
+        return Task.FromResult(client) ?? throw new NullReferenceException("Something went wrong creating the client");
     }
 
     private WebApplicationFactory<Program> ConfigureClient(ITestOutputHelper? outputHelper,
@@ -98,7 +101,10 @@ public class TestFixture : IAsyncLifetime
                 var descriptor =
                     services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<BudgetContext>));
                 if (descriptor != null)
+                {
                     services.Remove(descriptor);
+                }
+
                 services.AddSingleton(timeProviderOverride ?? TimeProvider.System);
                 services.AddDbContext<BudgetContext>(options =>
                     options.UseNpgsql(GetDbConnectionString()));

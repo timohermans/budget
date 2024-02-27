@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Security.Claims;
 using Budget.App.Components.Shared;
 using Budget.Core.DataAccess;
 using Budget.Core.Models;
@@ -9,6 +7,8 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.QuickGrid;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
+using System.Globalization;
+using System.Security.Claims;
 
 namespace Budget.App.Components.Pages.Transactions;
 
@@ -22,7 +22,7 @@ public partial class Index
 
     private DateOnly? _date;
     private Response? _data;
-    private readonly CultureInfo _dutch = new CultureInfo("nl-NL");
+    private readonly CultureInfo _dutch = new("nl-NL");
     private ClaimsPrincipal? _user;
     private int? _transactionIdMarkingAsCashback = null;
 
@@ -84,7 +84,6 @@ public partial class Index
             Iban = Iban
         });
     }
-
 
     private IQueryable<Transaction> GetTransactions()
     {

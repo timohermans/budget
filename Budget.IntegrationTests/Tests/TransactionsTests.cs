@@ -133,8 +133,9 @@ public class TransactionsTests(TestFixture fixture, ITestOutputHelper output)
         var response = await client.GetAsync($"{cashbackUrl}?id={transactionToCashback.Id}");
         var document = await fixture.OpenHtmlOfAsync(response.Content);
         var form = document.QuerySelector<IHtmlFormElement>("form");
-        form.SetValues(new Dictionary<string, string> { { nameof(MarkAsCashbackModel.Date), "2023-12-07" } });
-        form.Attributes["hx-post"]!.Value.Should().Be(cashbackUrl);
+        form.Should().NotBeNull();
+        form!.SetValues(new Dictionary<string, string> { { nameof(MarkAsCashbackModel.Date), "2023-12-07" } });
+        form!.Attributes["hx-post"]!.Value.Should().Be(cashbackUrl);
 
         // POST and assert
         var finalResponse = await client.SendAsync(cashbackUrl, form);

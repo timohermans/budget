@@ -1,4 +1,6 @@
-﻿using Budget.Core.Models;
+﻿using Budget.Core.Extensions;
+using Budget.Core.Models;
+using Budget.Core.UseCases.Transactions.Overview;
 using Budget.Pages.Constants;
 using Htmx;
 using Microsoft.AspNetCore.Mvc;
@@ -6,8 +8,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel;
-using Budget.Core.Extensions;
-using Budget.Core.UseCases.Transactions.Overview;
 
 namespace Budget.Pages.Pages.Transactions;
 
@@ -30,7 +30,7 @@ public class IndexModel(
     public List<int> WeeksInMonth { get; set; } = [];
     public decimal ExpensesVariable { get; set; }
     public Dictionary<int, decimal> ExpensesPerWeek { get; set; } = [];
-    public Dictionary<string, decimal> BalancePerAccount { get; set; }
+    public Dictionary<string, decimal> BalancePerAccount { get; set; } = new Dictionary<string, decimal>();
     public decimal IncomeFromOwnAccounts { get; set; }
     public Dictionary<int, List<Transaction>> TransactionsPerWeek { get; set; } = [];
 
@@ -39,7 +39,7 @@ public class IndexModel(
         logger.LogInformation("Loading {Iban}'s transactions of {Date}", iban, $"{year}-{month}");
 
         var now = timeProvider.GetUtcNow().DateTime;
-        
+
         var request = new Request
         {
             Year = year ?? now.Year,

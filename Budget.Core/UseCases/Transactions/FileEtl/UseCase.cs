@@ -1,8 +1,8 @@
-using System.Globalization;
 using Budget.Core.DataAccess;
 using Budget.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace Budget.Core.UseCases.Transactions.FileEtl;
 
@@ -12,7 +12,7 @@ public class UseCase(BudgetContext dataAccess, ILogger<UseCase> logger)
     {
         logger.LogInformation("Handling Transaction file upload");
 
-        List<Transaction> transactions = new List<Transaction>();
+        List<Transaction> transactions = new();
 
         using var reader = new StreamReader(stream);
 
@@ -72,7 +72,11 @@ public class UseCase(BudgetContext dataAccess, ILogger<UseCase> logger)
             {
                 var transaction =
                     transactions.FirstOrDefault(t2 => t2.FollowNumber == t.FollowNumber && t2.Iban == t.Iban);
-                if (transaction == null) return;
+                if (transaction == null)
+                {
+                    return;
+                }
+
                 transaction.Id = t.Id;
                 dataAccess.Entry(transaction).State = EntityState.Modified;
             });
