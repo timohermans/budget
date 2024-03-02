@@ -18,7 +18,7 @@ public class DatabaseHelper
 
     public string ConnectionString => $"Server={container.Hostname};Port={container.GetMappedPublicPort(5432)};Database=budget;User Id=budget;Password=budget;";
 
-    public BudgetContext CreateDbContext()
+    public BudgetContext CreateDbContextAsync()
     {
         var options = new DbContextOptionsBuilder<BudgetContext>()
          .UseNpgsql(ConnectionString)
@@ -41,7 +41,7 @@ public class DatabaseHelper
     {
         await container.StartAsync();
 
-        await CreateDbContext().Database.MigrateAsync();
+        await CreateDbContextAsync().Database.MigrateAsync();
 
         using var conn = new NpgsqlConnection(ConnectionString);
         await conn.OpenAsync();

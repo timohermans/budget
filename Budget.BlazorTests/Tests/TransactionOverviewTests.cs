@@ -61,7 +61,7 @@ internal class TransactionOverviewTests : BlazorTest
             CreateFrom(baseTransaction, 20, new DateOnly(2024, 2, 27), -112, "AH- Jan Linders 4181", paymentIban, otherIban),
         ];
 
-        await using var db = DatabaseHelper.CreateDbContext();
+        await using var db = DatabaseHelper.CreateDbContextAsync();
 
         await db.Transactions.AddRangeAsync(transactions);
         await db.SaveChangesAsync();
