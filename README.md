@@ -30,8 +30,8 @@ dotnet run
 
 ## Development process
 
-Right now, there are three versions of the app: one for Azure and two for bare metal (a Blazor one and a Razor Pages with HTMX one).
-The Azure version uses Azure Table Storage, but I will not develop any further on that version.
+~~Right now, there are three versions of the app: one for Azure and two for bare metal (a Blazor one and a Razor Pages with HTMX one).
+The Azure version uses Azure Table Storage, but I will not develop any further on that version.~~
 The development process for the bare metal version is as follows:
 
 - Create a new feature branch
