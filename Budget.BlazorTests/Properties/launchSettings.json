@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Budget.BlazorTests": {
+        "commandName": "Project",
+        "applicationUrl": "http://localhost:5223",
+        "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Test"
+        }
+    }
+  }
+}

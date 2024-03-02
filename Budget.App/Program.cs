@@ -1,65 +1,31 @@
-using Budget.App.Apis.LoginLogout;
-using Budget.App.Common;
-using Budget.App.Components;
+using Budget.App;
 using Budget.App.Config;
 using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
-
-try
+public class Program
 {
-
-    Log.Information("Starting application");
-
-    var builder = WebApplication.CreateBuilder(args);
-    var config = builder.Configuration;
-
-    builder.Host.AddLogging(config);
-
-    builder.Services.AddRazorComponents()
-        .AddInteractiveServerComponents();
-
-    builder.Services
-        .AddAuthentication(config)
-        .AddDatabase(config)
-        .AddServices()
-        .AddProxyConfig(builder.Environment);
-
-    var app = builder.Build();
-
-    if (!app.Environment.IsDevelopment())
+    private static async Task Main(string[] args)
     {
-        app.UseExceptionHandler("/Error", createScopeForErrors: true);
-        app.UseHsts();
-        app.UseForwardedHeaders();
+        var host = BuildWebHost(args).Build();
+        Log.Information("Starting application");
+
+        await host.RunAsync();
     }
 
-    app.UseHttpsRedirection();
+    public static IHostBuilder BuildWebHost(string[]? args = null)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .CreateBootstrapLogger();
 
-    app.UseStaticFiles();
+        Log.Warning("args: {args}", args);
 
-    app.UseAuthentication();
-    app.UseAuthorization();
-    app.UseAntiforgery();
-
-    app.UseMiddleware<LogUsernameMiddleware>();
-
-    app.MapRazorComponents<App>()
-        .AddInteractiveServerRenderMode();
-
-    app.MapGroup(LoginLogoutApi.GroupName)
-        .MapLoginLogoutApis();
-
-    app.Run();
-    Log.Information("Stopped cleanly");
-}
-catch (Exception ex)
-{
-    Log.Fatal(ex, "An unhandled exception occurred during bootstrapping");
-}
-finally
-{
-    Log.CloseAndFlush();
+        return Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStaticWebAssets();
+                webBuilder.UseStartup<Startup>();
+            })
+            .AddAppLogging();
+    }
 }

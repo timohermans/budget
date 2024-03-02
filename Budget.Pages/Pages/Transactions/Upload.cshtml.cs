@@ -1,9 +1,9 @@
+using Budget.Core.UseCases.Transactions.Overview;
 using Budget.Pages.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel;
-using Budget.Core.UseCases.Transactions.Overview;
 using UseCase = Budget.Core.UseCases.Transactions.FileEtl.UseCase;
 
 namespace Budget.Pages.Pages.Transactions
@@ -23,8 +23,6 @@ namespace Budget.Pages.Pages.Transactions
             {
                 return Page();
             }
-
-            // TODO: filetype validation
 
             await using var fileStream = TransactionsFile.OpenReadStream();
             var response = await useCase.HandleAsync(fileStream);

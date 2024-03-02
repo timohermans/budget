@@ -4,7 +4,7 @@ namespace Budget.App.Config;
 
 public static class LoggingExtensions
 {
-    public static void AddLogging(this ConfigureHostBuilder host, IConfiguration config)
+    public static IHostBuilder AddAppLogging(this IHostBuilder host)
     {
         host.UseSerilog((context, services, configuration) =>
         {
@@ -14,5 +14,7 @@ public static class LoggingExtensions
                 .Enrich.FromLogContext()
                 .WriteTo.Console();
         });
+
+        return host;
     }
 }

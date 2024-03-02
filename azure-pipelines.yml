@@ -5,33 +5,74 @@
 
 trigger:
 - main
+- blazor-testing
 
 pool: Default
 
-container: 'mcr.microsoft.com/dotnet/sdk:8.0' 
+container:
+  image: 'itsyou0o/playwright-with-docker:latest'
+  mapDockerSocket: true
 
 variables:
   solution: 'Budget.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
+  LANG: en_NL.UTF-8
+  dockerImage: $(RegistryHost)/budget
 
 steps:
-- task: NuGetToolInstaller@1
 
-- task: CmdLine@2
+- task: UseDotNet@2
+  inputs:
+    packageType: sdk
+    version: '8.0.x'
+  displayName: 'Use .NET SDK'
+
+- script: 'dotnet restore $(solution) --locked-mode'
   displayName: 'Restore'
-  inputs:
-    script: 'dotnet restore $(solution)'
-
-- task: CmdLine@2
+  
+- script: 'dotnet build $(solution) --no-restore'
   displayName: 'Build'
-  inputs:
-    script: 'dotnet build $(solution)'
+
+- script: 'mkdir ./Budget.BlazorTests/bin/Debug/net8.0/playwright-traces'
+  displayName: 'Create directory for test traces'
 
 - task: CmdLine@2
   displayName: 'Test'
   inputs:
-    script: 'dotnet test $(solution)'
+    script: 'dotnet test $(solution) --no-restore --no-build'
+  env:
+    Url: $(TestUrl)
+    User__Username: $(TestUser)
+    User__Password: $(TestPassword)
+    Auth__Authority: $(TestAuthority)
+    Auth__ClientId: $(TestClientId)
+    Auth__ClientSecret: $(TestClientSecret)
+
+- publish: ./Budget.BlazorTests/bin/Debug/net8.0/playwright-traces
+  artifact: TestResult
+  condition: failed()
+
+- script: 'echo "$(RegistryPassword)" | docker login -u $(RegistryUsername) --password-stdin $(RegistryHost)'
+  displayName: Docker Login
+
+- script: 'docker build -t $(dockerImage) -t $(dockerImage):$(Build.SourceVersion) -t $(dockerImage):latest . --file Budget.App/Dockerfile '
+  displayName: Docker Build
+
+- script: 'docker push -a $(dockerImage)'
+  displayName: Docker Push
+
+- task: SSH@0
+  displayName: 'Deploy'
+  inputs:
+    sshEndpoint: 'Home SSH'
+    runOptions: 'commands'
+    commands: '/etc/webhook/commands/budget-deploy.sh'
+    failOnStdErr: true
+    readyTimeout: '20000'
+
+
 
 
 

@@ -10,4 +10,5 @@ riderModule.iml
 .env
 
 appsettings.Development.json
+appsettings.Test.json
 logs/

@@ -13,6 +13,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.IntegrationTests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.App", "Budget.App\Budget.App.csproj", "{D55B5BB8-15CF-4C73-8DE2-05E7FC3E3F27}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.BlazorTests", "Budget.BlazorTests\Budget.BlazorTests.csproj", "{B29C8AAB-AA0B-469C-853A-343907BE12A8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FF0DFC6B-A002-42FA-8B5D-6D3767B916EF}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		.runsettings = .runsettings
+		azure-pipelines.yml = azure-pipelines.yml
+		docker-compose.yml = docker-compose.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +50,10 @@ Global
 		{D55B5BB8-15CF-4C73-8DE2-05E7FC3E3F27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D55B5BB8-15CF-4C73-8DE2-05E7FC3E3F27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D55B5BB8-15CF-4C73-8DE2-05E7FC3E3F27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B29C8AAB-AA0B-469C-853A-343907BE12A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B29C8AAB-AA0B-469C-853A-343907BE12A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B29C8AAB-AA0B-469C-853A-343907BE12A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B29C8AAB-AA0B-469C-853A-343907BE12A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

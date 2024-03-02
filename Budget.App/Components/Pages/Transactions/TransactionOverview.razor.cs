@@ -12,9 +12,9 @@ using System.Security.Claims;
 
 namespace Budget.App.Components.Pages.Transactions;
 
-public partial class Index
+public partial class TransactionOverview
 {
-    [Inject] private ILogger<Index> Logger { get; set; } = null!;
+    [Inject] private ILogger<TransactionOverview> Logger { get; set; } = null!;
     [Inject] private IDbContextFactory<BudgetContext> DbContextFactory { get; set; } = null!;
     [Inject] private NavigationManager Navigator { get; set; } = null!;
     [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
