@@ -196,8 +196,11 @@
 
                 @if (context.CashbackForDate != null)
                 {
-                    <button type="button" class="btn btn-sm" data-bs-toggle="popover" data-bs-content="Originele datum: @(context.OriginalDate.ToShortDateString())" data-bs-placement="top">
+                    string cashbackDisplay = $"Originele datum: {context.OriginalDate.ToString("yyyy-MM-dd")}";
+
+                    <button type="button" class="btn btn-sm" data-bs-toggle="popover" data-bs-content="@cashbackDisplay" data-bs-placement="top">
                         <i class="bi bi-sign-turn-left"></i>
+                        <span class="visually-hidden">@cashbackDisplay</span>
                     </button>
                 }
             </TemplateColumn>

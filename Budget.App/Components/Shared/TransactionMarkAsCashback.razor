@@ -13,12 +13,14 @@
             else
             {
                 <i class="bi bi-send"></i>
+                <span class="visually-hidden">Save cashback date</span>
             }
         </button>
     </div>
     <div>
         <button class="btn btn-danger" @onclick="() => OnDone.InvokeAsync(null)">
             <i class="bi bi-sign-stop"></i>
+            <span class="visually-hidden">Cancel marking</span>
         </button>
     </div>
 </div>
