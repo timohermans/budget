@@ -39,11 +39,8 @@ public class BlazorTest : PageTest
     public async Task GotoAsync(string page)
     {
         await Page.GotoAsync($"{RootUri.AbsoluteUri}{page}", new() { WaitUntil = WaitUntilState.NetworkIdle });
-        await Page.GotoAsync($"{RootUri.AbsoluteUri}{page}", new() { WaitUntil = WaitUntilState.NetworkIdle });
-        if (await Page.GuardAgainstUnauthenticated(Browser, Context, RootUri, config.Username, config.Password))
-        {
-            await Page.GotoAsync($"{RootUri.AbsoluteUri}{page}", new() { WaitUntil = WaitUntilState.NetworkIdle });
-        }
+        await Page.GuardAgainstUnauthenticated(Browser, Context, RootUri, config.Username, config.Password);
+        await Page.GotoAsync($"{RootUri.AbsoluteUri}{page}", new() { WaitUntil = WaitUntilState.NetworkIdle }); // when resetting, login endpoint will be called to assert cookie, thus losing the querystring params. I need to fix the redirect uri for this.
     }
 
     public override BrowserNewContextOptions ContextOptions()
