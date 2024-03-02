@@ -19,7 +19,9 @@ internal static class Authenticator
 
             await context.StorageStateAsync(new() { Path = stateFile });
 
-            await page.GetByRole(AriaRole.Navigation).InnerHTMLAsync(); // wait for login to complete, otherwise race conditions might occur
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+            //await page.GetByRole(AriaRole.Navigation).InnerHTMLAsync(); // wait for login to complete, otherwise race conditions might occur
 
             return true;
         }

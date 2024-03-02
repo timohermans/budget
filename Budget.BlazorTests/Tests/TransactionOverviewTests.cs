@@ -3,7 +3,7 @@
 namespace Budget.BlazorTests.Tests;
 
 [TestFixture]
-internal class TransactionOverviewTests : BlazorTest
+internal class TransactionOverviewTests : BlazorWithTraceTest
 {
     [Test]
     public async Task TransactionOverviewShowsAggregatedAndListData()
