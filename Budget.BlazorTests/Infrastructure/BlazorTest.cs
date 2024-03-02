@@ -39,6 +39,7 @@ public class BlazorTest : PageTest
     public async Task GotoAsync(string page)
     {
         await Page.GotoAsync($"{RootUri.AbsoluteUri}{page}", new() { WaitUntil = WaitUntilState.NetworkIdle });
+        await Page.GotoAsync($"{RootUri.AbsoluteUri}{page}", new() { WaitUntil = WaitUntilState.NetworkIdle });
         if (await Page.GuardAgainstUnauthenticated(Browser, Context, RootUri, config.Username, config.Password))
         {
             await Page.GotoAsync($"{RootUri.AbsoluteUri}{page}", new() { WaitUntil = WaitUntilState.NetworkIdle });
