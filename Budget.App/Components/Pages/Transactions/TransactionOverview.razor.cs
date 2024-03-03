@@ -25,6 +25,7 @@ public partial class TransactionOverview
     private readonly CultureInfo _dutch = new("nl-NL");
     private ClaimsPrincipal? _user;
     private int? _transactionIdMarkingAsCashback = null;
+    private bool _areSavingsMetersVisible;
 
     private readonly GridSort<Transaction> _fixedSort = GridSort<Transaction>
         .ByDescending(p => p.IsFixed)

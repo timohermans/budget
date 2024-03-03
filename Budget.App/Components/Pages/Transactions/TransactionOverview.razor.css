@@ -1,10 +1,40 @@
-﻿::deep .quickgrid[theme=default] {
+﻿.grid-week {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr;
+    row-gap: 0.25rem;
+    column-gap: 0.25rem;
+}
+
+.grid-week .number {
+    justify-self: end;
+}
+
+.grid-week .symbol {
+    justify-self: center;
+}
+
+.grid-header,
+.grid-gutter,
+.grid-line {
+    grid-column: 1 / span 3;
+}
+
+.grid-line {
+    height: 1px;
+    background-color: var(--bs-gray-300);
+}
+
+.grid-gutter {
+    height: 1rem;
+}
+
+::deep .quickgrid[theme=default] {
     --col-gap: 0.3rem;
 }
 
-::deep .quickgrid[theme=default] .col-title:hover {
-    border-radius: 0.5rem;
-}
+    ::deep .quickgrid[theme=default] .col-title:hover {
+        border-radius: 0.5rem;
+    }
 
 ::deep table {
     display: block;

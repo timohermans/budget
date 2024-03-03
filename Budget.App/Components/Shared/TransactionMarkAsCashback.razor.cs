@@ -10,7 +10,7 @@ public partial class TransactionMarkAsCashback
 {
     [Inject] private IDbContextFactory<BudgetContext> DbFactory { get; set; } = default!;
     [Inject] private ILogger<UseCase> UseCaseLogger { get; set; } = default!;
-    [Parameter] [EditorRequired] public Transaction Transaction { get; set; } = default!;
+    [Parameter][EditorRequired] public Transaction Transaction { get; set; } = default!;
     [Parameter] public EventCallback<Transaction?> OnDone { get; set; }
 
     private DateOnly? _date;
@@ -20,7 +20,7 @@ public partial class TransactionMarkAsCashback
     {
         _date = Transaction.DateTransaction;
     }
-    
+
     private async Task MarkAsCashbackAsync()
     {
         _isLoading = true;
@@ -30,5 +30,5 @@ public partial class TransactionMarkAsCashback
         await OnDone.InvokeAsync(transactionMarked.Data);
         _isLoading = false;
     }
-    
+
 }
