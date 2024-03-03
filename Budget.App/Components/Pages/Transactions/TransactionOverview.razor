@@ -94,6 +94,11 @@
 
             <div class="grid-week">
                 <div class="grid-header fst-italic text-capitalize" data-testid="expensesMonthHeader">@_data?.Date.ToString("MMMM", _dutch)</div>
+
+                <div>Budget</div>
+                <div class="number" data-testid="expensesBudgetAvailable">@_data?.BudgetAvailable</div>
+                <div></div>
+
                 @foreach (var (week, index) in (_data?.WeeksInMonth ?? [1, 2, 3, 4]).Select((w, i) => (w, i)))
                 {
                     var isLast = index == _data?.WeeksInMonth.Count - 1;
