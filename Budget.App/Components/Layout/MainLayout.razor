@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Budget.App.Apis.LoginLogout
+@using System.Web
 @inherits LayoutComponentBase
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -22,7 +23,8 @@
 
         if (!authState.User.Identity?.IsAuthenticated ?? true)
         {
-            Navigator.NavigateTo(LoginLogoutApi.LoginEndpoint, forceLoad: true);
+            var returnUrl = HttpUtility.UrlEncode(Navigator.Uri);
+            Navigator.NavigateTo($"{LoginLogoutApi.LoginEndpoint}?returnUrl={returnUrl}", forceLoad: true);
         }
     }
 }
