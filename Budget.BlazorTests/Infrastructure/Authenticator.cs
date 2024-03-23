@@ -52,7 +52,7 @@ internal static class Authenticator
 
             try
             {
-                await page.GetByRole(AriaRole.Button, new() { Name = "Yes" }).ClickAsync();
+                await page.GetByRole(AriaRole.Button, new() { Name = "No" }).ClickAsync();
             }
             catch (Exception)
             {
