@@ -14,6 +14,15 @@ internal static class Authenticator
 
         if (title == "Sign in to your account")
         {
+            try
+            {
+                await page.GetByText("Signed in").ClickAsync();
+            }
+            catch (Exception)
+            {
+                Debug.WriteLine("Skipping already signed in but troubles");
+            }
+
             var email = page.GetByPlaceholder("Email, phone, or Skype");
             if (await email.IsVisibleAsync())
             {
