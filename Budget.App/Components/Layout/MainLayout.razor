@@ -3,28 +3,18 @@
 @using System.Web
 @inherits LayoutComponentBase
 
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject NavigationManager Navigator
-
-@Body
+<ErrorBoundary>
+    <ChildContent>
+        @Body
+    </ChildContent>
+    <ErrorContent>
+        @{ HandleUncaughtError(@context); }
+        <p>Oh nee, er is mis gegaan :(. Vraag naar mij!</p>
+    </ErrorContent>
+</ErrorBoundary>
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
-
-@code {
-    [Inject] ILogger<MainLayout> Logger { get; set; } = default!;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
-        if (!authState.User.Identity?.IsAuthenticated ?? true)
-        {
-            var returnUrl = HttpUtility.UrlEncode(Navigator.Uri);
-            Navigator.NavigateTo($"{LoginLogoutApi.LoginEndpoint}?returnUrl={returnUrl}", forceLoad: true);
-        }
-    }
-}

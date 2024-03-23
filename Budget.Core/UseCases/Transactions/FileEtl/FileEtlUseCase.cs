@@ -6,9 +6,9 @@ using System.Globalization;
 
 namespace Budget.Core.UseCases.Transactions.FileEtl;
 
-public class UseCase(BudgetContext dataAccess, ILogger<UseCase> logger)
+public class FileEtlUseCase(BudgetContext dataAccess, ILogger<FileEtlUseCase> logger)
 {
-    public async Task<Response> HandleAsync(Stream stream)
+    public async Task<FileEtlResponse> HandleAsync(Stream stream)
     {
         logger.LogInformation("Handling Transaction file upload");
 
@@ -84,7 +84,7 @@ public class UseCase(BudgetContext dataAccess, ILogger<UseCase> logger)
         dataAccess.UpdateRange(transactions);
         await dataAccess.SaveChangesAsync();
 
-        return new Response(transactions.Count, minDate, maxDate);
+        return new FileEtlResponse(transactions.Count, minDate.ToDateTime(new TimeOnly(0, 0, 0)), maxDate.ToDateTime(new TimeOnly(0, 0, 0)));
     }
 
     private IEnumerable<string> SplitLine(string line)

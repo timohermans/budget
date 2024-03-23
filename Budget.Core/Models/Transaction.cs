@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Core.Models;
 
@@ -9,7 +9,7 @@ namespace Budget.Core.Models;
 public class Transaction
 {
     private DateOnly _dateTransaction;
-    
+
     public int Id { get; set; }
     public int FollowNumber { get; set; }
     [StringLength(34)]
@@ -18,16 +18,16 @@ public class Transaction
     public required string Currency { get; set; }
     [Precision(12, 2)]
     public decimal Amount { get; set; }
-    
+
     [BackingField(nameof(_dateTransaction))]
     public DateOnly DateTransaction
     {
         get => CashbackForDate ?? _dateTransaction;
         set => _dateTransaction = value;
     }
-    
+
     public DateOnly OriginalDate => _dateTransaction;
-    
+
     [Precision(12, 2)]
     public decimal BalanceAfterTransaction { get; set; }
     [StringLength(255)]

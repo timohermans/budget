@@ -5,7 +5,6 @@
 
 trigger:
 - main
-- blazor-testing
 
 pool: Default
 
@@ -19,7 +18,8 @@ variables:
   buildConfiguration: 'Release'
   NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
   LANG: en_NL.UTF-8
-  dockerImage: $(RegistryHost)/budget
+  dockerAppImage: $(RegistryHost)/budget
+  dockerApiImage: $(RegistryHost)/budget-api
 
 steps:
 
@@ -58,11 +58,17 @@ steps:
 - script: 'echo "$(RegistryPassword)" | docker login -u $(RegistryUsername) --password-stdin $(RegistryHost)'
   displayName: Docker Login
 
-- script: 'docker build -t $(dockerImage) -t $(dockerImage):$(Build.SourceVersion) -t $(dockerImage):latest . --file Budget.App/Dockerfile '
-  displayName: Docker Build
+- script: 'docker build -t $(dockerApiImage) -t $(dockerApiImage):$(Build.SourceVersion) -t $(dockerApiImage):latest . --file Budget.Api/Dockerfile '
+  displayName: Docker Build Api
 
-- script: 'docker push -a $(dockerImage)'
-  displayName: Docker Push
+- script: 'docker push -a $(dockerApiImage)'
+  displayName: Docker Push Api
+  
+- script: 'docker build -t $(dockerAppImage) -t $(dockerAppImage):$(Build.SourceVersion) -t $(dockerAppImage):latest . --file Budget.App/Dockerfile '
+  displayName: Docker Build App
+
+- script: 'docker push -a $(dockerAppImage)'
+  displayName: Docker Push App
 
 - task: SSH@0
   displayName: 'Deploy'

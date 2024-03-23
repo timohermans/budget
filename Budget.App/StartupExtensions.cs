@@ -5,18 +5,9 @@ using Microsoft.Identity.Web;
 
 namespace Budget.App;
 
-public class Startup
+public static class StartupExtensions
 {
-    private readonly IConfiguration config;
-    private readonly IWebHostEnvironment env;
-
-    public Startup(IConfiguration config, IWebHostEnvironment env)
-    {
-        this.config = config;
-        this.env = env;
-    }
-
-    public void ConfigureServices(IServiceCollection services)
+    public static IServiceCollection AddBudgetServices(this IServiceCollection services, IConfiguration config, IWebHostEnvironment env)
     {
         services.AddRazorComponents()
             .AddInteractiveServerComponents()
@@ -26,9 +17,10 @@ public class Startup
             .AddAuthentication(config)
             .AddServices()
             .AddProxyConfig(env);
+        return services;
     }
-
-    public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    
+    public static IApplicationBuilder UseBudgetApp(this IApplicationBuilder app, IWebHostEnvironment env)
     {
         if (!env.IsDevelopment())
         {
@@ -57,5 +49,6 @@ public class Startup
             endpoints.MapGroup(LoginLogoutApi.GroupName)
                 .MapLoginLogoutApis();
         });
+        return app;
     }
 }

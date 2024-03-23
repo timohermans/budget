@@ -5,14 +5,14 @@ namespace Budget.App.Apis.LoginLogout;
 
 public static class LoginController
 {
-    public static async Task GetLogin(HttpContext context, ILoggerFactory loggerFactory, [FromQuery] string returnUrl)
+    public static IResult GetLogin(HttpContext context, ILoggerFactory loggerFactory, [FromQuery] string? returnUrl)
     {
         var logger = loggerFactory.CreateLogger(nameof(LoginController));
         logger.LogInformation("Someone is trying to log in.");
 
-        await context.ChallengeAsync(new AuthenticationProperties
+        return Results.Challenge(new AuthenticationProperties
         {
-            RedirectUri = returnUrl
+            RedirectUri = returnUrl ?? "/"
         });
     }
 }

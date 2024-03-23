@@ -8,6 +8,7 @@ riderModule.iml
 
 *DotSettings.user
 .env
+.env-api
 
 appsettings.Development.json
 appsettings.Test.json

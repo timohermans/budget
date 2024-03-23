@@ -1,3 +1,3 @@
 namespace Budget.Core.UseCases.Transactions.MarkAsCashback;
 
-public record Request(int Id, DateOnly? Date);
+public record MarkAsCashbackRequest(int Id, DateTime? Date);

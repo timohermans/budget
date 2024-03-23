@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Core.UseCases.Transactions.Overview;
 
-public class UseCase(BudgetContext dataAccess)
+public class OverviewUseCase(BudgetContext dataAccess)
 {
-    public async Task<Response> HandleAsync(Request request)
+    public async Task<OverviewResponse> HandleAsync(OverviewRequest request)
     {
         var iban = request.Iban;
         var date = new DateOnly(request.Year, request.Month, 1);
@@ -37,10 +37,6 @@ public class UseCase(BudgetContext dataAccess)
             .Distinct()
             .ToList();
 
-        var transactionsPerWeek = transactions
-            .GroupBy(t => t.DateTransaction.ToIsoWeekNumber())
-            .ToDictionary(kvp => kvp.Key, kvp => kvp.ToList());
-
         decimal incomeLastMonth = 0;
         decimal expensesFixedLastMonth = 0;
         var expensesPerWeek = new Dictionary<int, decimal>();
@@ -56,7 +52,10 @@ public class UseCase(BudgetContext dataAccess)
             var week = transaction.DateTransaction.ToIsoWeekNumber();
             var amount = transaction.Amount;
 
-            if (transaction.Iban != ibanSelected) continue;
+            if (transaction.Iban != ibanSelected)
+            {
+                continue;
+            }
 
             if (isLastMonth && transaction.IsIncome && transaction.IsFromOtherParty(ibans) &&
                 transaction.CashbackForDate == null)
@@ -96,26 +95,26 @@ public class UseCase(BudgetContext dataAccess)
             {
                 expensesVariable += amount;
                 var cashbackWeek = transaction.CashbackForDate.Value.ToIsoWeekNumber();
-                
+
                 expensesPerWeek.TryAdd(cashbackWeek, 0);
                 expensesPerWeek[cashbackWeek] += amount;
             }
         }
 
         decimal budgetAvailable = incomeLastMonth + expensesFixedLastMonth;
-        return new Response
+        return new OverviewResponse
         {
             IbanSelected = ibanSelected,
             IbansToSelect = ibansOrdered,
-            Date = date,
-            DatePreviousMonth = new DateOnly(previousYear, previousMonth, 1),
+            Date = date.ToDateTime(default),
+            DatePreviousMonth = new DateTime(previousYear, previousMonth, 1),
             ExpensesFixedLastMonth = expensesFixedLastMonth,
             IncomeLastMonth = incomeLastMonth,
             WeeksInMonth = weeksInMonth,
             ExpensesVariable = expensesVariable,
             ExpensesPerWeek = expensesPerWeek,
             IncomeFromOwnAccounts = incomeFromOwnAccounts,
-            TransactionsPerWeek = transactionsPerWeek,
+            Transactions = transactions.Select(t => new OverviewTransaction(t)).ToList(),
             BalancePerAccount = balancePerAccount,
             BudgetAvailable = budgetAvailable,
             BudgetPerWeek = weeksInMonth.Count > 0 ? Math.Floor(budgetAvailable / weeksInMonth.Count) : 0

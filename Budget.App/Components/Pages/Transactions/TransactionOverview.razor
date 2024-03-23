@@ -1,7 +1,10 @@
 ﻿@page "/transactions"
 @using Budget.App.Apis.LoginLogout
+@using Budget.App.Common
+@using Microsoft.AspNetCore.Authorization
 @rendermode InteractiveServerRenderModeNoPreRender
 @inject TimeProvider Time
+@attribute [Authorize]
 
 <PageTitle>@_date?.ToString("yyyy-MM") Transacties</PageTitle>
 
@@ -102,7 +105,8 @@
                 @foreach (var (week, index) in (_data?.WeeksInMonth ?? [1, 2, 3, 4]).Select((w, i) => (w, i)))
                 {
                     var isLast = index == _data?.WeeksInMonth.Count - 1;
-                    var expenseOfWeek = _data?.ExpensesPerWeek.GetValueOrDefault(week, 0);
+                    decimal expenseOfWeek = 0;
+                    _data?.ExpensesPerWeek.TryGetValue(week.ToString(), out expenseOfWeek);
 
                     <div>Week @week @(week.IsCurrentWeek(Time) ? "👈" : "")</div>
                     <div class="number">
@@ -147,7 +151,7 @@
                 <div></div>
 
                 @if (_areSavingsMetersVisible)
-                    foreach (var balanceKvp in _data?.BalancePerAccount ?? [])
+                    foreach (var balanceKvp in (_data?.BalancePerAccount ?? new Dictionary<string, decimal>()))
                     {
                         <div>@balanceKvp.Key</div>
                         <div class="number">
@@ -169,11 +173,11 @@
                     <TransactionRowOptions OnSelected="option => HandleOptionSelected(option, context.Id)" />
                 }
             </TemplateColumn>
-            <TemplateColumn Title="Wk" SortBy="@(GridSort<Transaction>.ByAscending(p => p.DateTransaction.ToIsoWeekNumber()))" Sortable="true">
+            <TemplateColumn Title="Wk" SortBy="@(GridSort<OverviewTransaction>.ByAscending(p => p.Date.Date.ToIsoWeekNumber()))" Sortable="true">
                 @context.OriginalDate.ToIsoWeekNumber()
             </TemplateColumn>
-            <PropertyColumn Title="Datum" Format="dd-MM" Property="@(p => p.DateTransaction)" InitialSortDirection="SortDirection.Descending" Sortable="true" />
-            <TemplateColumn Title="Naam" SortBy="@(GridSort<Transaction>.ByAscending(p => p.NameOtherParty))" Sortable="true">
+            <PropertyColumn Title="Datum" Format="dd-MM" Property="@(p => p.Date)" InitialSortDirection="SortDirection.Descending" Sortable="true" />
+            <TemplateColumn Title="Naam" SortBy="@(GridSort<OverviewTransaction>.ByAscending(p => p.NameOtherParty))" Sortable="true">
                 @if (_transactionIdMarkingAsCashback == context.Id)
                 {
                     <TransactionMarkAsCashback Transaction="@context" OnDone="HandleCashbackDone" />
@@ -183,7 +187,7 @@
                     <span>@context.NameOtherParty</span>
                 }
             </TemplateColumn>
-            <TemplateColumn Title="Bedrag" SortBy="@(GridSort<Transaction>.ByDescending(p => p.Amount))" Sortable="true">
+            <TemplateColumn Title="Bedrag" SortBy="@(GridSort<OverviewTransaction>.ByDescending(p => p.Amount))" Sortable="true">
                 <span class="badge text-bg-@(context.Amount < 0 ? "danger" : "success")">
                     @context.Amount
                 </span>

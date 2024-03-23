@@ -3,7 +3,7 @@
 namespace Budget.BlazorTests.Tests;
 
 [TestFixture]
-internal class TransactionOverviewTests : BlazorTest
+internal class TransactionOverviewTests : BlazorWithTraceTest
 {
     [Test]
     public async Task TransactionOverviewShowsAggregatedAndListData()
@@ -26,39 +26,78 @@ internal class TransactionOverviewTests : BlazorTest
         };
         List<Transaction> transactions =
         [
-            CreateFrom(baseTransaction, -1, new DateOnly(2024, 1, 23), 1000, "Salaris BF", paymentIban, otherIban),
-            CreateFrom(baseTransaction, -2, new DateOnly(2024, 1, 15), 1500, "Salaris GF", paymentIban, otherIban),
-            CreateFrom(baseTransaction, -3, new DateOnly(2024, 1, 15), -1500, "Vaste lasten!", paymentIban, otherIban, authorizationCode: "vast"),
+            CreateFrom(baseTransaction,
+                new CreateParams(-1, new DateOnly(2024, 1, 23), 1000, "Salaris BF", paymentIban, otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(-2, new DateOnly(2024, 1, 15), 1500, "Salaris GF", paymentIban, otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(3, new DateOnly(2024, 1, 15), -1500, "Vaste lasten!", paymentIban, otherIban,
+                    AuthorizationCode: "vast")),
 
-            CreateFrom(baseTransaction, 2, new DateOnly(2024, 2, 11), -100, "Geld tekort oordopjes", paymentIban, savingsIban),
-            CreateFrom(baseTransaction, 3, new DateOnly(2024, 2, 11), 100, "Geld tekort oordopjes", savingsIban, paymentIban),
-            CreateFrom(baseTransaction, 4, new DateOnly(2024, 2, 11), -200, "APK auto", paymentIban, savingsIban),
-            CreateFrom(baseTransaction, 5, new DateOnly(2024, 2, 11), 200, "APK auto", savingsIban, paymentIban),
-            CreateFrom(baseTransaction, 6, new DateOnly(2024, 2, 11), 50, "Etentje voorschieten", paymentIban, savingsIban),
-            CreateFrom(baseTransaction, 7, new DateOnly(2024, 2, 11), -50, "Etentje voorschieten", savingsIban, paymentIban),
+            CreateFrom(baseTransaction,
+                new CreateParams(2, new DateOnly(2024, 2, 11), -100, "Geld tekort oordopjes", paymentIban,
+                    savingsIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(3, new DateOnly(2024, 2, 11), 100, "Geld tekort oordopjes", savingsIban, paymentIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(4, new DateOnly(2024, 2, 11), -200, "APK auto", paymentIban, savingsIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(5, new DateOnly(2024, 2, 11), 200, "APK auto", savingsIban, paymentIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(6, new DateOnly(2024, 2, 11), 50, "Etentje voorschieten", paymentIban, savingsIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(7, new DateOnly(2024, 2, 11), -50, "Etentje voorschieten", savingsIban, paymentIban)),
             // savings2
-            CreateFrom(baseTransaction, 8, new DateOnly(2024, 2, 1), -1000, "Stichting Hypotheken Incasso", paymentIban, savingsIban2),
-            CreateFrom(baseTransaction, 9, new DateOnly(2024, 2, 1), 1000, "Stichting Hypotheken Incasso", savingsIban2, paymentIban),
-            CreateFrom(baseTransaction, 10, new DateOnly(2024, 2, 11), -2000, "Sparen BF", paymentIban, savingsIban2),
-            CreateFrom(baseTransaction, 11, new DateOnly(2024, 2, 11), 2000, "Sparen BF", savingsIban2, paymentIban),
-            CreateFrom(baseTransaction, 12, new DateOnly(2024, 2, 11), 500, "Sparen CH", paymentIban, savingsIban2),
-            CreateFrom(baseTransaction, 13, new DateOnly(2024, 2, 11), -500, "Sparen CH", savingsIban2, paymentIban),
+            CreateFrom(baseTransaction,
+                new CreateParams(8, new DateOnly(2024, 2, 1), -1000, "Stichting Hypotheken Incasso", paymentIban,
+                    savingsIban2)),
+            CreateFrom(baseTransaction,
+                new CreateParams(9, new DateOnly(2024, 2, 1), 1000, "Stichting Hypotheken Incasso", savingsIban2,
+                    paymentIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(10, new DateOnly(2024, 2, 11), -2000, "Sparen BF", paymentIban, savingsIban2)),
+            CreateFrom(baseTransaction,
+                new CreateParams(11, new DateOnly(2024, 2, 11), 2000, "Sparen BF", savingsIban2, paymentIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(12, new DateOnly(2024, 2, 11), 500, "Sparen CH", paymentIban, savingsIban2)),
+            CreateFrom(baseTransaction,
+                new CreateParams(13, new DateOnly(2024, 2, 11), -500, "Sparen CH", savingsIban2, paymentIban)),
             // other
-            CreateFrom(baseTransaction, 21, new DateOnly(2024, 2, 1), -38.55M, "Zalando Payments GmbH", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 22, new DateOnly(2024, 2, 1), -5.12M, "Levensverzekering", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 23, new DateOnly(2024, 2, 8), -18, "Social deal", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 24, new DateOnly(2024, 2, 8), -58, "Jumbo Amsterdam Stadion1", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 25, new DateOnly(2024, 2, 13), -2, "Ballorig Amsterdam", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 26, new DateOnly(2024, 2, 18), -15, "LUNA", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 27, new DateOnly(2024, 2, 23), -54, "ROOS SCHADEVERZ NV", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 28, new DateOnly(2024, 2, 23), -112.90M, "AH- Jan Linders 4222", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 14, new DateOnly(2024, 2, 27), -200, "APK auto", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 15, new DateOnly(2024, 2, 27), -20, "SIMYO", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 16, new DateOnly(2024, 2, 27), -18, "SpotifyAB", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 17, new DateOnly(2024, 2, 27), -280, "CZ ZORGVERZEKERINGEN NV", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 18, new DateOnly(2024, 2, 27), -300, "MOK Kinderopvang B.V.", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 19, new DateOnly(2024, 2, 27), -16, "NV WATERLEIDING MAATSCHAPPIJ LIMBURG", paymentIban, otherIban),
-            CreateFrom(baseTransaction, 20, new DateOnly(2024, 2, 27), -112, "AH- Jan Linders 4181", paymentIban, otherIban),
+            CreateFrom(baseTransaction,
+                new CreateParams(21, new DateOnly(2024, 2, 1), -38.55M, "Zalando Payments GmbH", paymentIban,
+                    otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(22, new DateOnly(2024, 2, 1), -5.12M, "Levensverzekering", paymentIban, otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(23, new DateOnly(2024, 2, 8), -18, "Social deal", paymentIban, otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(24, new DateOnly(2024, 2, 8), -58, "Jumbo Amsterdam Stadion1", paymentIban,
+                    otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(25, new DateOnly(2024, 2, 13), -2, "Ballorig Amsterdam", paymentIban, otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(26, new DateOnly(2024, 2, 18), -15, "LUNA", paymentIban, otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(27, new DateOnly(2024, 2, 23), -54, "ROOS SCHADEVERZ NV", paymentIban, otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(28, new DateOnly(2024, 2, 23), -112.90M, "AH- Jan Linders 4222", paymentIban,
+                    otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(14, new DateOnly(2024, 2, 27), -200, "APK auto", paymentIban, otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(15, new DateOnly(2024, 2, 27), -20, "SIMYO", paymentIban, otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(16, new DateOnly(2024, 2, 27), -18, "SpotifyAB", paymentIban, otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(17, new DateOnly(2024, 2, 27), -280, "CZ ZORGVERZEKERINGEN NV", paymentIban,
+                    otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(18, new DateOnly(2024, 2, 27), -300, "MOK Kinderopvang B.V.", paymentIban, otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(19, new DateOnly(2024, 2, 27), -16, "NV WATERLEIDING MAATSCHAPPIJ LIMBURG",
+                    paymentIban, otherIban)),
+            CreateFrom(baseTransaction,
+                new CreateParams(20, new DateOnly(2024, 2, 27), -112, "AH- Jan Linders 4181", paymentIban, otherIban)),
         ];
 
         await using var db = DatabaseHelper.CreateDbContextAsync();
@@ -113,21 +152,30 @@ internal class TransactionOverviewTests : BlazorTest
         await Expect(Page.GetByRole(AriaRole.Row)).ToHaveCountAsync(4);
     }
 
-    private Transaction CreateFrom(Transaction transaction, int id, DateOnly date, decimal amount, string nameOtherParty, string fromIban, string toIban,
-    DateOnly? cashbackDate = null, string? authorizationCode = null)
+    public record CreateParams(
+        int Id,
+        DateOnly Date,
+        decimal Amount,
+        string NameOtherParty,
+        string FromIban,
+        string ToIban,
+        DateOnly? CashbackDate = null,
+        string? AuthorizationCode = null);
+
+    private Transaction CreateFrom(Transaction transaction, CreateParams p)
     {
         return new Transaction
         {
-            Amount = amount,
-            Iban = fromIban,
-            IbanOtherParty = toIban,
-            DateTransaction = date,
-            FollowNumber = transaction.FollowNumber + id,
+            Amount = p.Amount,
+            Iban = p.FromIban,
+            IbanOtherParty = p.ToIban,
+            DateTransaction = p.Date,
+            FollowNumber = transaction.FollowNumber + p.Id,
             Currency = transaction.Currency,
-            NameOtherParty = nameOtherParty,
-            AuthorizationCode = authorizationCode,
+            NameOtherParty = p.NameOtherParty,
+            AuthorizationCode = p.AuthorizationCode,
             BalanceAfterTransaction = transaction.BalanceAfterTransaction,
-            CashbackForDate = cashbackDate ?? transaction.CashbackForDate,
+            CashbackForDate = p.CashbackDate ?? transaction.CashbackForDate,
             Description = transaction.Description,
         };
     }

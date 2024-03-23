@@ -1,11 +1,8 @@
 using Budget.App.Components.Shared;
-using Budget.Core.DataAccess;
-using Budget.Core.Models;
-using Budget.Core.UseCases.Transactions.Overview;
+using Budget.App.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.QuickGrid;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
 using System.Globalization;
 using System.Security.Claims;
@@ -15,21 +12,22 @@ namespace Budget.App.Components.Pages.Transactions;
 public partial class TransactionOverview
 {
     [Inject] private ILogger<TransactionOverview> Logger { get; set; } = null!;
-    [Inject] private IDbContextFactory<BudgetContext> DbContextFactory { get; set; } = null!;
     [Inject] private NavigationManager Navigator { get; set; } = null!;
     [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = null!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
+    [Inject] private ApiClientProvider ApiProvider { get; set; } = default!;
 
+    private Client? _api;
     private DateOnly? _date;
-    private Response? _data;
+    private OverviewResponse? _data;
     private readonly CultureInfo _dutch = new("nl-NL");
     private ClaimsPrincipal? _user;
     private int? _transactionIdMarkingAsCashback = null;
     private bool _areSavingsMetersVisible;
 
-    private readonly GridSort<Transaction> _fixedSort = GridSort<Transaction>
+    private readonly GridSort<OverviewTransaction> _fixedSort = GridSort<OverviewTransaction>
         .ByDescending(p => p.IsFixed)
-        .ThenDescending(p => p.DateTransaction);
+        .ThenDescending(p => p.Date);
 
     [SupplyParameterFromQuery(Name = "year")]
     public int? Year { get; set; }
@@ -40,10 +38,12 @@ public partial class TransactionOverview
     [SupplyParameterFromQuery(Name = "iban")]
     public string? Iban { get; set; }
 
+
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         _user = state.User;
+        _api = await ApiProvider.ProvideAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -53,6 +53,7 @@ public partial class TransactionOverview
 
     protected override async Task OnParametersSetAsync()
     {
+        if (_api is null) { return; }
         Logger.LogInformation("Loading transactions for {Year}-{Month} -> {Iban}", _date?.Year, _date?.Month, Iban);
 
         if (Year == null || Month == null)
@@ -69,27 +70,22 @@ public partial class TransactionOverview
 
     private async Task LoadData()
     {
-        await using var db = DbContextFactory.CreateDbContext();
-        var useCase = new UseCase(db);
-
-        if (_date == null)
+        if (_api is null) { return; }
+        if (_date is null)
         {
             Logger.LogWarning("Trying to load data without a date");
             return;
         }
 
-        _data = await useCase.HandleAsync(new Request
-        {
-            Year = _date.Value.Year,
-            Month = _date.Value.Month,
-            Iban = Iban
-        });
+        _data = await _api.Transaction_GetOverviewAsync(_date.Value.Year, _date.Value.Month, Iban);
     }
 
-    private IQueryable<Transaction> GetTransactions()
+    private IQueryable<OverviewTransaction> GetTransactions()
     {
-        return _data?.TransactionsPerWeek?.SelectMany(kvp => kvp.Value)?
-            .AsQueryable().OrderByDescending(t => t.DateTransaction) ?? new List<Transaction>().AsQueryable();
+        return _data?.Transactions?
+            .AsQueryable()
+            .OrderByDescending(t => t.Date)
+        ?? new List<OverviewTransaction>().AsQueryable();
     }
 
     private string GetPreviousDate()
@@ -115,11 +111,11 @@ public partial class TransactionOverview
         Navigator.NavigateTo($"/transactions?year={_date?.Year}&month={_date?.Month}&iban={Iban}");
     }
 
-    private async Task HandleCashbackDone(Transaction? transactionMarked)
+    private async Task HandleCashbackDone()
     {
-        _transactionIdMarkingAsCashback = null;
+        Logger.LogInformation("Marked transaction {TransactionId} as cashback", _transactionIdMarkingAsCashback);
 
-        Logger.LogInformation("Marked transaction {TransactionId} as cashback", transactionMarked?.Id);
+        _transactionIdMarkingAsCashback = null;
 
         await LoadData();
         await JsRuntime.InvokeVoidAsync("enablePopovers");

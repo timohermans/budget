@@ -8,6 +8,7 @@
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
 		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+		<UserSecretsId>c31d4987-b151-45e6-9a64-97858f55ed3d</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -45,7 +46,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Budget.Api\Budget.Api.csproj" />
 		<ProjectReference Include="..\Budget.App\Budget.App.csproj" />
+		<ProjectReference Include="..\Budget.Core\Budget.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

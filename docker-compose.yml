@@ -1,5 +1,12 @@
 version: '3.8'
 services:
+  budgetapi:
+    image: registry.timo-hermans.nl/budget-api:latest
+    restart: unless-stopped
+    env_file: .env-api
+    networks:
+      - server
+
   budget:
     image: registry.timo-hermans.nl/budget:latest
     restart: unless-stopped

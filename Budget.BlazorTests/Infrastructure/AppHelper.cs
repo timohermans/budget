@@ -1,4 +1,8 @@
-﻿using Budget.Core.DataAccess;
+﻿using System.Net;
+using Budget.Api;
+using Budget.App;
+using Budget.Core.DataAccess;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -11,49 +15,100 @@ namespace Budget.BlazorTests.Infrastructure;
 
 internal class AppHelper
 {
-    private IHost? host;
-    private DatabaseHelper databaseHelper;
+    private WebApplication? _app;
+    private WebApplication? _apiApp;
+    private readonly DatabaseHelper _databaseHelper;
 
     public AppHelper(DatabaseHelper databaseHelper)
     {
-        this.databaseHelper = databaseHelper;
+        _databaseHelper = databaseHelper;
     }
 
-    public async Task<Uri> LaunchAsync(string url)
+    public Uri Launch(string url, string urlOfApi)
     {
+        LaunchApi();
+        return LaunchApp();
+    }
 
-        var builder = Program.BuildWebHost();
-        builder.UseEnvironment("Test");
-        builder.ConfigureWebHostDefaults(webBuilder =>
-        {
-            webBuilder.UseUrls(url);
-        });
-        builder.ConfigureServices(services =>
-        {
-            var descriptor =
-                services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<BudgetContext>));
-            if (descriptor != null)
+    private void LaunchApi()
+    {
+        var builder = WebApplication.CreateBuilder(
+            new WebApplicationOptions()
             {
-                services.Remove(descriptor);
-            }
-            services.AddDbContext<BudgetContext>(options =>
-                   options.UseNpgsql(databaseHelper.ConnectionString));
-        });
-        host = builder.Build();
+                ContentRootPath = GetProjectDirectory("Budget.Api").FullName,
+                ApplicationName = "Budget.Api"
+            });
 
-        await host.StartAsync();
+        builder.WebHost.ConfigureKestrel(opt => opt.Listen(IPAddress.Loopback, 5078));
+        builder.Services.AddAllApiServices(builder.Configuration);
+        ReplaceDatabaseWithTest(builder);
 
-        return new(host.Services.GetRequiredService<IServer>().Features
+        _apiApp = builder.Build();
+        _apiApp.UseBudgetApi(builder.Environment.IsDevelopment(), builder.Configuration);
+
+        _apiApp.Start();
+    }
+
+    private void ReplaceDatabaseWithTest(WebApplicationBuilder builder)
+    {
+        var descriptor =
+            builder.Services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<BudgetContext>));
+        if (descriptor != null)
+        {
+            builder.Services.Remove(descriptor);
+        }
+
+        builder.Services.AddDbContext<BudgetContext>(options =>
+            options.UseNpgsql(_databaseHelper.ConnectionString));
+    }
+
+    private Uri LaunchApp()
+    {
+        var builder = WebApplication.CreateBuilder(
+            new WebApplicationOptions()
+            {
+                ContentRootPath = GetProjectDirectory("Budget.App").FullName,
+                ApplicationName = "Budget.App"
+            });
+
+        var startup = new Startup(builder.Configuration, builder.Environment);
+        builder.WebHost.ConfigureKestrel(o => o.Listen(IPAddress.Loopback, 5223));
+        startup.ConfigureServices(builder.Services);
+        _app = builder.Build();
+        startup.Configure(_app, _app.Environment);
+
+        _app.Start();
+
+        return new(_app.Services.GetRequiredService<IServer>().Features
             .GetRequiredFeature<IServerAddressesFeature>()
             .Addresses.Single());
     }
 
+    private static DirectoryInfo GetProjectDirectory(string projectName)
+    {
+        var dir = new DirectoryInfo(Directory.GetCurrentDirectory() ??
+                                    throw new NullReferenceException("current directory not found"));
+        var budgetApiDirName = projectName;
+        while (dir!.GetDirectories().ToList().TrueForAll(d => d.Name != budgetApiDirName))
+        {
+            dir = dir.Parent;
+        }
+
+        return dir;
+    }
+
     internal async Task StopAsync()
     {
-        if (host is not null)
+        if (_app is not null)
         {
-            await host.StopAsync(TimeSpan.FromSeconds(2));
-            host.Dispose();
+            await _app.StopAsync(TimeSpan.FromSeconds(2));
+            await _app.DisposeAsync();
+        }
+
+        if (_apiApp is not null)
+        {
+            await _apiApp.StopAsync(TimeSpan.FromSeconds(2));
+            await _apiApp.DisposeAsync();
         }
     }
 }

@@ -1,5 +1,8 @@
 ﻿@page "/weather"
+@using Microsoft.Identity.Abstractions
 @attribute [StreamRendering]
+@inject IDownstreamApi DownStreamApi
+@inject IAuthorizationHeaderProvider AuthHeaderProvider
 
 <PageTitle>Weather</PageTitle>
 
@@ -41,6 +44,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        // var token = await AuthHeaderProvider.CreateAuthorizationHeaderForUserAsync(["api://c6876c39-e090-411d-8284-8154c6e050b3/access_as_user"]);
+
+        var value = await DownStreamApi.CallApiForUserAsync("Budget Api",
+        options =>
+        {
+            options.RelativePath = "transactions/overview?year=2024&month=1";
+        });
+
+
         // Simulate asynchronous loading to demonstrate streaming rendering
         await Task.Delay(500);
 

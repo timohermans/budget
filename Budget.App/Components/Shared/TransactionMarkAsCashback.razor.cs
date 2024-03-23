@@ -1,34 +1,33 @@
-using Budget.Core.DataAccess;
-using Budget.Core.Models;
-using Budget.Core.UseCases.Transactions.MarkAsCashback;
+using Budget.App.Services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.EntityFrameworkCore;
 
 namespace Budget.App.Components.Shared;
 
 public partial class TransactionMarkAsCashback
 {
-    [Inject] private IDbContextFactory<BudgetContext> DbFactory { get; set; } = default!;
-    [Inject] private ILogger<UseCase> UseCaseLogger { get; set; } = default!;
-    [Parameter][EditorRequired] public Transaction Transaction { get; set; } = default!;
-    [Parameter] public EventCallback<Transaction?> OnDone { get; set; }
+    [Inject] private ApiClientProvider ApiProvider { get; set; } = default!;
+    [Parameter] [EditorRequired] public OverviewTransaction Transaction { get; set; } = default!;
+    [Parameter] public EventCallback<bool> OnDone { get; set; }
 
-    private DateOnly? _date;
+    private DateTime? _date;
     private bool _isLoading;
 
     protected override void OnParametersSet()
     {
-        _date = Transaction.DateTransaction;
+        _date = Transaction.Date;
     }
 
     private async Task MarkAsCashbackAsync()
     {
+        var api = await ApiProvider.ProvideAsync();
+        if (api is null)
+        {
+            return;
+        }
+
         _isLoading = true;
-        await using var db = await DbFactory.CreateDbContextAsync();
-        var useCase = new UseCase(db, UseCaseLogger);
-        var transactionMarked = await useCase.Handle(new Request(Transaction.Id, _date));
-        await OnDone.InvokeAsync(transactionMarked.Data);
+        await api.Transaction_MarkAsCashbackAsync(new MarkAsCashbackRequest { Id = Transaction.Id, Date = _date });
+        await OnDone.InvokeAsync(true);
         _isLoading = false;
     }
-
 }

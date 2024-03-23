@@ -1,8 +1,6 @@
 ﻿@page "/transactions/upload"
-@using Budget.Core.UseCases.Transactions.FileEtl
 @using System.ComponentModel.DataAnnotations
-@inject IDbContextFactory<BudgetContext> ContextFactory
-@inject ILogger<UseCase> UseCaseLogger
+@using Budget.App.Services
 @inject NavigationManager Navigator
 
 <main class="container">
@@ -30,15 +28,16 @@
     [SupplyParameterFromForm]
     public UploadModel? Model { get; set; }
 
+    [Inject] public ApiClientProvider ApiProvider { get; set; } = default!;
+
     private string? _errors;
 
     protected override void OnInitialized() => Model ??= new();
 
     public async Task OnPost()
     {
-        await using var db = ContextFactory.CreateDbContext();
-        var useCase = new UseCase(db, UseCaseLogger);
-
+        var api = await ApiProvider.ProvideAsync();
+        if (api is null) return;
         if (Model!.Files!.Count == 0)
         {
             _errors = "Een bestand is wel nodig... 😅";
@@ -46,7 +45,7 @@
         }
 
         await using var fileStream = Model!.Files[0].OpenReadStream();
-        await useCase.HandleAsync(fileStream);
+        await api.Transaction_UploadTransactionsAsync(new FileParameter(fileStream));
 
         Navigator.NavigateTo("/transactions");
     }
