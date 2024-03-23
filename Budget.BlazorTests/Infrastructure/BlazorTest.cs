@@ -19,6 +19,10 @@ public class BlazorTest : PageTest
     [OneTimeSetUp]
     public async Task SetUpWebApplication()
     {
+        if (File.Exists(StateFilePath))
+        {
+            File.Delete(StateFilePath);
+        }
         await DatabaseHelper.LaunchAsync();
         RootUri = _appHelper.Launch(_config.Url, _config.ApiBaseUrl);
     }
