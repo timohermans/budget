@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using OtpNet;
+using Serilog;
 
 namespace Budget.BlazorTests.Infrastructure;
 
@@ -16,18 +17,24 @@ internal static class Authenticator
         {
             try
             {
-                await page.GetByText("Signed in").ClickAsync();
+                await page.GetByText("Use another account").ClickAsync(new LocatorClickOptions
+                {
+                    Timeout = 1000
+                });
             }
             catch (Exception)
             {
                 Debug.WriteLine("Skipping already signed in but troubles");
             }
 
-            var email = page.GetByPlaceholder("Email, phone, or Skype");
-            if (await email.IsVisibleAsync())
+            try
             {
-                await email.FillAsync(username);
+                await page.GetByPlaceholder("Email, phone, or Skype").FillAsync(username, new LocatorFillOptions { Timeout = 2000});
                 await page.GetByRole(AriaRole.Button, new() { Name = "Next" }).ClickAsync();
+            }
+            catch (Exception)
+            {
+                Debug.WriteLine("Filling in username failed. skipping...");
             }
 
             await page.GetByPlaceholder("Password").FillAsync(password);
