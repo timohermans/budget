@@ -144,9 +144,6 @@ steps:
   artifact: TestResult
   condition: failed()
 
-- publish: ./Budget.App/appsettings.Production.json
-  artifact: Testresult
-
 - script: 'echo "$(RegistryPassword)" | docker login -u $(RegistryUsername) --password-stdin $(RegistryHost)'
   displayName: Docker Login
 
