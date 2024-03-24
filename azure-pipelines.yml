@@ -109,9 +109,6 @@ steps:
     User__Username: $(TestUser)
     User__Password: $(TestPassword)
     User__OtpSecret: $(TestOtpSecret)
-    AzureAd__Instance: $(AzureAdInstance)
-    AzureAd__TenantId: $(AzureAdTenantId)
-    AzureAd__ClientId: $(AzureAdClientId)
 
 - publish: ./Budget.BlazorTests/bin/Debug/net8.0/playwright-traces
   artifact: TestResult
