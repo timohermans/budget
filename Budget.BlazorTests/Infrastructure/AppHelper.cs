@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Budget.Api;
+using Budget.Api.Controllers;
 using Budget.App;
 using Budget.Core.DataAccess;
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -38,6 +40,7 @@ internal class AppHelper
                 ContentRootPath = GetProjectDirectory("Budget.Api").FullName,
                 ApplicationName = "Budget.Api"
             });
+        AddAdditionalAppSettings<TransactionController>(builder, "Budget.Api", builder.Environment.EnvironmentName);
 
         builder.WebHost.UseUrls("http://localhost:5078");
         builder.Services.AddAllApiServices(builder.Configuration);
@@ -70,6 +73,7 @@ internal class AppHelper
                 ContentRootPath = GetProjectDirectory("Budget.App").FullName,
                 ApplicationName = "Budget.App"
             });
+        AddAdditionalAppSettings<Startup>(builder, "Budget.App", builder.Environment.EnvironmentName);
 
         var startup = new Startup(builder.Configuration, builder.Environment);
         builder.WebHost.UseUrls("http://localhost:5223");
@@ -82,6 +86,18 @@ internal class AppHelper
         return new(_app.Services.GetRequiredService<IServer>().Features
             .GetRequiredFeature<IServerAddressesFeature>()
             .Addresses.Single());
+    }
+
+    private static void AddAdditionalAppSettings<T>(WebApplicationBuilder builder, string projectName, string environment) where T : class
+    {
+        var projectDir = GetProjectDirectory(projectName).FullName;
+        var appsettingsDir = Path.Combine(projectDir, projectName);
+        builder.Configuration.AddConfiguration(
+            new ConfigurationBuilder()
+                .AddJsonFile(Path.Combine(appsettingsDir, "appsettings.json"), false)
+                .AddJsonFile(Path.Combine(appsettingsDir, $"appsettings.{environment}.json"), true)
+                .AddUserSecrets<T>()
+                .Build());
     }
 
     private static DirectoryInfo GetProjectDirectory(string projectName)
