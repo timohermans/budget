@@ -29,14 +29,6 @@ steps:
     version: '8.0.x'
   displayName: 'Use .NET SDK'
 
-- script: 'dotnet restore $(solution) --locked-mode'
-  displayName: 'Restore'
-  
-- script: 'dotnet build $(solution) --no-restore'
-  displayName: 'Build'
-
-- script: 'mkdir ./Budget.BlazorTests/bin/Debug/net8.0/playwright-traces'
-  displayName: 'Create directory for test traces'
   
 - task: PowerShell@2
   displayName: 'Set api appsettings.json for test'
@@ -96,9 +88,19 @@ steps:
         }
       }
       "@
-      
+      Write-Host ${env:app_api_scopes}
+      Write-Host ${env:app_azuread_tentantid}
       # Write the JSON content to the appsettings.json file
       $appSettings | Set-Content -Path $filePath
+
+- script: 'dotnet restore $(solution) --locked-mode'
+  displayName: 'Restore'
+  
+- script: 'dotnet build $(solution) --no-restore'
+  displayName: 'Build'
+
+- script: 'mkdir ./Budget.BlazorTests/bin/Debug/net8.0/playwright-traces'
+  displayName: 'Create directory for test traces'
 
 - task: CmdLine@2
   displayName: 'Test'
