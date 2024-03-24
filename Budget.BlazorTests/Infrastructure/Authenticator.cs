@@ -30,7 +30,7 @@ internal static class Authenticator
             try
             {
                 await page.GetByPlaceholder("Email, phone, or Skype").FillAsync(username, new LocatorFillOptions { Timeout = 2000});
-                await page.GetByRole(AriaRole.Button, new() { Name = "Next" }).ClickAsync();
+                await page.GetByRole(AriaRole.Button, new() { Name = "Next" }).ClickAsync(new LocatorClickOptions { Timeout = 2000});
             }
             catch (Exception)
             {
@@ -42,8 +42,8 @@ internal static class Authenticator
 
             try
             {
-                await page.GetByRole(AriaRole.Button, new() { Name = "Next" }).ClickAsync();
-                await page.GetByRole(AriaRole.Button, new() { Name = "Accept" }).ClickAsync();
+                await page.GetByRole(AriaRole.Button, new() { Name = "Next" }).ClickAsync(new LocatorClickOptions { Timeout = 2000});
+                await page.GetByRole(AriaRole.Button, new() { Name = "Accept" }).ClickAsync(new LocatorClickOptions { Timeout = 2000});
             }
             catch (Exception)
             {
@@ -52,16 +52,16 @@ internal static class Authenticator
 
             try
             {
-                await page.GetByRole(AriaRole.Button, new() { Name = "No" }).ClickAsync();
+                await page.GetByRole(AriaRole.Button, new() { Name = "No" }).ClickAsync(new LocatorClickOptions { Timeout = 2000});
             }
             catch (Exception)
             {
                 Debug.WriteLine("Skipping remember me");
             }
 
-            await context.StorageStateAsync(new() { Path = stateFile });
-
             await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            
+            await context.StorageStateAsync(new() { Path = stateFile });
 
             return true;
         }
