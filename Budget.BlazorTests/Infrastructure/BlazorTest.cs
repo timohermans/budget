@@ -30,7 +30,6 @@ public class BlazorTest : PageTest
     [SetUp]
     public async Task BeforeEach()
     {
-        Page.SetDefaultTimeout(5000);
         await DatabaseHelper.ResetDataAsync();
     }
 
