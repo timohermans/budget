@@ -46,7 +46,7 @@ steps:
     targetType: 'inline'
     script: |
       # Define the path to your appsettings.json file
-      $filePath = "./Budget.Api/appsettings.Production.json"
+      $filePath = "./Budget.Api/appsettings.Development.json"
       
       # Create a hashtable with the desired key-value pairs
       $appSettings = @"
@@ -82,7 +82,7 @@ steps:
     targetType: 'inline'
     script: |
       # Define the path to your appsettings.json file
-      $filePath = "./Budget.App/appsettings.Production.json"
+      $filePath = "./Budget.App/appsettings.Development.json"
       
       # Create a hashtable with the desired key-value pairs
       $appSettings = @"
@@ -125,6 +125,7 @@ steps:
   inputs:
     script: 'dotnet test $(solution) --no-restore --no-build'
   env:
+    ASPNETCORE_ENVIRONMENT: 'Development'
     Url: $(TestUrl)
     User__Username: $(TestUser)
     User__Password: $(TestPassword)
