@@ -95,7 +95,7 @@ internal class AppHelper
         builder.Configuration.AddConfiguration(
             new ConfigurationBuilder()
                 .AddJsonFile(Path.Combine(appsettingsDir, "appsettings.json"), false)
-                .AddJsonFile(Path.Combine(appsettingsDir, $"appsettings.{environment}.json"), true)
+                .AddJsonFile(Path.Combine(appsettingsDir, $"appsettings.{environment}.json"), false)
                 .AddUserSecrets<T>()
                 .Build());
     }
