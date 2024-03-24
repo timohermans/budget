@@ -57,7 +57,7 @@ steps:
               "Scopes": "$env:API_SWAGGER_SCOPES"
           },
           "AzureAd": {
-              "TentantId": "$env:API_AZUREAD_TENTANTID",
+              "TenantId": "$env:API_AZUREAD_TENTANTID",
               "Scopes": "$env:API_AZUREAD_SCOPES",
               "Instance": "$env:API_AZUREAD_INSTANCE",
               "Domain": "$env:API_AZUREAD_DOMAIN",
@@ -90,7 +90,7 @@ steps:
         "AzureAd": 
         {
           "Instance": "$env:APP_AZUREAD_INSTANCE",
-          "TentantId": "$env:APP_AZUREAD_TENTANTID",
+          "TenantId": "$env:APP_AZUREAD_TENTANTID",
           "ClientId": "$env:APP_AZUREAD_CLIENTID",
           "ClientCredentials": [
             {
