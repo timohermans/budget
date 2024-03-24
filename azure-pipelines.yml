@@ -93,55 +93,12 @@ steps:
       # Write the JSON content to the appsettings.json file
       $appSettings | Set-Content -Path $filePath
 
-- script: 'dotnet restore $(solution) --locked-mode'
-  displayName: 'Restore'
-  
-- script: 'dotnet build $(solution) --no-restore'
-  displayName: 'Build'
-
-- script: 'mkdir ./Budget.BlazorTests/bin/Debug/net8.0/playwright-traces'
-  displayName: 'Create directory for test traces'
-
-- task: CmdLine@2
-  displayName: 'Test'
-  inputs:
-    script: 'dotnet test $(solution) --no-restore --no-build'
-  env:
-    Url: $(TestUrl)
-    User__Username: $(TestUser)
-    User__Password: $(TestPassword)
-    User__OtpSecret: $(TestOtpSecret)
-
-- publish: ./Budget.BlazorTests/bin/Debug/net8.0/playwright-traces
-  artifact: TestResult
-  condition: failed()
 
 - publish: ./Budget.App/appsettings.Production.json
   artifact: Testresult
 
-- script: 'echo "$(RegistryPassword)" | docker login -u $(RegistryUsername) --password-stdin $(RegistryHost)'
-  displayName: Docker Login
-
-- script: 'docker build -t $(dockerApiImage) -t $(dockerApiImage):$(Build.SourceVersion) -t $(dockerApiImage):latest . --file Budget.Api/Dockerfile '
-  displayName: Docker Build Api
-
-- script: 'docker push -a $(dockerApiImage)'
-  displayName: Docker Push Api
-  
-- script: 'docker build -t $(dockerAppImage) -t $(dockerAppImage):$(Build.SourceVersion) -t $(dockerAppImage):latest . --file Budget.App/Dockerfile '
-  displayName: Docker Build App
-
-- script: 'docker push -a $(dockerAppImage)'
-  displayName: Docker Push App
-
-- task: SSH@0
-  displayName: 'Deploy'
-  inputs:
-    sshEndpoint: 'Home SSH'
-    runOptions: 'commands'
-    commands: '/etc/webhook/commands/budget-deploy.sh'
-    failOnStdErr: true
-    readyTimeout: '20000'
+- publish: ./Budget.Api/appsettings.Production.json
+  artifact: Testresult
 
 
 
