@@ -29,14 +29,6 @@ steps:
     version: '8.0.x'
   displayName: 'Use .NET SDK'
 
-- script: 'dotnet restore $(solution) --locked-mode'
-  displayName: 'Restore'
-  
-- script: 'dotnet build $(solution) --no-restore'
-  displayName: 'Build'
-
-- script: 'mkdir ./Budget.BlazorTests/bin/Debug/net8.0/playwright-traces'
-  displayName: 'Create directory for test traces'
   
 - task: PowerShell@2
   displayName: 'Set api appsettings.json for test'
@@ -50,17 +42,17 @@ steps:
       $appSettings = @"
       {
           "Swagger": {
-              "ClientId": "$(api_swagger_clientid)",
-              "AuthorizeUrl": "$(api_swagger_authorizeurl)",
-              "Scopes": "$(api_swagger_scopes)"
+              "ClientId": "${env:api_swagger_clientid}",
+              "AuthorizeUrl": "${env:api_swagger_authorizeurl}",
+              "Scopes": "${env:api_swagger_scopes}"
           },
           "AzureAd": {
-              "TentantId": "$(api_azuread_tentantid)",
-              "Scopes": "$(api_azuread_scopes)",
-              "Instance": "$(api_azuread_instance)",
-              "Domain": "$(api_azuread_domain)",
-              "ClientId": "$(api_azuread_clientid)",
-              "CallbackPath": "$(api_azuread_callbackpath)"
+              "TentantId": "${env:api_azuread_tentantid}",
+              "Scopes": "${env:api_azuread_scopes}",
+              "Instance": "${env:api_azuread_instance}",
+              "Domain": "${env:api_azuread_domain}",
+              "ClientId": "${env:api_azuread_clientid}",
+              "CallbackPath": "${env:api_azuread_callbackpath}"
           }
       }
       "@
@@ -80,25 +72,35 @@ steps:
       $appSettings = @"
       {
         "AzureAd": {
-          "Instance": "$(app_azuread_instance)",
-          "TentantId": "$(app_azuread_tentantid)",
-          "ClientId": "$(app_azuread_clientid)",
+          "Instance": "${env:app_azuread_instance}",
+          "TentantId": "${env:app_azuread_tentantid}",
+          "ClientId": "${env:app_azuread_clientid}",
           "ClientCredentials": [
             {
               "SourceType": "ClientSecret",
-              "ClientSecret": "$(app_azuread_clientsecret)"
+              "ClientSecret": "${env:app_azuread_clientsecret}"
             }
           ]
         },
         "Api": {
           "BaseUrl": "https://localhost:5078",
-          "Scopes": "$(app_api_scopes)"
+          "Scopes": "${env:app_api_scopes}"
         }
       }
       "@
-      
+      Write-Host ${env:app_api_scopes}
+      Write-Host ${env:app_azuread_tentantid}
       # Write the JSON content to the appsettings.json file
       $appSettings | Set-Content -Path $filePath
+
+- script: 'dotnet restore $(solution) --locked-mode'
+  displayName: 'Restore'
+  
+- script: 'dotnet build $(solution) --no-restore'
+  displayName: 'Build'
+
+- script: 'mkdir ./Budget.BlazorTests/bin/Debug/net8.0/playwright-traces'
+  displayName: 'Create directory for test traces'
 
 - task: CmdLine@2
   displayName: 'Test'
