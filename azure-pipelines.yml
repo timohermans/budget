@@ -42,6 +42,7 @@ steps:
     API_AZUREAD_DOMAIN: $(api_azuread_domain)
     API_AZUREAD_CLIENTID: $(api_azuread_clientid)
     API_AZUREAD_CALLBACKPATH: $(api_azuread_callbackpath)
+    KESTREL_PASSWORD: $(kestrel_password)
   inputs:
     targetType: 'inline'
     script: |
@@ -63,6 +64,13 @@ steps:
               "Domain": "$env:API_AZUREAD_DOMAIN",
               "ClientId": "$env:API_AZUREAD_CLIENTID",
               "CallbackPath": "$env:API_AZUREAD_CALLBACKPATH"
+          },
+          "Kestrel": {
+            "Certificates": {
+              "Development": {
+                "Password": "$env:KESTREL_PASSWORD"
+              }
+            }
           }
       }
       "@
