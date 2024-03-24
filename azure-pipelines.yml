@@ -77,7 +77,7 @@ steps:
     APP_AZUREAD_TENTANTID: $(app_azuread_tentantid)
     APP_AZUREAD_CLIENTID: $(app_azuread_clientid)
     APP_AZUREAD_CLIENTSECRET: $(app_azuread_clientsecret)
-    APP_API_SCOPES: $(app_api_scopes)
+    APP_API_SCOPES: $(api_swagger_scopes)
   inputs:
     targetType: 'inline'
     script: |
@@ -102,7 +102,7 @@ steps:
         "Api": 
         {
           "BaseUrl": "https://localhost:5078",
-          "Scopes": "$env:APP_API_SCOPES"
+          "Scopes": ["$env:APP_API_SCOPES"]
         }
       }
       "@
