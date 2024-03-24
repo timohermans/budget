@@ -42,17 +42,17 @@ steps:
       $appSettings = @"
       {
           "Swagger": {
-              "ClientId": "${env:API_SWAGGER_CLIENTID}",
-              "AuthorizeUrl": "${env:API_SWAGGER_AUTHORIZEURL}",
-              "Scopes": "${env:API_SWAGGER_SCOPES}"
+              "ClientId": "$(${env:API_SWAGGER_CLIENTID})",
+              "AuthorizeUrl": "$(${env:API_SWAGGER_AUTHORIZEURL})",
+              "Scopes": "$(${env:API_SWAGGER_SCOPES})"
           },
           "AzureAd": {
-              "TentantId": "${env:API_AZUREAD_TENTANTID}",
-              "Scopes": "${env:API_AZUREAD_SCOPES}",
-              "Instance": "${env:API_AZUREAD_INSTANCE}",
-              "Domain": "${env:API_AZUREAD_DOMAIN}",
-              "ClientId": "${env:API_AZUREAD_CLIENTID}",
-              "CallbackPath": "${env:API_AZUREAD_CALLBACKPATH}"
+              "TentantId": "$(${env:API_AZUREAD_TENTANTID})",
+              "Scopes": "$(${env:API_AZUREAD_SCOPES})",
+              "Instance": "$(${env:API_AZUREAD_INSTANCE})",
+              "Domain": "$(${env:API_AZUREAD_DOMAIN})",
+              "ClientId": "$(${env:API_AZUREAD_CLIENTID})",
+              "CallbackPath": "$(${env:API_AZUREAD_CALLBACKPATH})"
           }
       }
       "@
