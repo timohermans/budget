@@ -50,17 +50,17 @@ steps:
       $appSettings = @"
       {
           "Swagger": {
-              "ClientId": "${env:api_swagger_clientid}",
-              "AuthorizeUrl": "${env:api_swagger_authorizeurl}",
-              "Scopes": "${env:api_swagger_scopes}"
+              "ClientId": "$(api_swagger_clientid)",
+              "AuthorizeUrl": "$(api_swagger_authorizeurl)",
+              "Scopes": "$(api_swagger_scopes)"
           },
           "AzureAd": {
-              "TentantId": "${env:api_azuread_tentantid}",
-              "Scopes": "${env:api_azuread_scopes}",
-              "Instance": "${env:api_azuread_instance}",
-              "Domain": "${env:api_azuread_domain}",
-              "ClientId": "${env:api_azuread_clientid}",
-              "CallbackPath": "${env:api_azuread_callbackpath}"
+              "TentantId": "$(api_azuread_tentantid)",
+              "Scopes": "$(api_azuread_scopes)",
+              "Instance": "$(api_azuread_instance)",
+              "Domain": "$(api_azuread_domain)",
+              "ClientId": "$(api_azuread_clientid)",
+              "CallbackPath": "$(api_azuread_callbackpath)"
           }
       }
       "@
@@ -80,19 +80,19 @@ steps:
       $appSettings = @"
       {
         "AzureAd": {
-          "Instance": "${env:app_azuread_instance}",
-          "TentantId": "${env:app_azuread_tentantid}",
-          "ClientId": "${env:app_azuread_clientid}",
+          "Instance": "$(app_azuread_instance)",
+          "TentantId": "$(app_azuread_tentantid)",
+          "ClientId": "$(app_azuread_clientid)",
           "ClientCredentials": [
             {
               "SourceType": "ClientSecret",
-              "ClientSecret": "${env:app_azuread_clientsecret}"
+              "ClientSecret": "$(app_azuread_clientsecret)"
             }
           ]
         },
         "Api": {
           "BaseUrl": "https://localhost:5078",
-          "Scopes": "${env:app_api_scopes}"
+          "Scopes": "$(app_api_scopes)"
         }
       }
       "@
