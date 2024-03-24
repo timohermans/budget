@@ -37,6 +37,85 @@ steps:
 
 - script: 'mkdir ./Budget.BlazorTests/bin/Debug/net8.0/playwright-traces'
   displayName: 'Create directory for test traces'
+  
+- task: PowerShell@2
+  displayName: 'Set api appsettings.json for test'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Define the path to your appsettings.json file
+      $filePath = "./Budget.Api/appsettings.Development.json"
+      
+      # Create a hashtable with the desired key-value pairs
+      $appSettings = @"
+      {
+          "Swagger": {
+              "ClientId": "${env:api_swagger_clientid}",
+              "AuthorizeUrl": "${env:api_swagger_authorizeurl}",
+              "Scopes": "${env:api_swagger_scopes}"
+          },
+          "AzureAd": {
+              "TentantId": "${env:api_azuread_tentantid}",
+              "Scopes": "${env:api_azuread_scopes}",
+              "Instance": "${env:api_azuread_instance}",
+              "Domain": "${env:api_azuread_domain}",
+              "ClientId": "${env:api_azuread_clientid}",
+              "CallbackPath": "${env:api_azuread_callbackpath}"
+          }
+      }
+      "@
+      
+      # Write the JSON content to the appsettings.json file
+      $appSettings | Set-Content -Path $filePath
+
+- task: PowerShell@2
+  displayName: Add app appsettings.json values for test
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Define the path to your appsettings.json file
+      $filePath = "./Budget.App/appsettings.Development.json"
+      
+      # Create a hashtable with the desired key-value pairs
+      $appSettings = @"
+      {
+        "AzureAd": {
+          "Instance": "${env:app_azuread_instance}",
+          "TentantId": "${env:app_azuread_tentantid}",
+          "ClientId": "${env:app_azuread_clientid}",
+          "ClientCredentials": [
+            {
+              "SourceType": "ClientSecret",
+              "ClientSecret": "${env:app_azuread_clientsecret}"
+            }
+          ]
+        },
+        "Api": {
+          "BaseUrl": "https://localhost:5078",
+          "Scopes": "${env:app_api_scopes}"
+        }
+      }
+      "@
+      
+      # Write the JSON content to the appsettings.json file
+      $appSettings | Set-Content -Path $filePath
+
+- task: CmdLine@2
+  displayName: 'Test'
+  inputs:
+    script: 'dotnet test $(solution) --no-restore --no-build'
+  env:
+    Url: $(TestUrl)
+    User__Username: $(TestUser)
+    User__Password: $(TestPassword)
+    User__OtpSecret: $(TestOtpSecret)
+    AzureAd__Instance: $(AzureAdInstance)
+    AzureAd__TenantId: $(AzureAdTenantId)
+    AzureAd__ClientId: $(AzureAdClientId)
+
+- publish: ./Budget.BlazorTests/bin/Debug/net8.0/playwright-traces
+  artifact: TestResult
+  condition: failed()
 
 - script: 'echo "$(RegistryPassword)" | docker login -u $(RegistryUsername) --password-stdin $(RegistryHost)'
   displayName: Docker Login

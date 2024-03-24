@@ -39,7 +39,7 @@ internal class AppHelper
                 ApplicationName = "Budget.Api"
             });
 
-        builder.WebHost.ConfigureKestrel(opt => opt.Listen(IPAddress.Loopback, 5078));
+        builder.WebHost.UseUrls("http://localhost:5078");
         builder.Services.AddAllApiServices(builder.Configuration);
         ReplaceDatabaseWithTest(builder);
 
@@ -72,7 +72,7 @@ internal class AppHelper
             });
 
         var startup = new Startup(builder.Configuration, builder.Environment);
-        builder.WebHost.ConfigureKestrel(o => o.Listen(IPAddress.Loopback, 5223));
+        builder.WebHost.UseUrls("http://localhost:5223");
         startup.ConfigureServices(builder.Services);
         _app = builder.Build();
         startup.Configure(_app, _app.Environment);
