@@ -32,6 +32,16 @@ steps:
   
 - task: PowerShell@2
   displayName: 'Set api appsettings.json for test'
+  env:
+    API_SWAGGER_CLIENTID: $(api_swagger_clientid)
+    API_SWAGGER_AUTHORIZEURL: $(api_swagger_authorizeurl)
+    API_SWAGGER_SCOPES: $(api_swagger_scopes)
+    API_AZUREAD_TENTANTID: $(api_azuread_tentantid)
+    API_AZUREAD_SCOPES: $(api_azuread_scopes)
+    API_AZUREAD_INSTANCE: $(api_azuread_instance)
+    API_AZUREAD_DOMAIN: $(api_azuread_domain)
+    API_AZUREAD_CLIENTID: $(api_azuread_clientid)
+    API_AZUREAD_CALLBACKPATH: $(api_azuread_callbackpath)
   inputs:
     targetType: 'inline'
     script: |
@@ -42,17 +52,17 @@ steps:
       $appSettings = @"
       {
           "Swagger": {
-              "ClientId": "$(${env:API_SWAGGER_CLIENTID})",
-              "AuthorizeUrl": "$(${env:API_SWAGGER_AUTHORIZEURL})",
-              "Scopes": "$(${env:API_SWAGGER_SCOPES})"
+              "ClientId": "$env:API_SWAGGER_CLIENTID",
+              "AuthorizeUrl": "$env:API_SWAGGER_AUTHORIZEURL",
+              "Scopes": "$env:API_SWAGGER_SCOPES"
           },
           "AzureAd": {
-              "TentantId": "$(${env:API_AZUREAD_TENTANTID})",
-              "Scopes": "$(${env:API_AZUREAD_SCOPES})",
-              "Instance": "$(${env:API_AZUREAD_INSTANCE})",
-              "Domain": "$(${env:API_AZUREAD_DOMAIN})",
-              "ClientId": "$(${env:API_AZUREAD_CLIENTID})",
-              "CallbackPath": "$(${env:API_AZUREAD_CALLBACKPATH})"
+              "TentantId": "$env:API_AZUREAD_TENTANTID",
+              "Scopes": "$env:API_AZUREAD_SCOPES",
+              "Instance": "$env:API_AZUREAD_INSTANCE",
+              "Domain": "$env:API_AZUREAD_DOMAIN",
+              "ClientId": "$env:API_AZUREAD_CLIENTID",
+              "CallbackPath": "$env:API_AZUREAD_CALLBACKPATH"
           }
       }
       "@
@@ -62,6 +72,12 @@ steps:
 
 - task: PowerShell@2
   displayName: Add app appsettings.json values for test
+  env:
+    APP_AZUREAD_INSTANCE: $(app_azuread_instance)
+    APP_AZUREAD_TENTANTID: $(app_azuread_tentantid)
+    APP_AZUREAD_CLIENTID: $(app_azuread_clientid)
+    APP_AZUREAD_CLIENTSECRET: $(app_azuread_clientsecret)
+    APP_API_SCOPES: $(app_api_scopes)
   inputs:
     targetType: 'inline'
     script: |
@@ -73,20 +89,20 @@ steps:
       {
         "AzureAd": 
         {
-          "Instance": "$($env:app_azuread_instance)",
-          "TentantId": "$($env:app_azuread_tentantid)",
-          "ClientId": "$($env:app_azuread_clientid)",
+          "Instance": "$env:APP_AZUREAD_INSTANCE",
+          "TentantId": "$env:APP_AZUREAD_TENTANTID",
+          "ClientId": "$env:APP_AZUREAD_CLIENTID",
           "ClientCredentials": [
             {
               "SourceType": "ClientSecret",
-              "ClientSecret": "$($env:app_azuread_clientsecret)"
+              "ClientSecret": "$env:APP_AZUREAD_CLIENTSECRET"
             }
           ]
         },
         "Api": 
         {
           "BaseUrl": "https://localhost:5078",
-          "Scopes": "$($env:app_api_scopes)"
+          "Scopes": "$env:APP_API_SCOPES"
         }
       }
       "@
