@@ -59,6 +59,7 @@ internal static class Authenticator
                 Debug.WriteLine("Skipping remember me");
             }
 
+            await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
             await page.GotoAsync($"{rootUri.AbsoluteUri}", new() { WaitUntil = WaitUntilState.NetworkIdle });
             
             await context.StorageStateAsync(new() { Path = stateFile });
