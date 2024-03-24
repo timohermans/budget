@@ -102,7 +102,7 @@ steps:
         },
         "Api": 
         {
-          "BaseUrl": "https://localhost:5078",
+          "BaseUrl": "http://localhost:5078",
           "Scopes": ["$env:APP_API_SCOPES"]
         }
       }
