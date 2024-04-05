@@ -3,8 +3,8 @@ using System;
 using Budget.Core.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -17,82 +17,68 @@ namespace Budget.Core.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Budget.Core.Models.Transaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
                         .HasPrecision(12, 2)
-                        .HasColumnType("numeric(12,2)")
-                        .HasColumnName("amount");
+                        .HasColumnType("decimal(12,2)");
 
                     b.Property<string>("AuthorizationCode")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("authorization_code");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<decimal>("BalanceAfterTransaction")
                         .HasPrecision(12, 2)
-                        .HasColumnType("numeric(12,2)")
-                        .HasColumnName("balance_after_transaction");
+                        .HasColumnType("decimal(12,2)");
 
                     b.Property<DateOnly?>("CashbackForDate")
-                        .HasColumnType("date")
-                        .HasColumnName("cashback_for_date");
+                        .HasColumnType("date");
 
                     b.Property<string>("Currency")
                         .IsRequired()
                         .HasMaxLength(5)
-                        .HasColumnType("character varying(5)")
-                        .HasColumnName("currency");
+                        .HasColumnType("nvarchar(5)");
 
                     b.Property<DateOnly>("DateTransaction")
-                        .HasColumnType("date")
-                        .HasColumnName("date_transaction");
+                        .HasColumnType("date");
 
                     b.Property<string>("Description")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("description");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("FollowNumber")
-                        .HasColumnType("integer")
-                        .HasColumnName("follow_number");
+                        .HasColumnType("int");
 
                     b.Property<string>("Iban")
                         .IsRequired()
                         .HasMaxLength(34)
-                        .HasColumnType("character varying(34)")
-                        .HasColumnName("iban");
+                        .HasColumnType("nvarchar(34)");
 
                     b.Property<string>("IbanOtherParty")
                         .HasMaxLength(34)
-                        .HasColumnType("character varying(34)")
-                        .HasColumnName("iban_other_party");
+                        .HasColumnType("nvarchar(34)");
 
                     b.Property<string>("NameOtherParty")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("name_other_party");
+                        .HasColumnType("nvarchar(255)");
 
-                    b.HasKey("Id")
-                        .HasName("pk_transactions");
+                    b.HasKey("Id");
 
                     b.HasIndex("FollowNumber", "Iban")
-                        .IsUnique()
-                        .HasDatabaseName("ix_transactions_follow_number_iban");
+                        .IsUnique();
 
-                    b.ToTable("transactions");
+                    b.ToTable("Transactions");
                 });
 #pragma warning restore 612, 618
         }

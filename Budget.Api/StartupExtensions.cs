@@ -25,7 +25,7 @@ public static class StartupExtensions
     {
         app.UseSwaggerWithAuth(isDevelopment, config.GetSection("Swagger"));
         app.UseHttpsRedirection();
-        
+
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -37,7 +37,7 @@ public static class StartupExtensions
     internal static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration config)
     {
         services.AddDbContext<BudgetContext>(options =>
-            options.UseNpgsql(config.GetConnectionString("BudgetContext"),
+            options.UseSqlServer(config.GetConnectionString("BudgetContext"),
                 b => b.MigrationsAssembly(typeof(BudgetContext).Assembly.FullName))
         );
         return services;
