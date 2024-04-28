@@ -24,6 +24,7 @@ steps:
   displayName: 'Restore'
   inputs:
     command: 'restore'
+    projects: '$(project)'
     restoreArguments: '--locked-mode'
     feedsToUse: 'select'
 
@@ -38,7 +39,8 @@ steps:
   displayName: 'Publish'
   inputs:
     command: 'publish'
-    publishWebProjects: true
+    publishWebProjects: false
+    projects: '$(project)'
     arguments: '--no-restore --no-build -o $(artifactPath)'
     modifyOutputPath: false
 
