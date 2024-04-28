@@ -8,12 +8,14 @@ trigger:
 
 pool:
   vmImage: 'windows-latest'
+  name: Default
 
 variables:
   solution: '**/*.sln'
-  project: 'Budget.App/Budget.App.csproj'
+  project: 'Budget.App'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  artifactPath: '$(System.DefaultWorkingDirectory)/drop'
 
 steps:
 - task: DotNetCoreCLI@2
@@ -34,11 +36,8 @@ steps:
   inputs:
     command: 'publish'
     publishWebProjects: true
-    arguments: '--no-restore --no-build'
+    arguments: '--no-restore --no-build -o $(artifactPath)'
     modifyOutputPath: false
 
-- task: PublishPipelineArtifact@1
-  displayName: 'Upload artefacts'
-  inputs:
-    targetPath: '$(Pipeline.Workspace)'
-    publishLocation: 'pipeline'
+- publish: '$(artifactPath)'
+  artifact: WebApp
