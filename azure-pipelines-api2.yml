@@ -6,7 +6,7 @@ trigger:
     include:
       - Budget.Api/*
       - Budget.ApiClient/*
-      - azure-pipelines-api.yml
+      - azure-pipelines-api2.yml
 
 pool:
   vmImage: 'windows-latest'
