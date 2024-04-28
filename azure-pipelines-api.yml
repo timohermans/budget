@@ -2,11 +2,11 @@ trigger:
   branches:
     include:
       - main
-    paths:
-      include:
-        - Budget.Api/*
-        - Budget.ApiClient/*
-        - azure-pipelines-api.yml
+  paths:
+    include:
+      - Budget.Api/*
+      - Budget.ApiClient/*
+      - azure-pipelines-api.yml
 
 pool:
   vmImage: 'windows-latest'
