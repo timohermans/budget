@@ -5,6 +5,7 @@ trigger:
   paths:
    include:
      - Budget.App/*
+     - azure-pipelines-app.yml
 
 pool:
   vmImage: 'windows-latest'
