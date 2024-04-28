@@ -1,0 +1,45 @@
+trigger:
+  branches:
+   include:
+     - main
+  paths:
+   include:
+     - Budget.App/*
+     - azure-pipelines-app.yml
+
+pool:
+  vmImage: 'windows-latest'
+  name: Default
+
+variables:
+  solution: '**/*.sln'
+  project: 'Budget.App'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  artifactPath: '$(System.DefaultWorkingDirectory)/drop'
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'Restore'
+  inputs:
+    command: 'restore'
+    restoreArguments: '--locked-mode'
+    feedsToUse: 'select'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build'
+  inputs:
+    command: 'build'
+    projects: '$(project)'
+    arguments: '--no-restore -c $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--no-restore --no-build -o $(artifactPath)'
+    modifyOutputPath: false
+
+- publish: '$(artifactPath)'
+  artifact: WebApp
