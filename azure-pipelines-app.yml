@@ -23,6 +23,7 @@ steps:
   displayName: 'Restore'
   inputs:
     command: 'restore'
+    restoreArguments: '--locked-mode'
     feedsToUse: 'select'
 
 - task: DotNetCoreCLI@2
