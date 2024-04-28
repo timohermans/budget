@@ -5,6 +5,7 @@ trigger:
   paths:
    include:
      - Budget.Api/*
+     - Budget.ApiClient/*
      - azure-pipelines-api.yml
 
 pool:
