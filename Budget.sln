@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker-compose.yml = docker-compose.yml
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 		README.md = README.md
+		azure-pipelines-app.yml = azure-pipelines-app.yml
+		azure-pipelines-api.yml = azure-pipelines-api.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.ApiClient", "Budget.ApiClient\Budget.ApiClient.csproj", "{1F368899-3F47-4BCA-9E1B-D168C67A3E3B}"
