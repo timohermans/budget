@@ -20,6 +20,10 @@ variables:
   branchName: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
 
 steps:
+- checkout: self
+  persistCredentials: true
+  clean: true
+  
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
