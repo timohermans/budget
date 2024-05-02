@@ -6,10 +6,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <UserSecretsId>3c1f0018-b7b2-43ac-aac0-492f98e61dd7</UserSecretsId>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <FileVersion>1.0.1.0</FileVersion>
-    <InformationalVersion>1.0.1</InformationalVersion>
-    <Version>1.0.1-ci0075</Version>
+    <Version>1.0.1</Version>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <ItemGroup>

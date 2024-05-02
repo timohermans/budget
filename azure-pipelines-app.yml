@@ -17,12 +17,13 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   artifactPath: '$(System.DefaultWorkingDirectory)/drop'
+  branchName: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
 
 steps:
-- script: dotnet tool install --global GitVersion.Tool --version 5.*
-  displayName: 'Install GitVersion'
+- script: dotnet tool install --global Versionize
+  displayName: 'Install Versionize'
 
-- script: cd $(project) && dotnet-gitversion /updateprojectfiles
+- script: cd $(project) && versionize && git push --follow-tags origin $(branchName)
   displayName: 'Bump project version'
   
 - task: DotNetCoreCLI@2
