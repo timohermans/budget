@@ -19,6 +19,12 @@ variables:
   artifactPath: '$(System.DefaultWorkingDirectory)/drop'
 
 steps:
+- script: dotnet tool install --global GitVersion.Tool --version 5.*
+  displayName: 'Install GitVersion'
+
+- script: cd $(project) && dotnet-gitversion /updateprojectfiles
+  displayName: 'Bump project version'
+  
 - task: DotNetCoreCLI@2
   displayName: 'Restore'
   inputs:
