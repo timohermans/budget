@@ -25,7 +25,7 @@ steps:
     packageType: 'sdk'
     version: '8.x'
     
-- script: dotnet tool install --global Versionize
+- script: dotnet tool install --global Versionize && git config --global user.name "$(git_name)" && git config --global user.email "$(git_email)"
   displayName: 'Install Versionize'
 
 - script: cd $(project) && versionize && git push --follow-tags origin $(branchName)
