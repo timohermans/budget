@@ -20,6 +20,11 @@ variables:
   branchName: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
 
 steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'
+    
 - script: dotnet tool install --global Versionize
   displayName: 'Install Versionize'
 
