@@ -4,10 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Core.UseCases.Transactions.Overview;
 
-public class OverviewUseCase(BudgetContext dataAccess)
+public class OverviewUseCase(IDbContextFactory<BudgetContext> dataAccessFactory)
 {
     public async Task<OverviewResponse> HandleAsync(OverviewRequest request)
     {
+        var dataAccess = await dataAccessFactory.CreateDbContextAsync();
         var iban = request.Iban;
         var date = new DateOnly(request.Year, request.Month, 1);
         var dateMin = new DateOnly(date.Year, date.Month, 1);

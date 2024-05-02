@@ -6,10 +6,11 @@ using System.Globalization;
 
 namespace Budget.Core.UseCases.Transactions.FileEtl;
 
-public class FileEtlUseCase(BudgetContext dataAccess, ILogger<FileEtlUseCase> logger)
+public class FileEtlUseCase(IDbContextFactory<BudgetContext> dbFactory, ILogger<FileEtlUseCase> logger)
 {
     public async Task<FileEtlResponse> HandleAsync(Stream stream)
     {
+        var dataAccess = await dbFactory.CreateDbContextAsync();
         logger.LogInformation("Handling Transaction file upload");
 
         List<Transaction> transactions = new();

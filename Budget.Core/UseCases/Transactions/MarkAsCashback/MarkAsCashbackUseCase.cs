@@ -5,10 +5,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Budget.Core.UseCases.Transactions.MarkAsCashback;
 
-public class MarkAsCashbackUseCase(BudgetContext db, ILogger<MarkAsCashbackUseCase> logger)
+public class MarkAsCashbackUseCase(IDbContextFactory<BudgetContext> dbFactory, ILogger<MarkAsCashbackUseCase> logger)
 {
     public async Task<Result> HandleAsync(MarkAsCashbackRequest request)
     {
+        var db = await dbFactory.CreateDbContextAsync();
         var transaction = await db.Transactions.SingleOrDefaultAsync(t => t.Id == request.Id);
 
         if (transaction == null)
