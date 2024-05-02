@@ -28,7 +28,7 @@ steps:
 - script: dotnet tool install --global Versionize && git config --global user.name "$(git_name)" && git config --global user.email "$(git_email)"
   displayName: 'Install Versionize'
 
-- script: cd $(project) && versionize && git push --follow-tags HEAD:$(Build.SourceBranch)
+- script: git checkout $(branchName) && cd $(project) && versionize && git push --follow-tags HEAD:$(Build.SourceBranch)
   displayName: 'Bump project version'
   
 - task: DotNetCoreCLI@2
