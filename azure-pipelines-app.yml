@@ -32,7 +32,7 @@ steps:
 - script: dotnet tool install --global Versionize && git config --global user.name "$(git_name)" && git config --global user.email "$(git_email)"
   displayName: 'Install Versionize'
 
-- script: git checkout $(branchName) && git pull && cd $(project) && versionize --commit-suffix "[skip ci]" && git push --follow-tags origin $(branchName)
+- script: git checkout $(branchName) && git reset origin/$(branchName) --hard && cd $(project) && versionize --commit-suffix "[skip ci]" && git push --follow-tags origin $(branchName)
   displayName: 'Bump project version'
   
 - task: DotNetCoreCLI@2
