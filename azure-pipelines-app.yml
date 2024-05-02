@@ -25,14 +25,8 @@ steps:
     packageType: 'sdk'
     version: '8.x'
 
-- task: PowerShell@2
-  displayName: Install Versionize
-  inputs:
-    targetType: 'inline'
-    script: |
-      dotnet tool install --global Versionize
-      git config --global user.name "$(git_name)"
-      git config --global user.email "$(git_email)"
+- script: dotnet tool install --global Versionize && git config --global user.name "$(git_name)" && git config --global user.email "$(git_email)"
+  displayName: 'Install Versionize'
 
 - script: cd $(project) && versionize && git push --follow-tags HEAD:$(Build.SourceBranch)
   displayName: 'Bump project version'
