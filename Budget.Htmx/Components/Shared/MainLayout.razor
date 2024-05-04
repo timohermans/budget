@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Antiforgery
+﻿@using Budget.Htmx.Endpoints.Transactions
+@using Microsoft.AspNetCore.Antiforgery
 @using Microsoft.AspNetCore.Components.Forms
 @inherits LayoutComponentBase
 @inject AntiforgeryStateProvider Antiforgery
@@ -24,9 +25,15 @@
     <script defer src="js/site.js"></script>
     <script defer>
         document.addEventListener('htmx:configRequest', function(evt) {
-            const name = "@_csrfName";
-            const value = "@_csrfToken";
-            evt.detail.parameters[name] = value; // add a new parameter into the mix
+            if (evt.detail.verb !== 'get') {
+                const name = "@_csrfName";
+                const value = "@_csrfToken";
+                evt.detail.parameters[name] = value; 
+            }
+        });
+        
+        document.addEventListener('@PatchTransactionCashbackDateEndpoint.CashbackPatchedTrigger', evt => {
+            enablePopovers();
         });
     </script>
 </head>

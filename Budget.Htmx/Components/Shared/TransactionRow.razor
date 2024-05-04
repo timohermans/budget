@@ -4,7 +4,7 @@
 
 <tr class="align-middle">
     <td>
-        <TransactionRowOptions/>
+        <TransactionRowOptions Id="Transaction.Id"/>
     </td>
     <td>@Transaction.OriginalDate.ToIsoWeekNumber()</td>
     <td>@Transaction.Date.ToString("dd-MM", _dutch)</td>
@@ -29,7 +29,7 @@
 </tr>
 
 @code {
-    [Parameter] public OverviewTransaction Transaction { get; set; }
+    [Parameter, EditorRequired] public OverviewTransaction Transaction { get; set; } = null!;
 
     private readonly CultureInfo _dutch = new("nl-NL");
 }
