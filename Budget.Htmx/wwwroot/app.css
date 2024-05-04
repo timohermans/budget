@@ -59,9 +59,17 @@ h1:focus {
 }
 
 .htmx-request .htmx-indicator {
-    display: inline;
+    display: inline-block;
 }
 
 .htmx-request.htmx-indicator {
-    display: inline;
+    display: inline-block;
+}
+
+.htmx-request .htmx-indicator-hide {
+    display: none;
+}
+
+.htmx-request.htmx-indicator-hide {
+    display: none;
 }
