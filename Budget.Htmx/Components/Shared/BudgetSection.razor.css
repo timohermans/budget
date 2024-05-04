@@ -1,0 +1,30 @@
+﻿.grid-week {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr;
+    row-gap: 0.25rem;
+    column-gap: 0.25rem;
+}
+
+.grid-week .number {
+    justify-self: end;
+}
+
+.grid-week .symbol {
+    justify-self: center;
+}
+
+.grid-header,
+.grid-gutter,
+.grid-line {
+    grid-column: 1 / span 3;
+}
+
+.grid-line {
+    height: 1px;
+    background-color: var(--bs-gray-300);
+}
+
+.grid-gutter {
+    height: 1rem;
+}
+

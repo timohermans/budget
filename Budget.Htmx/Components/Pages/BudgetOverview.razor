@@ -1,0 +1,48 @@
+﻿@using System.Globalization
+@using Budget.Core.UseCases.Transactions.Overview
+@layout MainLayout
+
+@page "/transactions"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@inject TimeProvider Time
+@inject LinkGenerator Linker
+@attribute [Authorize]
+
+<PageTitle>@Date.ToString("yyyy-MM") Transacties</PageTitle>
+
+<nav class="navbar">
+    <div class="container-fluid">
+        <MonthNavigator Date="@Date" IbanSelected="@Model.IbanSelected"/>
+
+        <div>
+            <div class="text-end">
+                <VersionInfo/>
+            </div>
+
+            <AccountInfo User="User"/>
+        </div>
+
+    </div>
+</nav>
+
+<main class="container-md flex-grow-1 vstack gap-3">
+    <section id="actions" class="row mb-3">
+        <div class="col-auto align-self-center">
+            <UploadTransactionsButton/>
+        </div>
+        <div class="col">
+            <SelectIban Ibans="@Model.IbansToSelect" IbanSelected="@Model.IbanSelected" Date="@Model.Date"/>
+        </div>
+    </section>
+
+    <BudgetSection Model="Model"/>
+
+    <TransactionsSection Transactions="@Model.Transactions"/>
+</main>
+
+@code {
+    [Parameter] public OverviewResponse Model { get; set; } = null!;
+    [Parameter] public DateTime Date { get; set; }
+    [Parameter] public ClaimsPrincipal? User { get; set; }
+}

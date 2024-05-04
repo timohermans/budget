@@ -1,0 +1,38 @@
+﻿@inject LinkGenerator Linker
+
+<th>
+    <a class="btn btn-link link-dark px-0"
+       hx-get="@_link"
+       hx-target="#transactionOverview"
+       hx-swap="outerHTML">
+        <span>@ChildContent</span>
+        @if (LinkInfo.OrderByCurrent == PropertyName)
+        {
+            @if (LinkInfo.DirectionCurrent == "asc")
+            {
+                <i class="bi bi-arrow-up"></i>
+            }
+            else
+            {
+                <i class="bi bi-arrow-down"></i>
+            }
+        }
+    </a>
+</th>
+
+@code {
+    [Parameter, EditorRequired] public string? PropertyName { get; set; }
+    [Parameter, EditorRequired] public HeaderData LinkInfo { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
+
+    private string? _link;
+
+    protected override void OnInitialized()
+    {
+        var direction = LinkInfo.OrderByCurrent == PropertyName && LinkInfo.DirectionCurrent == "desc" ? "asc" : "desc";
+        _link = Linker.GetPathByName("transactions", new { date = LinkInfo.Date, iban = LinkInfo.Iban, orderBy = PropertyName, direction = direction });
+    }
+
+    public record HeaderData(string? OrderByCurrent, string? DirectionCurrent, DateTime? Date, string? Iban);
+
+}

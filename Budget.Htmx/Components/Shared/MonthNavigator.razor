@@ -1,0 +1,21 @@
+﻿<div class="navbar-brand">
+    <a class="btn" href="@LinkPrevious" data-testid="goPrevious">
+        <i class="bi bi-arrow-left-circle fs-4"></i>
+    </a>
+    <a class="btn fs-4" href="@LinkCurrent">@Date.ToString("yyyy-MM")</a>
+
+    <a class="btn" href="@LinkNext" data-testid="goNext">
+        <i class="bi bi-arrow-right-circle fs-4"></i>
+    </a>
+</div>
+
+@code {
+    [Inject] public LinkGenerator LinkGenerator { get; set; } = default!;
+    [Parameter] public DateTime Date { get; set; }
+    [Parameter] public string? IbanSelected { get; set; }
+    private DateTime DatePrevious => Date.AddMonths(-1);
+    private DateTime DateNext => Date.AddMonths(1);
+    private string? LinkPrevious => LinkGenerator.GetPathByName("budget_overview", values: new { year = DatePrevious.Year, month = DatePrevious.Month, iban = IbanSelected });
+    private string? LinkCurrent => LinkGenerator.GetPathByName("budget_overview", values: new { year = Date.Year, month = Date.Month, iban = IbanSelected });
+    private string? LinkNext => LinkGenerator.GetPathByName("budget_overview", values: new { year = DateNext.Year, month = DateNext.Month, iban = IbanSelected });
+}
