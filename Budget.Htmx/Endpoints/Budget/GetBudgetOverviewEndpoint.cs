@@ -14,16 +14,17 @@ public class GetBudgetOverviewEndpoint : IEndpoint
     }
 
     public async Task<IResult> Handle([AsParameters] ViewModel request, OverviewUseCase useCase,
-        HttpContext httpContext)
+        HttpContext httpContext, TimeProvider timeProvider)
     {
-        var year = request.Year ?? 2024;
-        var month = request.Month ?? 1;
+        var now = timeProvider.GetUtcNow().DateTime;
+        var year = request.Year ?? now.Year;
+        var month = request.Month ?? now.Month;
         var date = new DateTime(year, month, 1);
         var response = await useCase.HandleAsync(new OverviewRequest
         {
             Iban = request.Iban,
-            Year = request.Year ?? 2024,
-            Month = request?.Month ?? 1
+            Year = year,
+            Month = month
         });
 
         return new RazorComponentResult<BudgetOverview>(new

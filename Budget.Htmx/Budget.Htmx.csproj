@@ -15,6 +15,11 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Htmx" Version="1.8.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.4">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.Identity.Web" Version="2.17.2"/>
         <PackageReference Include="Microsoft.Identity.Web.UI" Version="2.17.2"/>
         <PackageReference Include="Serilog.AspNetCore" Version="8.0.1"/>
