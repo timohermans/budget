@@ -53,7 +53,8 @@ steps:
   displayName: 'Publish'
   inputs:
     command: 'publish'
-    publishWebProjects: true
+    publishWebProjects: false
+    projects: '$(project)'
     arguments: '--no-restore --no-build -o $(artifactPath)'
     modifyOutputPath: false
 
