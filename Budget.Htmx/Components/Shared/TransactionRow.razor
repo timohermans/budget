@@ -1,0 +1,35 @@
+﻿@using System.Globalization
+@using Budget.Core.Extensions
+@using Budget.Core.UseCases.Transactions.Overview
+
+<tr class="align-middle">
+    <td>
+        <TransactionRowOptions Id="Transaction.Id"/>
+    </td>
+    <td>@Transaction.OriginalDate.ToIsoWeekNumber()</td>
+    <td>@Transaction.Date.ToString("dd-MM", _dutch)</td>
+    <td>@Transaction.NameOtherParty</td>
+    <td>
+        <span class="badge text-bg-@(Transaction.Amount < 0 ? "danger" : "success")">@Transaction.Amount</span>
+    </td>
+    <td>
+        @(Transaction.IsFixed ? "🔒" : "")
+
+        @if (Transaction.CashbackForDate != null)
+        {
+            string cashbackDisplay = $"Originele datum: {Transaction.OriginalDate.ToString("yyyy-MM-dd", _dutch)}";
+
+            <button type="button" class="btn btn-sm" data-bs-toggle="popover" data-bs-content="@cashbackDisplay" data-bs-placement="top">
+                <i class="bi bi-sign-turn-left"></i>
+                <span class="visually-hidden">@cashbackDisplay</span>
+            </button>
+        }
+    </td>
+    <td>@Transaction.Description</td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public OverviewTransaction Transaction { get; set; } = null!;
+
+    private readonly CultureInfo _dutch = new("nl-NL");
+}

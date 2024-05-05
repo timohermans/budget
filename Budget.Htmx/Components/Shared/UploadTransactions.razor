@@ -1,0 +1,15 @@
+﻿@using Budget.Htmx.Endpoints.Transactions
+@inject LinkGenerator Linker
+
+<div x-data>
+    <input type="file" name="File" class="visually-hidden"
+           x-ref="fileSelect"
+           hx-post="@Linker.GetPathByName(UploadTransactionsEndpoint.RouteName)"
+           hx-target="body"
+           hx-encoding="multipart/form-data">
+    <button type="button" class="btn btn-primary fs-4"
+            x-on:click="$refs.fileSelect.click();">
+        <i class="bi bi-cloud-arrow-up"></i>
+        <span class="visually-hidden">Upload transactions</span>
+    </button>
+</div>

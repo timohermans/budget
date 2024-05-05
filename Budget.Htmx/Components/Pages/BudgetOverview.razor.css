@@ -1,0 +1,17 @@
+﻿::deep .quickgrid[theme=default] {
+    --col-gap: 0.3rem;
+}
+
+    ::deep .quickgrid[theme=default] .col-title:hover {
+        border-radius: 0.5rem;
+    }
+
+::deep table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+::deep .quickgrid[theme=default] > tbody > tr > td {
+    padding: 1rem calc(0.4rem + var(--col-gap)) 0.1rem 0.4rem
+}

@@ -1,0 +1,40 @@
+﻿@using System.Globalization
+@using Budget.Core.Extensions
+@using Budget.Core.Models
+@using Budget.Core.UseCases.Transactions.Overview
+@inject LinkGenerator Linker
+
+<section id="transactionOverview">
+    <h2 class="text-center">Transacties</h2>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th></th>
+            <TransactionTableHeader PropertyName="@nameof(Transaction.DateTransaction)" LinkInfo="HeaderData">Wk</TransactionTableHeader>
+            <TransactionTableHeader PropertyName="@nameof(Transaction.DateTransaction)" LinkInfo="HeaderData">Datum</TransactionTableHeader>
+            <TransactionTableHeader PropertyName="@nameof(Transaction.NameOtherParty)" LinkInfo="HeaderData">Name</TransactionTableHeader>
+            <TransactionTableHeader PropertyName="@nameof(Transaction.Amount)" LinkInfo="HeaderData">Bedrag</TransactionTableHeader>
+            <TransactionTableHeader PropertyName="@nameof(Transaction.AuthorizationCode)" LinkInfo="HeaderData">Is vast</TransactionTableHeader>
+            <TransactionTableHeader PropertyName="@nameof(Transaction.Description)" LinkInfo="HeaderData">Omschrijving</TransactionTableHeader>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var transaction in Transactions)
+        {
+            <TransactionRow Transaction="@transaction"/>
+        }
+        </tbody>
+    </table>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public IEnumerable<OverviewTransaction> Transactions { get; set; } = [];
+    [Parameter] public string? OrderBy { get; set; }
+    [Parameter] public string? Direction { get; set; }
+    private DateTime? Date => Transactions.FirstOrDefault()?.Date;
+    private string? Iban => Transactions.FirstOrDefault()?.Iban;
+    private TransactionTableHeader.HeaderData HeaderData => new(OrderBy, Direction, Date, Iban);
+
+    private readonly CultureInfo _dutch = new("nl-NL");
+}

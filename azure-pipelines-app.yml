@@ -4,7 +4,7 @@ trigger:
      - main
   paths:
    include:
-     - Budget.App/*
+     - Budget.Htmx/*
      - azure-pipelines-app.yml
 
 pool:
@@ -13,7 +13,7 @@ pool:
 
 variables:
   solution: '**/*.sln'
-  project: 'Budget.App'
+  project: 'Budget.Htmx'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   artifactPath: '$(System.DefaultWorkingDirectory)/drop'

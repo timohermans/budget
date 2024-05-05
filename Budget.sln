@@ -15,16 +15,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		.runsettings = .runsettings
+		azure-pipelines-api2.yml = azure-pipelines-api2.yml
+		azure-pipelines-app.yml = azure-pipelines-app.yml
 		docker-compose.yml = docker-compose.yml
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 		README.md = README.md
-		azure-pipelines-app.yml = azure-pipelines-app.yml
-		azure-pipelines-api2.yml = azure-pipelines-api2.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.ApiClient", "Budget.ApiClient\Budget.ApiClient.csproj", "{1F368899-3F47-4BCA-9E1B-D168C67A3E3B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.Api", "Budget.Api\Budget.Api.csproj", "{B94321C7-ACD1-4A00-91B6-7CD0578C156E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.Htmx", "Budget.Htmx\Budget.Htmx.csproj", "{57C17FA0-4942-49B2-93FA-589AD37DF7D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,6 +58,10 @@ Global
 		{B94321C7-ACD1-4A00-91B6-7CD0578C156E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B94321C7-ACD1-4A00-91B6-7CD0578C156E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B94321C7-ACD1-4A00-91B6-7CD0578C156E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57C17FA0-4942-49B2-93FA-589AD37DF7D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57C17FA0-4942-49B2-93FA-589AD37DF7D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57C17FA0-4942-49B2-93FA-589AD37DF7D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57C17FA0-4942-49B2-93FA-589AD37DF7D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
