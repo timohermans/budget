@@ -19,6 +19,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
 
+app.UseMiddleware<LogUsernameMiddleware>();
+
 app.MapEndpoints();
 
 app.Run();
