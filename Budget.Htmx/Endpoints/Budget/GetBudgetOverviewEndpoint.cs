@@ -8,7 +8,7 @@ public class GetBudgetOverviewEndpoint : IEndpoint
 {
     public void Configure(IEndpointRouteBuilder builder)
     {
-        builder.MapGet("/budget", Handle)
+        builder.MapGet("/", Handle)
             .WithName("budget_overview")
             .RequireAuthorization();
     }
@@ -31,7 +31,7 @@ public class GetBudgetOverviewEndpoint : IEndpoint
         {
             Date = date,
             Model = response,
-            User = httpContext.User
+            httpContext.User
         });
     }
 

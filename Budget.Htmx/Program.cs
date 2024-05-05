@@ -11,6 +11,13 @@ builder.Services.AddBudgetServices(config, env);
 
 var app = builder.Build();
 
+if (!env.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseHsts();
+    app.UseForwardedHeaders();
+}
+
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
