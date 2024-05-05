@@ -18,8 +18,6 @@ if (!env.IsDevelopment())
     app.UseForwardedHeaders();
 }
 
-app.UseDeveloperExceptionPage();
-
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
