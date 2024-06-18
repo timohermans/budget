@@ -1234,6 +1234,7 @@
           "Htmx": "[1.8.0, )",
           "Microsoft.Identity.Web": "[2.17.2, )",
           "Microsoft.Identity.Web.UI": "[2.17.2, )",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[8.0.4, )",
           "Serilog.AspNetCore": "[8.0.1, )",
           "Serilog.Sinks.EventLog": "[3.1.0, )",
           "Serilog.Sinks.Seq": "[7.0.1, )"

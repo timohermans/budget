@@ -12,7 +12,7 @@ public static class StartupExtensions
     internal static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration config)
     {
         services.AddDbContextFactory<BudgetContext>(options =>
-            options.UseSqlServer(config.GetConnectionString("BudgetContext"),
+            options.UseNpgsql(config.GetConnectionString("BudgetContext"),
                 b => b.MigrationsAssembly(typeof(BudgetContext).Assembly.FullName))
         );
         return services;
