@@ -50,4 +50,28 @@ public static class StartupExtensions
             .ForEach(e => e.Configure(app));
         return app;
     }
+
+    public static WebApplication UseHtmxApplication(this WebApplication app, IWebHostEnvironment env)
+    {
+        
+        if (!env.IsDevelopment())
+        {
+            app.UseExceptionHandler("/Error", createScopeForErrors: true);
+            app.UseHsts();
+            app.UseForwardedHeaders();
+        }
+
+        app.UseStaticFiles();
+
+        app.UseHttpsRedirection();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.UseAntiforgery();
+
+        app.UseMiddleware<LogUsernameMiddleware>();
+
+        app.MapEndpoints();
+        return app;
+    }
 }

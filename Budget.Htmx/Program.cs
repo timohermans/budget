@@ -11,23 +11,6 @@ builder.Services.AddBudgetServices(config, env);
 
 var app = builder.Build();
 
-if (!env.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    app.UseHsts();
-    app.UseForwardedHeaders();
-}
-
-app.UseStaticFiles();
-
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseAntiforgery();
-
-app.UseMiddleware<LogUsernameMiddleware>();
-
-app.MapEndpoints();
+app.UseHtmxApplication(env);
 
 app.Run();

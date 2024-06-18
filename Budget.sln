@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.Core", "Budget.Core\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.Tests", "Budget.Tests\Budget.Tests.csproj", "{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.App", "Budget.App\Budget.App.csproj", "{D55B5BB8-15CF-4C73-8DE2-05E7FC3E3F27}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.BlazorTests", "Budget.BlazorTests\Budget.BlazorTests.csproj", "{B29C8AAB-AA0B-469C-853A-343907BE12A8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FF0DFC6B-A002-42FA-8B5D-6D3767B916EF}"
@@ -21,10 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 		README.md = README.md
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.ApiClient", "Budget.ApiClient\Budget.ApiClient.csproj", "{1F368899-3F47-4BCA-9E1B-D168C67A3E3B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.Api", "Budget.Api\Budget.Api.csproj", "{B94321C7-ACD1-4A00-91B6-7CD0578C156E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.Htmx", "Budget.Htmx\Budget.Htmx.csproj", "{57C17FA0-4942-49B2-93FA-589AD37DF7D7}"
 EndProject
@@ -42,22 +36,10 @@ Global
 		{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D55B5BB8-15CF-4C73-8DE2-05E7FC3E3F27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D55B5BB8-15CF-4C73-8DE2-05E7FC3E3F27}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D55B5BB8-15CF-4C73-8DE2-05E7FC3E3F27}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D55B5BB8-15CF-4C73-8DE2-05E7FC3E3F27}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B29C8AAB-AA0B-469C-853A-343907BE12A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B29C8AAB-AA0B-469C-853A-343907BE12A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B29C8AAB-AA0B-469C-853A-343907BE12A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B29C8AAB-AA0B-469C-853A-343907BE12A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1F368899-3F47-4BCA-9E1B-D168C67A3E3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1F368899-3F47-4BCA-9E1B-D168C67A3E3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1F368899-3F47-4BCA-9E1B-D168C67A3E3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1F368899-3F47-4BCA-9E1B-D168C67A3E3B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B94321C7-ACD1-4A00-91B6-7CD0578C156E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B94321C7-ACD1-4A00-91B6-7CD0578C156E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B94321C7-ACD1-4A00-91B6-7CD0578C156E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B94321C7-ACD1-4A00-91B6-7CD0578C156E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{57C17FA0-4942-49B2-93FA-589AD37DF7D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{57C17FA0-4942-49B2-93FA-589AD37DF7D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57C17FA0-4942-49B2-93FA-589AD37DF7D7}.Release|Any CPU.ActiveCfg = Release|Any CPU

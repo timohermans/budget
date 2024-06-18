@@ -46,9 +46,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Budget.Api\Budget.Api.csproj" />
-		<ProjectReference Include="..\Budget.App\Budget.App.csproj" />
 		<ProjectReference Include="..\Budget.Core\Budget.Core.csproj" />
+		<ProjectReference Include="..\Budget.Htmx\Budget.Htmx.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

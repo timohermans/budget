@@ -1,8 +1,6 @@
-﻿using System.Net;
-using Budget.Api;
-using Budget.Api.Controllers;
-using Budget.App;
-using Budget.Core.DataAccess;
+﻿using Budget.Core.DataAccess;
+using Budget.Htmx;
+using Budget.Htmx.Endpoints.Budget;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -18,7 +16,6 @@ namespace Budget.BlazorTests.Infrastructure;
 internal class AppHelper
 {
     private WebApplication? _app;
-    private WebApplication? _apiApp;
     private readonly DatabaseHelper _databaseHelper;
 
     public AppHelper(DatabaseHelper databaseHelper)
@@ -27,29 +24,33 @@ internal class AppHelper
     }
 
     public Uri Launch(string url, string urlOfApi)
-    {
-        LaunchApi();
-        return LaunchApp();
-    }
+        => LaunchApp();
 
-    private void LaunchApi()
+    private Uri LaunchApp()
     {
         var builder = WebApplication.CreateBuilder(
             new WebApplicationOptions()
             {
-                ContentRootPath = GetProjectDirectory("Budget.Api").FullName,
-                ApplicationName = "Budget.Api"
+                ContentRootPath = GetProjectDirectory("Budget.Htmx").FullName,
+                ApplicationName = "Budget.Htmx"
             });
-        AddAdditionalAppSettings<TransactionController>(builder, "Budget.Api", builder.Environment.EnvironmentName);
+        AddAdditionalAppSettings<GetBudgetOverviewEndpoint>(builder, "Budget.Htmx",
+            builder.Environment.EnvironmentName);
 
-        builder.WebHost.UseUrls("http://localhost:5078");
-        builder.Services.AddAllApiServices(builder.Configuration);
+        builder.WebHost.UseUrls("http://localhost:5223");
+        builder.Services.AddBudgetServices(builder.Configuration, builder.Environment);
+
         ReplaceDatabaseWithTest(builder);
 
-        _apiApp = builder.Build();
-        _apiApp.UseBudgetApi(builder.Environment.IsDevelopment(), builder.Configuration);
+        _app = builder.Build();
 
-        _apiApp.Start();
+        _app.UseHtmxApplication(builder.Environment);
+
+        _app.Start();
+
+        return new(_app.Services.GetRequiredService<IServer>().Features
+            .GetRequiredFeature<IServerAddressesFeature>()
+            .Addresses.Single());
     }
 
     private void ReplaceDatabaseWithTest(WebApplicationBuilder builder)
@@ -65,30 +66,8 @@ internal class AppHelper
             options.UseNpgsql(_databaseHelper.ConnectionString));
     }
 
-    private Uri LaunchApp()
-    {
-        var builder = WebApplication.CreateBuilder(
-            new WebApplicationOptions()
-            {
-                ContentRootPath = GetProjectDirectory("Budget.App").FullName,
-                ApplicationName = "Budget.App"
-            });
-        AddAdditionalAppSettings<Startup>(builder, "Budget.App", builder.Environment.EnvironmentName);
-
-        var startup = new Startup(builder.Configuration, builder.Environment);
-        builder.WebHost.UseUrls("http://localhost:5223");
-        startup.ConfigureServices(builder.Services);
-        _app = builder.Build();
-        startup.Configure(_app, _app.Environment);
-
-        _app.Start();
-
-        return new(_app.Services.GetRequiredService<IServer>().Features
-            .GetRequiredFeature<IServerAddressesFeature>()
-            .Addresses.Single());
-    }
-
-    private static void AddAdditionalAppSettings<T>(WebApplicationBuilder builder, string projectName, string environment) where T : class
+    private static void AddAdditionalAppSettings<T>(WebApplicationBuilder builder, string projectName,
+        string environment) where T : class
     {
         var projectDir = GetProjectDirectory(projectName).FullName;
         var appsettingsDir = Path.Combine(projectDir, projectName);
@@ -119,12 +98,6 @@ internal class AppHelper
         {
             await _app.StopAsync(TimeSpan.FromSeconds(2));
             await _app.DisposeAsync();
-        }
-
-        if (_apiApp is not null)
-        {
-            await _apiApp.StopAsync(TimeSpan.FromSeconds(2));
-            await _apiApp.DisposeAsync();
         }
     }
 }
