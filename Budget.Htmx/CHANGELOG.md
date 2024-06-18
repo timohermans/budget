@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.0.1"></a>
+## [2.0.1](https://itsyou0o@dev.azure.com/itsyou0o/Budget/_git/Budget?version=GTv2.0.1) (2024-06-18)
+
 <a name="2.0.0"></a>
 ## [2.0.0](https://itsyou0o@dev.azure.com/itsyou0o/Budget/_git/Budget/releases/tag/v2.0.0) (2024-05-05)
 
