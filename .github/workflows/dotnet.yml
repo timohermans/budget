@@ -7,9 +7,9 @@ on: push
 
 jobs:
   build:
-
     runs-on: self-hosted
-
+    env:
+      Project: ./Budget.Htmx
     steps:
       - uses: actions/checkout@v3
       - name: Setup .NET
@@ -53,8 +53,6 @@ jobs:
         
   deploy:
     runs-on: ubuntu-latest
-    env:
-      Project: Budget.Htmx
     needs: [unit-test]
     if: ${{ github.ref == 'refs/heads/main' &&  success() }}
     steps:
