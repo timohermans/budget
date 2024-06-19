@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.0.3"></a>
+## [2.0.3](https://www.github.com/timohermans/budget/releases/tag/v2.0.3) (2024-06-19)
+
+### Bug Fixes
+
+* Make CI work with versionize ([d046373](https://www.github.com/timohermans/budget/commit/d046373bd20c1fad669670781a7cc1163771275c))
+
 <a name="2.0.2"></a>
 ## [2.0.2](https://www.github.com/timohermans/budget/releases/tag/v2.0.2) (2024-06-19)
 
