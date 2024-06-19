@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Reflection;
 using Budget.Htmx.Config;
 using Budget.Htmx.Endpoints;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Htmx;
@@ -25,7 +26,8 @@ public static class StartupExtensions
             .AddDatabase(config)
             .AddAuthentication(config)
             .AddServices()
-            .AddEndpointsFrom(typeof(Program).Assembly);
+            .AddEndpointsFrom(typeof(Program).Assembly)
+            .AddProxyConfig(env);
 
         services.AddRazorComponents();
         
@@ -40,6 +42,21 @@ public static class StartupExtensions
             .Select(t => ServiceDescriptor.Transient(typeof(IEndpoint), t))
             .ToList()
             .ForEach(services.TryAddEnumerable);
+        return services;
+    }
+    
+    public static IServiceCollection AddProxyConfig(this IServiceCollection services, IWebHostEnvironment environment)
+    {
+        if (!environment.IsDevelopment())
+        {
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            });
+        }
+
         return services;
     }
 
