@@ -23,7 +23,7 @@ jobs:
       - name: Install Versionize
         run: dotnet tool install --global Versionize && export PATH="$PATH:/root/.dotnet/tools"
       - name: Bump version
-        run: git checkout ${{ github.ref_name }} && git reset origin/${{ github.ref_name}} --hard && cd $Project && /root/.dotnet/tools/versionize --commit-suffix "[skip ci]" && git push --follow-tags origin ${{github.ref_name}}
+        run: git checkout ${{ github.ref_name }} && git reset origin/${{ github.ref_name}} --hard && cd $Project && versionize --commit-suffix "[skip ci]" && git push --follow-tags origin ${{github.ref_name}}
   
   
   unit-test:
