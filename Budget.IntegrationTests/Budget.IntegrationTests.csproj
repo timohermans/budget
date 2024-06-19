@@ -9,6 +9,7 @@
 		<IsTestProject>true</IsTestProject>
 		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 		<UserSecretsId>c31d4987-b151-45e6-9a64-97858f55ed3d</UserSecretsId>
+		<RootNamespace>Budget.BlazorTests</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -22,27 +23,27 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="coverlet.collector" Version="6.0.1">
+		<PackageReference Include="coverlet.collector" Version="6.0.2">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="FakeItEasy" Version="8.1.0" />
+		<PackageReference Include="FakeItEasy" Version="8.2.0" />
 		<PackageReference Include="FluentAssertions" Version="6.12.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-		<PackageReference Include="Microsoft.Playwright.NUnit" Version="1.41.2" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+		<PackageReference Include="Microsoft.Playwright.NUnit" Version="1.44.0" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
 		<PackageReference Include="NUnit" Version="4.1.0" />
-		<PackageReference Include="NUnit.Analyzers" Version="4.0.1">
+		<PackageReference Include="NUnit.Analyzers" Version="4.2.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-		<PackageReference Include="Otp.NET" Version="1.3.0" />
+		<PackageReference Include="Otp.NET" Version="1.4.0" />
 		<PackageReference Include="Respawn" Version="6.2.1" />
-		<PackageReference Include="Testcontainers" Version="3.7.0" />
-		<PackageReference Include="Testcontainers.PostgreSql" Version="3.7.0" />
+		<PackageReference Include="Testcontainers" Version="3.9.0" />
+		<PackageReference Include="Testcontainers.PostgreSql" Version="3.9.0" />
 	</ItemGroup>
 
 	<ItemGroup>

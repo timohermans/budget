@@ -47,12 +47,12 @@ jobs:
         
   deploy:
     runs-on: ubuntu-latest
-    needs: [unit-test, integration-test]
-    if: github.ref == 'refs/heads/main' && ${{ success() }}
+    needs: [unit-test]
+    if: ${{ github.ref == 'refs/heads/main' &&  success() }}
     steps:
       - uses: actions/checkout@v3
       - name: Build the Docker image
-        run: docker build . --file Budget.App/Dockerfile --tag ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget
+        run: docker build . --file Budget.Htmx/Dockerfile --tag ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget
       - name: Tag Image Commit sha
         run: docker tag ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget:${{github.sha}}
       - name: Tag Image Latest
