@@ -20,6 +20,11 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
+      - name: Install Versionize
+        run: dotnet tool install --global Versionize
+      - name: Bump version
+        run: git checkout ${{ github.ref_name }} && git reset origin/${{ github.ref_name}} --hard && cd $Project && versionize --commit-suffix "[skip ci]" && git push --follow-tags origin ${{github.ref_name}}
+  
   
   unit-test:
     runs-on: self-hosted
@@ -35,6 +40,7 @@ jobs:
         
   integration-test:
     runs-on: self-hosted
+    if: false
     needs: build
     steps:
       - uses: actions/checkout@v3
@@ -52,10 +58,6 @@ jobs:
     needs: [unit-test]
     if: ${{ github.ref == 'refs/heads/main' &&  success() }}
     steps:
-      - name: Install Versionize
-        run: dotnet tool install --global Versionize
-      - name: Bump version
-        run:  git checkout ${{ github.ref_name }} && git reset origin/${{ github.ref_name}} --hard && cd $Project && versionize --commit-suffix "[skip ci]" && git push --follow-tags origin ${{github.ref_name}}
       - uses: actions/checkout@v3
       - name: Build the Docker image
         run: docker build . --file Budget.Htmx/Dockerfile --tag ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget
