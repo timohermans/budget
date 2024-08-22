@@ -1,0 +1,31 @@
+﻿@using Budget.Core.UseCases.Transactions.Overview
+
+<div class="form-floating">
+    <select name="iban" class="form-select" @bind:get="_iban" @bind:set="LoadOtherIban">
+        @foreach (var iban in Ibans)
+        {
+            <option value="@iban" @key="iban" selected="@(iban == IbanSelected)">@iban</option>
+        }
+    </select>
+    <label>Iban</label>
+</div>
+
+@code {
+    [Inject] public NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] public TimeProvider TimeProvider { get; set; } = default!;
+    [Parameter] public IEnumerable<string> Ibans { get; set; } = [];
+    [Parameter] public string? IbanSelected { get; set; }
+    [Parameter] public DateTime? Date { get; set; }
+
+    private string? _iban;
+
+    private void LoadOtherIban(string? value)
+    {
+        _iban = value;
+        var now = TimeProvider.GetUtcNow();
+        var year = Date?.Year ?? now.Year;
+        var month = Date?.Month ?? now.Month;
+
+        NavigationManager.NavigateTo($"/?year={year}&month={month}&iban={_iban}");
+    }
+}

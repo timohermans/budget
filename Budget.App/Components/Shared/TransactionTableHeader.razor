@@ -1,0 +1,40 @@
+﻿@using Budget.App.States
+@using Budget.Core.DataAccess
+<th>
+    <button class="btn btn-link link-dark px-0" @onclick="ChangeOrder">
+        <span>@ChildContent</span>
+        @if (LinkInfo?.OrderByCurrent == PropertyName)
+        {
+            @if (LinkInfo.DirectionCurrent == OrderDirection.Asc)
+            {
+                <i class="bi bi-arrow-up"></i>
+            }
+            else
+            {
+                <i class="bi bi-arrow-down"></i>
+            }
+        }
+    </button>
+</th>
+
+@code {
+    [Parameter, EditorRequired] public string PropertyName { get; set; } = null!;
+    [Parameter, EditorRequired] public HeaderData? LinkInfo { get; set; } = null!;
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = null!;
+    [Inject] public TransactionFilterState TransactionFilterState { get; set; } = default!;
+    [Inject] public ILogger<TransactionTableHeader> Logger { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+    }
+
+    public void ChangeOrder()
+    {
+        var direction = LinkInfo?.DirectionCurrent == OrderDirection.Asc ? OrderDirection.Desc : OrderDirection.Asc;
+        Logger.LogDebug("Going to change filters to {Sort} and {Direction}", PropertyName, direction);
+        TransactionFilterState.SetOrderAndDirection(PropertyName, direction);
+    }
+
+    public record HeaderData(string? OrderByCurrent, OrderDirection? DirectionCurrent);
+
+}

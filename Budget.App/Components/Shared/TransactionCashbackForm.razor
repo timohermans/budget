@@ -1,0 +1,42 @@
+<tr class="align-middle">
+    <td></td>
+    <td>@Transaction.OriginalDate.ToIsoWeekNumber()</td>
+    <td>@Transaction.Date.ToString("dd-MM")</td>
+    <td colspan="3">
+        <EditForm Model="Model" OnValidSubmit="MarkAsCashbackAsync" FormName="MarkAsCashback">
+            <DataAnnotationsValidator />
+            <div class="row align-items-center">
+                <div class="col-9">
+                    <div class="form-floating mb-1">
+                        <InputDate class="form-control" @bind-Value="@Model!.Date" />
+                        <label for="markAsCashback">@Transaction.NameOtherParty</label>
+                    </div>
+                </div>
+                <div class="col-3 d-flex gap-2">
+                    <div>
+                        <button type="submit" class="btn btn-success">
+                            @if (_isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                <span class="visually-hidden" role="status">Loading...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-send"></i>
+                            }
+
+                            <span class="visually-hidden">Save cashback date</span>
+                        </button>
+                    </div>
+                    <div>
+                        <button class="btn btn-danger" type="button" @onclick="async () => await OnClose.InvokeAsync()">
+                            <i class="bi bi-sign-stop"></i>
+                            <span class="visually-hidden">Cancel marking</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </td>
+    <td>@Transaction.Description</td>
+</tr>

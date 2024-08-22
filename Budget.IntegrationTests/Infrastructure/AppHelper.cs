@@ -1,6 +1,6 @@
-﻿using Budget.Core.DataAccess;
-using Budget.Htmx;
-using Budget.Htmx.Endpoints.Budget;
+﻿using Budget.App.Components.Pages;
+using Budget.App.Server;
+using Budget.Core.DataAccess;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -28,23 +28,31 @@ internal class AppHelper
 
     private Uri LaunchApp()
     {
+        const string ProjectName = "Budget.App";
         var builder = WebApplication.CreateBuilder(
             new WebApplicationOptions()
             {
-                ContentRootPath = GetProjectDirectory("Budget.Htmx").FullName,
-                ApplicationName = "Budget.Htmx"
+                ContentRootPath = GetProjectDirectory(ProjectName).FullName,
+                ApplicationName = ProjectName
             });
-        AddAdditionalAppSettings<GetBudgetOverviewEndpoint>(builder, "Budget.Htmx",
+        AddAdditionalAppSettings<Home>(builder, ProjectName,
             builder.Environment.EnvironmentName);
+        var config = builder.Configuration;
+        var environment = builder.Environment;
 
         builder.WebHost.UseUrls("http://localhost:5223");
-        builder.Services.AddBudgetServices(builder.Configuration, builder.Environment);
+        builder.Services.AddSeriLogLogging(config)
+                .AddOidcAuthentication(config)
+                .AddPostgresDatabase<BudgetContext>(config)
+                .AddProxyConfig(environment)
+                .AddBudgetServices();
 
         ReplaceDatabaseWithTest(builder);
 
         _app = builder.Build();
 
-        _app.UseHtmxApplication(builder.Environment);
+        //_app.UseHtmxApplication(builder.Environment);
+        // TODO: fix this
 
         _app.Start();
 

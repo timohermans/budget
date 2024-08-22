@@ -27,19 +27,19 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="FakeItEasy" Version="8.2.0" />
+		<PackageReference Include="FakeItEasy" Version="8.3.0" />
 		<PackageReference Include="FluentAssertions" Version="6.12.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.6" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.8" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-		<PackageReference Include="Microsoft.Playwright.NUnit" Version="1.44.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
+		<PackageReference Include="Microsoft.Playwright.NUnit" Version="1.46.0" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
 		<PackageReference Include="NUnit" Version="4.1.0" />
-		<PackageReference Include="NUnit.Analyzers" Version="4.2.0">
+		<PackageReference Include="NUnit.Analyzers" Version="4.3.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
 		<PackageReference Include="Otp.NET" Version="1.4.0" />
 		<PackageReference Include="Respawn" Version="6.2.1" />
 		<PackageReference Include="Testcontainers" Version="3.9.0" />
@@ -47,6 +47,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Budget.App\Budget.App.csproj" />
 		<ProjectReference Include="..\Budget.Core\Budget.Core.csproj" />
 		<ProjectReference Include="..\Budget.Htmx\Budget.Htmx.csproj" />
 	</ItemGroup>

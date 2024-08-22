@@ -1,0 +1,130 @@
+﻿@using System.Globalization
+@using Budget.Core.Extensions
+@using Budget.Core.UseCases.Transactions.Overview
+@inject TimeProvider Time
+
+<section id="budgetOverview" class="row justify-content-center">
+    <h2 class="text-center">Overzicht</h2>
+    <div class="col-xs-8 col-sm-6 col-md-5 col-lg-4">
+        <div class="col fst-italic text-capitalize" data-testid="previousMonthHeader">@Model?.DatePreviousMonth.ToString("MMMM", _dutch)</div>
+        <div class="grid-week">
+            <div>Inkomen</div>
+            <div class="number" data-testid="previousMonthIncome">@(Model?.IncomeLastMonth ?? 0)</div>
+            <div class="symbol"></div>
+
+            <div>Lasten</div>
+            <div class="number" data-testid="previousMonthExpensesFixed">@(Model?.ExpensesFixedLastMonth ?? 0 * -1)</div>
+            <div class="symbol">-</div>
+
+            <div class="grid-line"></div>
+
+            <div>Budget</div>
+            <div class="number" data-testid="budgetAvailable">@(Model?.BudgetAvailable ?? 0)</div>
+            <div class="symbol"></div>
+
+            <div class="grid-gutter"></div>
+
+            <div class="grid-header fst-italic text-capitalize" data-testid="budgetCalculationMonthHeader">@Model?.Date.ToString("MMMM", _dutch)</div>
+
+            <div>Weken</div>
+            <div class="number" data-testid="budgetCalculationWeeksCount">@Model?.WeeksInMonth.Count</div>
+            <div class="symbol">÷</div>
+
+            <div>Budget per week</div>
+            <div class="number">
+                <span class="badge text-bg-info" data-testid="budgetCalculationBudgetPerWeek"> @(Model?.BudgetPerWeek ?? 0)</span>
+            </div>
+            <div class="symbol"></div>
+
+        </div>
+
+        <div class="grid-week"></div>
+    </div>
+    <div class="col-xs-8 col-sm-6 col-md-5 col-lg-4">
+
+        <div class="grid-week">
+            <div class="grid-header fst-italic text-capitalize" data-testid="expensesMonthHeader">@Model?.Date.ToString("MMMM", _dutch)</div>
+
+            <div>Budget</div>
+            <div class="number" data-testid="expensesBudgetAvailable">@Model?.BudgetAvailable</div>
+            <div></div>
+
+            @foreach (var (week, index) in (Model?.WeeksInMonth ?? [1, 2, 3, 4]).Select((w, i) => (w, i)))
+            {
+                var isLast = index == Model?.WeeksInMonth.Count - 1;
+                decimal expenseOfWeek = 0;
+                Model?.ExpensesPerWeek.TryGetValue(week, out expenseOfWeek);
+
+                <div>Week @week @(week.IsCurrentWeek(Time) ? "👈" : "")</div>
+                <div class="number">
+                    <span class="badge text-bg-light" data-testid="expensesWeek@(week)Spent">
+                        @expenseOfWeek
+                    </span>
+                </div>
+                <div class="@(expenseOfWeek < 0 ? "number" : "symbol")">
+                    @if (expenseOfWeek < 0)
+                    {
+                        <span class="badge @((Model?.BudgetPerWeek + expenseOfWeek) < 0 ? "text-bg-danger" : "text-bg-success")" data-testid="expensesWeek@(week)BudgetLeft">
+                            @(Model?.BudgetPerWeek + expenseOfWeek)
+                        </span>
+                    }
+                    else if (isLast)
+                    {
+                        <span>+</span>
+                    }
+                    else
+                    {
+                        <span></span>
+                    }
+                </div>
+            }
+            <div class="grid-line"></div>
+
+            <div>Uitgegeven</div>
+            <div class="number" data-testid="totalsSpent">@(Model?.ExpensesPerWeek.Values.Sum())</div>
+            <div></div>
+
+            <div>Over</div>
+            <div class="number" data-testid="totalsLeft">@(Model?.BudgetAvailable + Model?.ExpensesVariable)</div>
+            <div></div>
+
+            <button type="button" class="btn btn-link p-0 link-dark text-start" @onclick="() => _isSavingsVisible = !_isSavingsVisible">
+                @if (_isSavingsVisible)
+                {
+                    <i lass="bi bi-chevron-bar-contract"></i>
+                }
+                else
+                {
+                    <i class="bi bi-chevron-bar-expand"></i>
+                }
+                <span>Spaarmeter</span>
+            </button>
+            <div class="number">
+                @{
+                    var totalBalance = Model?.BalancePerAccount.Values.Sum() * -1;
+                }
+                <span class="badge text-bg-@(totalBalance > 0 ? "success" : "danger")" data-testid="totalsSaved">@totalBalance</span>
+            </div>
+            <div></div>
+
+            @foreach (var balanceKvp in (Model?.BalancePerAccount ?? new Dictionary<string, decimal>()))
+            {
+                if (_isSavingsVisible)
+                {
+                    <div>@balanceKvp.Key</div>
+                    <div class="number">
+                        <span class="badge text-bg-@(balanceKvp.Value * -1 > 0 ? "success" : "danger")" data-testid="saved@(balanceKvp.Key)">@(balanceKvp.Value * -1)</span>
+                    </div>
+                    <div></div>
+                }
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public OverviewResponse? Model { get; set; }
+
+    private readonly CultureInfo _dutch = new("nl-NL");
+    private bool _isSavingsVisible = false;
+}

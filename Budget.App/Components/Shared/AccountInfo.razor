@@ -1,0 +1,12 @@
+﻿@using System.Security.Claims
+@using Microsoft.Identity.Web
+
+<form>
+    Hello, @User?.GetDisplayName() (
+    <a href="/account/logout" class="btn btn-link p-0">log uit</a>
+    )
+</form>
+
+@code {
+    [Parameter] public ClaimsPrincipal? User { get; set; }
+}
