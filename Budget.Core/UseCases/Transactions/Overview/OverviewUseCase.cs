@@ -16,9 +16,10 @@ public class OverviewUseCase(IDbContextFactory<BudgetContext> dataAccessFactory)
         var (year, month, _) = date;
         var previousMonthDate = date.AddMonths(-1);
         var (previousYear, previousMonth, _) = previousMonthDate;
-        var transactionsAll = await dataAccess.Transactions
+        var transactionsAllQuery = dataAccess.Transactions
             .Where(t => t.DateTransaction >= previousMonthDate && t.DateTransaction < date.AddMonths(1))
-            .OrderBy(t => t.DateTransaction)
+            .OrderBy(t => t.DateTransaction);
+        var transactionsAll = await transactionsAllQuery
             .ToListAsync();
 
         var ibansOrdered = transactionsAll
@@ -30,8 +31,14 @@ public class OverviewUseCase(IDbContextFactory<BudgetContext> dataAccessFactory)
             .ToList();
         var ibans = ibansOrdered;
         var ibanSelected = iban == null || !ibansOrdered.Contains(iban) ? ibansOrdered.FirstOrDefault("") : iban;
-        var transactions = transactionsAll.Where(t => t.Iban == ibanSelected && t.DateTransaction.Year == year && t.DateTransaction.Month == month)
-            .ToList();
+        var transactions = transactionsAllQuery.Where(t => t.Iban == ibanSelected && t.DateTransaction.Year == year && t.DateTransaction.Month == month);
+
+        if (!string.IsNullOrEmpty(request.OrderBy) && request.Direction.HasValue)
+        {
+            transactions = request.Direction == OrderDirection.Asc
+                ? transactions.OrderBy(t => EF.Property<object>(t, request.OrderBy))
+                : transactions.OrderByDescending(t => EF.Property<object>(t, request.OrderBy));
+        }
 
         var weeksInMonth = Enumerable.Range(0, dateMax.Day)
             .Select(day => new DateTime(dateMax.Year, dateMax.Month, day + 1).ToIsoWeekNumber())
@@ -102,7 +109,7 @@ public class OverviewUseCase(IDbContextFactory<BudgetContext> dataAccessFactory)
             }
         }
 
-        decimal budgetAvailable = incomeLastMonth + expensesFixedLastMonth;
+        var budgetAvailable = incomeLastMonth + expensesFixedLastMonth;
         return new OverviewResponse
         {
             IbanSelected = ibanSelected,
@@ -115,7 +122,7 @@ public class OverviewUseCase(IDbContextFactory<BudgetContext> dataAccessFactory)
             ExpensesVariable = expensesVariable,
             ExpensesPerWeek = expensesPerWeek,
             IncomeFromOwnAccounts = incomeFromOwnAccounts,
-            Transactions = transactions.Select(t => new OverviewTransaction(t)).ToList(),
+            Transactions = transactions.Select(t => new OverviewTransaction(t, ibans)).ToList(),
             BalancePerAccount = balancePerAccount,
             BudgetAvailable = budgetAvailable,
             BudgetPerWeek = weeksInMonth.Count > 0 ? Math.Floor(budgetAvailable / weeksInMonth.Count) : 0

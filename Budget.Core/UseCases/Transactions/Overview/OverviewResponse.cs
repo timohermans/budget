@@ -22,22 +22,25 @@ public class OverviewResponse
 
 public class OverviewTransaction
 {
-    public int Id { get; private set; }
-    public DateTime Date { get; private set; }
-    public string Iban { get; private set; }
-    public string? IbanOtherParty { get; private set; }
-    public string? NameOtherParty { get; private set; }
-    public string? Description { get; private set; }
-    public decimal Amount { get; private set; }
-    public bool IsIncome { get; private set; }
-    public bool IsFixed { get; private set; }
-    public bool IsFromOwnAccount { get; private set; }
-    public bool IsFromOtherParty { get; private set; }
-    public bool IsCashback { get; private set; }
-    public DateTime? CashbackForDate { get; private set; }
-    public DateTime OriginalDate { get; private set; }
+    public int Id { get; set; }
+    public DateTime Date { get; set; }
+    public string Iban { get; set; } = string.Empty;
+    public string? IbanOtherParty { get; set; }
+    public string? NameOtherParty { get; set; }
+    public string? Description { get; set; }
+    public decimal Amount { get; set; }
+    public bool IsIncome { get; set; }
+    public bool IsFixed { get; set; }
+    public bool IsFromOwnAccount { get; set; }
+    public bool IsFromOtherParty { get; set; }
+    public DateTime? CashbackForDate { get; set; }
+    public DateTime OriginalDate { get; set; }
 
-    public OverviewTransaction(Transaction transaction)
+    public OverviewTransaction()
+    {
+    }
+
+    public OverviewTransaction(Transaction transaction, IEnumerable<string> ibansOwned)
     {
         Id = transaction.Id;
         Date = transaction.DateTransaction.ToDateTime(default);
@@ -48,6 +51,8 @@ public class OverviewTransaction
         Amount = transaction.Amount;
         IsIncome = transaction.IsIncome;
         IsFixed = transaction.IsFixed;
+        IsFromOtherParty = transaction.IsFromOtherParty(ibansOwned);
+        IsFromOwnAccount = transaction.IsFromOwnAccount(ibansOwned);
         CashbackForDate = transaction.CashbackForDate.HasValue ? transaction.CashbackForDate.Value.ToDateTime(default) : null;
         OriginalDate = transaction.OriginalDate.ToDateTime(default);
     }

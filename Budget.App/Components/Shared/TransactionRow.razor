@@ -1,0 +1,64 @@
+﻿@using System.Globalization
+@using Budget.App.Server
+@using Budget.Core.Extensions
+@using Budget.Core.UseCases.Transactions.Overview
+
+@if (!_isCashbacking)
+{
+    <tr class="align-middle">
+        <td>
+            @if (!Transaction.IsFromOwnAccount && !Transaction.IsFixed && Transaction.IsIncome)
+            {
+                <TransactionRowOptions Id="Transaction.Id" OnOpenCashback="OpenCashbackForm" />
+            }
+        </td>
+        <td>@Transaction.OriginalDate.ToIsoWeekNumber()</td>
+        <td>@Transaction.Date.ToString("dd-MM", _dutch)</td>
+        <td>@Transaction.NameOtherParty</td>
+        <td>
+            <span class="badge text-bg-@(Transaction.Amount < 0 ? "danger" : "success")">@Transaction.Amount</span>
+        </td>
+        <td>
+            @(Transaction.IsFixed ? "🔒" : "")
+
+            @if (Transaction.CashbackForDate != null)
+            {
+                string cashbackDisplay = $"Originele datum: {Transaction.OriginalDate.ToString("yyyy-MM-dd", _dutch)}";
+
+                <button type="button" class="btn btn-sm" data-bs-toggle="popover" data-bs-content="@cashbackDisplay" data-bs-placement="top">
+                    <i class="bi bi-sign-turn-left"></i>
+                    <span class="visually-hidden">@cashbackDisplay</span>
+                </button>
+            }
+        </td>
+        <td>@Transaction.Description</td>
+    </tr>
+}
+else
+{
+    <TransactionCashbackForm Transaction="Transaction" OnClose="CloseCashbacking" />
+}
+
+@code {
+    [Inject] public ILogger<TransactionRow> Logger { get; set; } = default!;
+    [Parameter, EditorRequired] public OverviewTransaction Transaction { get; set; } = null!;
+    [Parameter, EditorRequired] public EventCallback OnTransactionUpdate { get; set; } = default!;
+
+    private readonly CultureInfo _dutch = new("nl-NL");
+    private bool _isCashbacking;
+
+    private void OpenCashbackForm()
+    {
+        _isCashbacking = true;
+    }
+
+    private async Task CloseCashbacking(bool isSuccess)
+    {
+        _isCashbacking = false;
+
+        if (isSuccess)
+        {
+            await OnTransactionUpdate.InvokeAsync();
+        }
+    }
+}

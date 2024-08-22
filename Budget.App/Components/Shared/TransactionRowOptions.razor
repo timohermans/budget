@@ -1,0 +1,26 @@
+<div class="btn-group">
+    <button type="button" class="btn dropdown-toggle dropdown-toggle-no-arrow" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <ul class="dropdown-menu">
+        <li>
+            <button type="button" class="dropdown-item icon-link align-items-center" @onclick="OpenCashback">
+                <div>
+                    <i class="bi bi-sign-turn-left"></i>
+                    <span>Als terugbetaling markeren</span>
+                </div>
+            </button>
+        </li>
+    </ul>
+</div>
+
+@code {
+    [Inject] public ILogger<TransactionRow> Logger { get; set; } = default!;
+    [Parameter, EditorRequired] public int Id { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnOpenCashback { get; set; } = default!;
+
+    public void OpenCashback()
+    {
+        OnOpenCashback.InvokeAsync();
+    }
+}

@@ -1,0 +1,32 @@
+﻿@using System.Globalization
+@using Budget.App.States
+@using Budget.Core.Extensions
+@using Budget.Core.Models
+@using Budget.Core.UseCases.Transactions.Overview
+
+<section id="transactionOverview">
+    <h2 class="text-center">Transacties</h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <TransactionTableHeader PropertyName="@nameof(Transaction.DateTransaction)" LinkInfo="_headerData">Wk</TransactionTableHeader>
+                <TransactionTableHeader PropertyName="@nameof(Transaction.DateTransaction)" LinkInfo="_headerData">Datum</TransactionTableHeader>
+                <TransactionTableHeader PropertyName="@nameof(Transaction.NameOtherParty)" LinkInfo="_headerData">Name</TransactionTableHeader>
+                <TransactionTableHeader PropertyName="@nameof(Transaction.Amount)" LinkInfo="_headerData">Bedrag</TransactionTableHeader>
+                <TransactionTableHeader PropertyName="@nameof(Transaction.AuthorizationCode)" LinkInfo="_headerData">Is vast</TransactionTableHeader>
+                <TransactionTableHeader PropertyName="@nameof(Transaction.Description)" LinkInfo="_headerData">Omschrijving</TransactionTableHeader>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in Transactions)
+            {
+                <TransactionRow Transaction="@transaction" OnTransactionUpdate="async () => await OnTransactionUpdate.InvokeAsync()" />
+            }
+        </tbody>
+    </table>
+</section>
+
+@code {
+}

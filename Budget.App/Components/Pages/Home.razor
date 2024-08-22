@@ -1,0 +1,33 @@
+﻿@page "/"
+@using System.Security.Claims
+
+<PageTitle>Budget</PageTitle>
+
+<nav class="navbar">
+    <div class="container-fluid">
+        <MonthNavigator Date="@_date" IbanSelected="@Model?.IbanSelected"/>
+
+        <div>
+            <div class="text-end">
+                <VersionInfo/>
+            </div>
+
+            <AccountInfo User="User"/>
+        </div>
+    </div>
+</nav>
+
+<main class="container-md flex-grow-1 vstack gap-3">
+    <section id="actions" class="row mb-3">
+        <div class="align-self-center col-auto">
+            <UploadTransactions/>
+        </div>
+        <div class="col">
+            <SelectIban Ibans="@(Model?.IbansToSelect ?? [])" IbanSelected="@Model?.IbanSelected" Date="@Model?.Date"/>
+        </div>
+    </section>
+
+    <BudgetSection Model="Model"/>
+
+    <TransactionsSection Transactions="@(Model?.Transactions ?? [])" OnTransactionUpdate="GetDataAsync"/>
+</main>

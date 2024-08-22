@@ -1,0 +1,21 @@
+﻿<div class="navbar-brand">
+    <NavLink class="btn" href="@LinkPrevious" data-testid="goPrevious">
+        <i class="bi bi-arrow-left-circle fs-4"></i>
+    </NavLink>
+    <NavLink class="btn fs-4" href="@LinkCurrent">@Date?.ToString("yyyy-MM")</NavLink>
+
+    <NavLink class="btn" href="@LinkNext" data-testid="goNext">
+        <i class="bi bi-arrow-right-circle fs-4"></i>
+    </NavLink>
+</div>
+
+@code {
+    [Inject] public LinkGenerator LinkGenerator { get; set; } = default!;
+    [Parameter] public DateTime? Date { get; set; }
+    [Parameter] public string? IbanSelected { get; set; }
+    private DateTime DatePrevious => Date.GetValueOrDefault().AddMonths(-1);
+    private DateTime DateNext => Date.GetValueOrDefault().AddMonths(1);
+    private string? LinkPrevious => $"/?year={DatePrevious.Year}&month={DatePrevious.Month}&iban={IbanSelected}";
+    private string? LinkCurrent => $"/?year={Date.GetValueOrDefault().Year}&month={Date.GetValueOrDefault().Month}&iban={IbanSelected}";
+    private string? LinkNext => $"/?year={DateNext.Year}&month={DateNext.Month}&iban={IbanSelected}";
+}

@@ -1,0 +1,24 @@
+﻿@using Budget.App.Server
+@using Budget.Core.UseCases.Transactions.FileEtl
+
+<InputFile id="inputFile" class="visually-hidden" @ref="_inputFile" OnChange="LoadFileAsync" />
+
+<button type="button" class="btn btn-primary fs-4" onclick="document.querySelector('#inputFile').click()">
+    <i class="bi bi-cloud-arrow-up"></i>
+    <span class="visually-hidden">Upload transactions</span>
+</button>
+
+@code {
+    [Inject] public FileEtlUseCase UseCase { get; set; } = default!;
+    [Inject] public NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] public ILogger<UploadTransactions> Logger { get; set; } = default!;
+
+    private InputFile? _inputFile;
+
+    private async Task LoadFileAsync(InputFileChangeEventArgs e)
+    {
+        await using var stream = e.File.OpenReadStream();
+        var response = await UseCase.HandleAsync(stream);
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+}

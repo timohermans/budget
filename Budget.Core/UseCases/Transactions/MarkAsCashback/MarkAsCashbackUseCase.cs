@@ -29,7 +29,7 @@ public class MarkAsCashbackUseCase(IDbContextFactory<BudgetContext> dbFactory, I
         await db.SaveChangesAsync();
 
         logger.LogInformation(
-            "{Mark} {Transaction} with(out) cashback date {request.Date}",
+            "{Mark} {Transaction} with(out) cashback date {Date}",
             request.Date.HasValue ? "Marked" : "Unmarked", transaction.Id, request.Date);
 
         return new SuccessResult();
