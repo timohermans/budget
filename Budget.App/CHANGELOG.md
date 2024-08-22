@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="3.0.2"></a>
+## [3.0.2](https://www.github.com/timohermans/budget/releases/tag/v3.0.2) (2024-08-22)
+
+<a name="3.0.1"></a>
+## [3.0.1](https://www.github.com/timohermans/budget/releases/tag/v3.0.1) (2024-08-22)
+
 <a name="3.0.0"></a>
 ## [3.0.0](https://www.github.com/timohermans/budget/releases/tag/v3.0.0) (2024-08-22)
 
@@ -22,4 +28,3 @@ All notable changes to this project will be documented in this file. See [versio
 ### Breaking Changes
 
 * Make sure at least one logging is registered to fix deployment ([ec1378f](https://www.github.com/timohermans/budget/commit/ec1378f57fd6b5f067faa41adf00a4a18b988b85))
-
