@@ -1,0 +1,5 @@
+scrape_configs:
+  - job_name: budget-service
+    scrape_interval: 5s
+    static_configs:
+      - targets: [timo-legion.local:5128]

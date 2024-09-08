@@ -1,5 +1,9 @@
-
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Budget.App.Server;
 
@@ -23,5 +27,30 @@ public static class LoggingExtensions
         });
 
         return services;
+    }
+
+    public static WebApplicationBuilder AddOpenTelemetry(this WebApplicationBuilder builder)
+    {
+        var serviceName = "budget-service";
+        builder.Logging.AddOpenTelemetry(options =>
+        {
+            options
+                .SetResourceBuilder(
+                    ResourceBuilder.CreateDefault()
+                        .AddService(serviceName))
+                .AddConsoleExporter();
+        });
+
+        builder.Services.AddOpenTelemetry()
+              .ConfigureResource(resource => resource.AddService(serviceName))
+              .WithTracing(tracing => tracing
+                  .AddAspNetCoreInstrumentation()
+                  .AddConsoleExporter())
+              .WithMetrics(metrics => metrics
+                  .AddPrometheusExporter()
+                  .AddAspNetCoreInstrumentation()
+                  .AddConsoleExporter());
+
+        return builder;
     }
 }

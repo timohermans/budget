@@ -14,6 +14,8 @@ var config = builder.Configuration;
 var services = builder.Services;
 var environment = builder.Environment;
 
+builder.AddOpenTelemetry();
+
 // Add services to the container.
 services.AddRazorComponents()
     .AddInteractiveServerComponents()
@@ -41,6 +43,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 app.UseStaticFiles();
 app.UseAuthentication();
