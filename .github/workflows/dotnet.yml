@@ -7,6 +7,9 @@ on: push
 
 permissions:
   contents: write
+  
+env:
+  DOTNET_INSTALL_DIR: "./.dotnet"
 
 jobs:
   build:
