@@ -13,11 +13,9 @@ public class FileEtlUseCase(IDbContextFactory<BudgetContext> dbFactory, ILogger<
         var dataAccess = await dbFactory.CreateDbContextAsync();
         logger.LogInformation("Handling Transaction file upload");
 
-        List<Transaction> transactions = new();
-
         using var reader = new StreamReader(stream);
 
-        await reader.ReadLineAsync();
+        await reader.ReadLineAsync(); // skip header
 
         var ibanIndex = 0;
         var currency = 1;
@@ -30,6 +28,7 @@ public class FileEtlUseCase(IDbContextFactory<BudgetContext> dbFactory, ILogger<
         var authorizationCode = 16;
         int[] descriptionIndices = [19, 20, 21];
 
+        List<Transaction> transactions = new();
 
         while (await reader.ReadLineAsync() is { } line)
         {
@@ -41,7 +40,6 @@ public class FileEtlUseCase(IDbContextFactory<BudgetContext> dbFactory, ILogger<
                 continue;
             }
 
-            var iban = values.ElementAt(ibanIndex);
             var followNumber = values.ElementAt(followNumberIndex);
             var dateTransaction = ParseCellToDate(values.ElementAt(date), date);
             var transaction = new Transaction
@@ -73,19 +71,33 @@ public class FileEtlUseCase(IDbContextFactory<BudgetContext> dbFactory, ILogger<
             {
                 var transaction =
                     transactions.FirstOrDefault(t2 => t2.FollowNumber == t.FollowNumber && t2.Iban == t.Iban);
+
                 if (transaction == null)
                 {
+                    logger.LogDebug("Transaction is new: {Transaction}", t);
                     return;
                 }
+
+                logger.LogDebug("Transaction exists already: {Transaction}", t);
 
                 transaction.Id = t.Id;
                 dataAccess.Entry(transaction).State = EntityState.Modified;
             });
 
-        dataAccess.UpdateRange(transactions);
-        await dataAccess.SaveChangesAsync();
+        string? errorMessage = null;
+        try
+        {
+            dataAccess.UpdateRange(transactions);
+            await dataAccess.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Something went wrong bulk updating. See logs.";
+            logger.LogError(ex, "Failed bulk updating transactions");
+        }
 
-        return new FileEtlResponse(transactions.Count, minDate.ToDateTime(new TimeOnly(0, 0, 0)), maxDate.ToDateTime(new TimeOnly(0, 0, 0)));
+        return new FileEtlResponse(transactions.Count, minDate.ToDateTime(new TimeOnly(0, 0, 0)),
+            maxDate.ToDateTime(new TimeOnly(0, 0, 0)), errorMessage);
     }
 
     private IEnumerable<string> SplitLine(string line)

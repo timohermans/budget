@@ -1,24 +1,49 @@
 ﻿@using Budget.App.Server
 @using Budget.Core.UseCases.Transactions.FileEtl
 
-<InputFile id="inputFile" class="visually-hidden" @ref="_inputFile" OnChange="LoadFileAsync" />
+<InputFile id="inputFile" class="visually-hidden" @ref="_inputFile" OnChange="LoadFileAsync"/>
 
 <button type="button" class="btn btn-primary fs-4" onclick="document.querySelector('#inputFile').click()">
     <i class="bi bi-cloud-arrow-up"></i>
     <span class="visually-hidden">Upload transactions</span>
 </button>
 
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <section class="position-absolute start-50 translate-middle-x p-2 rounded bg-danger-subtle" style="top: 200px">
+        <div class="d-flex justify-content-end">
+            <button type="button" class="btn" @onclick="@(() => _errorMessage = "")">✖️</button>
+        </div>
+        <p>
+            Upload mislukt
+        </p>
+        <p>
+            @_errorMessage
+        </p>
+    </section>
+}
+
 @code {
     [Inject] public FileEtlUseCase UseCase { get; set; } = default!;
     [Inject] public NavigationManager NavigationManager { get; set; } = default!;
     [Inject] public ILogger<UploadTransactions> Logger { get; set; } = default!;
 
+    private string? _errorMessage = "hellooo, private async Task LoadFileAsync(InputFileChangeEventArgs e)";
     private InputFile? _inputFile;
 
     private async Task LoadFileAsync(InputFileChangeEventArgs e)
     {
         await using var stream = e.File.OpenReadStream();
         var response = await UseCase.HandleAsync(stream);
-        NavigationManager.NavigateTo("/", forceLoad: true);
+
+        if (string.IsNullOrEmpty(response.ErrorMessage))
+        {
+            _errorMessage = response.ErrorMessage;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/", forceLoad: true);
+        }
     }
+
 }

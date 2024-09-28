@@ -1,3 +1,3 @@
 namespace Budget.Core.UseCases.Transactions.FileEtl;
 
-public record FileEtlResponse(int AmountInserted, DateTime DateMin, DateTime DateMax);
+public record FileEtlResponse(int AmountInserted, DateTime DateMin, DateTime DateMax, string? ErrorMessage);
