@@ -28,7 +28,7 @@
     [Inject] public NavigationManager NavigationManager { get; set; } = default!;
     [Inject] public ILogger<UploadTransactions> Logger { get; set; } = default!;
 
-    private string? _errorMessage = "hellooo, private async Task LoadFileAsync(InputFileChangeEventArgs e)";
+    private string? _errorMessage = null;
     private InputFile? _inputFile;
 
     private async Task LoadFileAsync(InputFileChangeEventArgs e)
