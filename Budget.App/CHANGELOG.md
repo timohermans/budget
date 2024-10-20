@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="3.0.9"></a>
+## [3.0.9](https://www.github.com/timohermans/budget/releases/tag/v3.0.9) (2024-10-20)
+
 <a name="3.0.8"></a>
 ## [3.0.8](https://www.github.com/timohermans/budget/releases/tag/v3.0.8) (2024-10-20)
 
