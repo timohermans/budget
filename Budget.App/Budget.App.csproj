@@ -7,7 +7,7 @@
 		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 		<UserSecretsId>9cd04dbe-a27e-4395-8ea4-86dfd9fea43a</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<Version>3.0.6</Version>
+		<Version>3.0.7</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
