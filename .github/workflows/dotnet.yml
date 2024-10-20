@@ -79,3 +79,9 @@ jobs:
         run: echo "${{secrets.HOME_BUDGET_REGISTRY_PASSWORD}}" | docker login -u ${{secrets.HOME_BUDGET_REGISTRY_USERNAME}} --password-stdin ${{secrets.HOME_BUDGET_REGISTRY_HOST}}
       - name: Push To Registry
         run: docker push -a ${{secrets.HOME_BUDGET_REGISTRY_HOST}}/budget
+
+      - name: Update deployment repo
+        run: cd ${{secrets.HOME_DIR}} && get fetch --all && git checkout --force "origin/master"
+
+      - name: Deploy
+        run: docker compose pull && docker compose up -d
