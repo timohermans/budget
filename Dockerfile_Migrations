@@ -1,0 +1,26 @@
+# Use the .NET 8 SDK image as the base
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+# Set working directory
+WORKDIR /app
+
+# Copy the project files
+COPY . .
+
+# Install the Entity Framework Core CLI tools
+RUN dotnet tool install --global dotnet-ef --version 8.0.10
+
+# Add the dotnet tools to PATH
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+# Set environment variables (customize these as needed)
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ConnectionStrings__BudgetContext="User ID=p_budget;Password=ZwfuPQuMNcdiLM95VveuFPzGFtXV7;Host=postgres;Port=5432;Database=budget"
+
+WORKDIR ./Budget.Core
+
+# Entry point that runs the migrations
+ENTRYPOINT ["dotnet", "ef", "database", "update", "-s", "../Budget.App"]
+
+# Alternative script to run specific migration (commented out by default)
+# ENTRYPOINT ["dotnet", "ef", "database", "update", "MigrationName", "--project", "./YourProjectName"]

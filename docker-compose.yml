@@ -18,3 +18,5 @@ networks:
     external: true
   traefik:
     external: true
+  traefik:
+    external: true
