@@ -1,12 +1,23 @@
 ﻿@using System.Security.Claims
+@using Budget.App.Server
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Identity.Abstractions
 @using Microsoft.Identity.Web
 
 <form>
-    Hello, @User?.GetDisplayName() (
+    Hello, @_user?.Claims.FirstOrDefault(c => c.Type == "name")?.Value (
     <a href="/account/logout" class="btn btn-link p-0">log uit</a>
     )
 </form>
 
 @code {
-    [Parameter] public ClaimsPrincipal? User { get; set; }
+    [Inject] public AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+
+    private ClaimsPrincipal? _user;
+
+    protected async override Task OnInitializedAsync()
+    {
+        _user = (await AuthStateProvider.GetAuthenticationStateAsync()).User;
+    }
+
 }

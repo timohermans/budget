@@ -1,18 +1,20 @@
-version: '3.8'
 services:
   budget:
+    container_name: budget
     image: registry.timo-hermans.nl/budget:latest
     restart: unless-stopped
     env_file: .env
-    ports:
-      - "4000:8080"
     networks:
-      - server
+      - traefik
+      - postgres
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.sparen.rule=HOST(`sparen.timo-hermans.nl`)'
-      - 'traefik.http.services.sparen.loadbalancer.server.port=8080'
+      - 'traefik.http.routers.budget.rule=HOST(`budget.timo-hermans.nl`)'
+      - 'traefik.http.services.budget.loadbalancer.server.port=8080'
 
 networks:
-  server:
+  postgres:
+    name: postgres
+    external: true
+  traefik:
     external: true

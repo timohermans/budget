@@ -13,7 +13,6 @@ env:
 
 jobs:
   build:
-    runs-on: self-hosted
     env:
       Project: ./Budget.App
     steps:
@@ -31,7 +30,7 @@ jobs:
       - name: Install Versionize
         run: dotnet tool install --global Versionize
       - name: Set Git config
-        run: git config --global user.name "${{ secrets.GIT_NAME }}" && git config --global user.email ${{ secrets.GIT_EMAIL}}
+        run: git config --global user.name "${{ secrets.GIT_NAME }}" && git config --global user.email ${{ secrets.GIT_EMAIL }}
       - name: Bump version
         run: export PATH="$PATH:~/.dotnet/tools" && git checkout ${{ github.ref_name }} && git reset origin/${{ github.ref_name}} --hard && cd $Project && versionize --commit-suffix "[skip ci]" && git push --follow-tags origin ${{github.ref_name}}
   

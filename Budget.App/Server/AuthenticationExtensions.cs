@@ -21,7 +21,7 @@ public static class AuthenticationExtensions
         .AddOpenIdConnect(SchemeNameOidc, options =>
         {
             options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.PreferredUsername;
+            options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
             config.GetSection("Auth").Bind(options);
         })
         .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
