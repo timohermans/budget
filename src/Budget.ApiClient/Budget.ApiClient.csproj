@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Content Include="Transactions\.DS_Store" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Kiota.Abstractions" Version="1.19.0" />
+      <PackageReference Include="Microsoft.Kiota.Http.HttpClientLibrary" Version="1.19.0" />
+      <PackageReference Include="Microsoft.Kiota.Serialization.Form" Version="1.19.0" />
+      <PackageReference Include="Microsoft.Kiota.Serialization.Json" Version="1.19.0" />
+      <PackageReference Include="Microsoft.Kiota.Serialization.Multipart" Version="1.19.0" />
+      <PackageReference Include="Microsoft.Kiota.Serialization.Text" Version="1.19.0" />
+    </ItemGroup>
+
+</Project>

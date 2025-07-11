@@ -19,7 +19,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "src\Solut
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.App", "Budget.App\Budget.App.csproj", "{50289991-5127-454E-8AEA-21CF3167D58A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.App", "src\Budget.App\Budget.App.csproj", "{50289991-5127-454E-8AEA-21CF3167D58A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.ApiClient", "src\Budget.ApiClient\Budget.ApiClient.csproj", "{9CFC30AA-7CF1-454E-8AD4-C92FF7A0A054}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{96FE9674-5CDE-4668-B6C9-D7585567241C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
