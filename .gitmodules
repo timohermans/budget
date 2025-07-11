@@ -1,0 +1,3 @@
+[submodule "submodules/Hertmans.Shared"]
+	path = submodules/Hertmans.Shared
+	url = git@github.com:timohermans/Hertmans.Shared.git
