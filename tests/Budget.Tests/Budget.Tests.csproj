@@ -28,11 +28,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Budget.Core\Budget.Core.csproj" />
+    <Folder Include="Pages\Transactions\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Transactions\" />
+    <ProjectReference Include="..\..\src\Budget.Core\Budget.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -10,6 +10,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+var host = builder.Host;
 var config = builder.Configuration;
 var services = builder.Services;
 var environment = builder.Environment;

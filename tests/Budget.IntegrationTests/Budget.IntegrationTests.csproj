@@ -47,16 +47,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Budget.App\Budget.App.csproj" />
-		<ProjectReference Include="..\Budget.Core\Budget.Core.csproj" />
-		<ProjectReference Include="..\Budget.Htmx\Budget.Htmx.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Using Include="Microsoft.Playwright.NUnit" />
 		<Using Include="NUnit.Framework" />
 		<Using Include="System.Text.RegularExpressions" />
 		<Using Include="System.Threading.Tasks" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\src\Budget.App\Budget.App.csproj" />
+	  <ProjectReference Include="..\..\src\Budget.Core\Budget.Core.csproj" />
 	</ItemGroup>
 
 </Project>
