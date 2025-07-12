@@ -4,10 +4,10 @@ using System.Diagnostics;
 
 namespace Budget.Core.Models;
 
-[Index(nameof(FollowNumber), nameof(Iban), IsUnique = true)]
 [DebuggerDisplay("{DateTransaction} {Iban} <- {NameOtherParty} {Amount} {Description}")]
 public class Transaction
 {
+    private readonly string[] _otherPartiesAlwaysNotFixed = ["paypal"];
     private DateOnly _dateTransaction;
 
     public int Id { get; set; }
@@ -41,9 +41,10 @@ public class Transaction
     public DateOnly? CashbackForDate { get; set; }
 
     public bool IsIncome => Amount > 0;
-    public bool IsFixed => !string.IsNullOrWhiteSpace(AuthorizationCode);
-
+    public bool IsFixed => !string.IsNullOrWhiteSpace(AuthorizationCode) && _otherPartiesAlwaysNotFixed.All(p => !string.Equals(p, NameOtherParty, StringComparison.InvariantCultureIgnoreCase));
     public bool IsFromOtherParty(IEnumerable<string> ibansOwned) => !ibansOwned.Contains(IbanOtherParty);
     public bool IsFromOwnAccount(IEnumerable<string> ibansOwned) => ibansOwned.Contains(IbanOtherParty);
+    public bool IsFromThisMonth(DateTimeOffset date) => DateTransaction.Year == date.Year && DateTransaction.Month == date.Month;
+    
 
 }

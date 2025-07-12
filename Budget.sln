@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.Core", "src\Budget.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.Tests", "tests\Budget.Tests\Budget.Tests.csproj", "{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.IntegrationTests", "tests\Budget.IntegrationTests\Budget.IntegrationTests.csproj", "{B29C8AAB-AA0B-469C-853A-343907BE12A8}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "src\Solution Items", "{FF0DFC6B-A002-42FA-8B5D-6D3767B916EF}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
@@ -25,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.ApiClient", "src\Bud
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{96FE9674-5CDE-4668-B6C9-D7585567241C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{8F22544E-B842-4738-A218-D3FAAE773300}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hertmans.Shared.Auth", "submodules\Hertmans.Shared\src\Hertmans.Shared.Auth\Hertmans.Shared.Auth.csproj", "{70901E4B-3001-462C-8BF2-0B38D3FE5F0E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,10 +41,6 @@ Global
 		{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B29C8AAB-AA0B-469C-853A-343907BE12A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B29C8AAB-AA0B-469C-853A-343907BE12A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B29C8AAB-AA0B-469C-853A-343907BE12A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B29C8AAB-AA0B-469C-853A-343907BE12A8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{50289991-5127-454E-8AEA-21CF3167D58A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{50289991-5127-454E-8AEA-21CF3167D58A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50289991-5127-454E-8AEA-21CF3167D58A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -51,6 +49,10 @@ Global
 		{9CFC30AA-7CF1-454E-8AD4-C92FF7A0A054}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CFC30AA-7CF1-454E-8AD4-C92FF7A0A054}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CFC30AA-7CF1-454E-8AD4-C92FF7A0A054}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70901E4B-3001-462C-8BF2-0B38D3FE5F0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70901E4B-3001-462C-8BF2-0B38D3FE5F0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70901E4B-3001-462C-8BF2-0B38D3FE5F0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70901E4B-3001-462C-8BF2-0B38D3FE5F0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,7 +61,7 @@ Global
 		SolutionGuid = {394C7D23-8C28-4064-B129-1E544F538FA5}
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{B29C8AAB-AA0B-469C-853A-343907BE12A8} = {96FE9674-5CDE-4668-B6C9-D7585567241C}
 		{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1} = {96FE9674-5CDE-4668-B6C9-D7585567241C}
+		{70901E4B-3001-462C-8BF2-0B38D3FE5F0E} = {8F22544E-B842-4738-A218-D3FAAE773300}
 	EndGlobalSection
 EndGlobal

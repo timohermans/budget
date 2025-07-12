@@ -1,27 +1,25 @@
-using Budget.Core.DataAccess;
+using Budget.ApiClient;
 using Budget.Core.Extensions;
-using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace Budget.Core.UseCases.Transactions.Overview;
 
-public class OverviewUseCase(IDbContextFactory<BudgetContext> dataAccessFactory)
+public class OverviewUseCase(IBudgetClient httpClient)
 {
     public async Task<OverviewResponse> HandleAsync(OverviewRequest request)
     {
-        var dataAccess = await dataAccessFactory.CreateDbContextAsync();
         var iban = request.Iban;
-        var date = new DateOnly(request.Year, request.Month, 1);
-        var dateMin = new DateOnly(date.Year, date.Month, 1);
+        var date = new DateTime(request.Year, request.Month, 1);
+        var dateMin = new DateTime(date.Year, date.Month, 1);
         var dateMax = dateMin.AddMonths(1).AddDays(-1);
         var (year, month, _) = date;
         var previousMonthDate = date.AddMonths(-1);
         var (previousYear, previousMonth, _) = previousMonthDate;
-        var transactionsAllQuery = dataAccess.Transactions
-            .Where(t => t.DateTransaction >= previousMonthDate && t.DateTransaction < date.AddMonths(1))
-            .OrderBy(t => t.DateTransaction);
-        var transactionsAll = await transactionsAllQuery
-            .ToListAsync();
-
+        
+        var transactionDtos = await httpClient.GetTransactionsAsync(
+            previousMonthDate, dateMax, iban);
+        var transactionsAll = transactionDtos.Select(t => t.ToModel()).ToList();
+        
         var ibansOrdered = transactionsAll
             .Select(t => t.Iban)
             .GroupBy(i => i)
@@ -31,13 +29,14 @@ public class OverviewUseCase(IDbContextFactory<BudgetContext> dataAccessFactory)
             .ToList();
         var ibans = ibansOrdered;
         var ibanSelected = iban == null || !ibansOrdered.Contains(iban) ? ibansOrdered.FirstOrDefault("") : iban;
-        var transactions = transactionsAllQuery.Where(t => t.Iban == ibanSelected && t.DateTransaction.Year == year && t.DateTransaction.Month == month);
+        var transactions = transactionsAll
+            .Where(t => t.Iban == ibanSelected && t.DateTransaction.Year == year && t.DateTransaction.Month == month);
 
         if (!string.IsNullOrEmpty(request.OrderBy) && request.Direction.HasValue)
         {
-            transactions = request.Direction == OrderDirection.Asc
-                ? transactions.OrderBy(t => EF.Property<object>(t, request.OrderBy))
-                : transactions.OrderByDescending(t => EF.Property<object>(t, request.OrderBy));
+            transactions = transactions
+                .AsQueryable()
+                .OrderBy($"{request.OrderBy} {request.Direction}");
         }
 
         var weeksInMonth = Enumerable.Range(0, dateMax.Day)
@@ -114,7 +113,7 @@ public class OverviewUseCase(IDbContextFactory<BudgetContext> dataAccessFactory)
         {
             IbanSelected = ibanSelected,
             IbansToSelect = ibansOrdered,
-            Date = date.ToDateTime(default),
+            Date = date,
             DatePreviousMonth = new DateTime(previousYear, previousMonth, 1),
             ExpensesFixedLastMonth = expensesFixedLastMonth,
             IncomeLastMonth = incomeLastMonth,

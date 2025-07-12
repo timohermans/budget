@@ -1,8 +1,9 @@
+using Budget.ApiClient;
 using Budget.App.Components;
 using Budget.App.Server;
 using Budget.App.Server.Middleware;
-using Budget.Core.DataAccess;
-using Budget.Core.UseCases.Transactions.Overview;
+using Budget.App.Server.Options;
+using Hertmans.Shared.Auth.Extensions;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -10,7 +11,6 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
-var host = builder.Host;
 var config = builder.Configuration;
 var services = builder.Services;
 var environment = builder.Environment;
@@ -26,9 +26,12 @@ services.AddRazorComponents()
 services
  .AddSeriLogLogging(config)
  .AddOidcAuthentication(config)
- .AddPostgresDatabase<BudgetContext>(config)
  .AddProxyConfig(environment)
  .AddBudgetServices();
+
+services.AddHttpContextAccessor();
+services.AddApiClientRegistration<BudgetApiOptions>(config, "BudgetApi")
+    .AddRefitClient<IBudgetClient>();
 
 var app = builder.Build();
 
@@ -50,7 +53,5 @@ app.UseAntiforgery();
 app.UseMiddleware<LogUsernameMiddleware>();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-app.MapGroup("account").MapLoginAndLogout();
-
 
 app.Run();

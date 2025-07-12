@@ -2,7 +2,7 @@
 using ArchUnitNET.Fluent;
 using ArchUnitNET.Loader;
 using ArchUnitNET.xUnit;
-using Budget.Core.DataAccess;
+using Budget.ApiClient;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 
@@ -18,11 +18,6 @@ public class LayeringTests
     //use As() to give them a custom description
     private readonly IObjectProvider<Class> _useCases =
         Classes().That().HaveNameEndingWith("UseCase").As("Use cases");
-
-    private readonly IObjectProvider<IType> _migrations =
-        Types().That().ResideInNamespace("Budget.Pages.Migrations")
-            .Or().ResideInNamespace("Budget.Core.Migrations")
-            .As("Migrations");
 
     private readonly IObjectProvider<IType> _coreLayer =
         Types().That().ResideInNamespace("Budget.Core.UseCases.*", true).As("Core Layer");
@@ -43,12 +38,8 @@ public class LayeringTests
     {
         var rule = Types().That()
             .AreNot(_useCases)
-            .And()
-            .AreNot(_migrations)
-            .And()
-            .AreNot(typeof(BudgetContext))
-            .Should().NotDependOnAny(typeof(BudgetContext))
-            .Because("Only use cases should use the table client to query");
+            .Should().NotDependOnAny(typeof(IBudgetClient))
+            .Because("Only use cases should use budget client");
 
         rule.Check(Architecture);
     }

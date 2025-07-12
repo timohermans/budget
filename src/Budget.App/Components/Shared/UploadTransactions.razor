@@ -1,5 +1,6 @@
 ﻿@using Budget.App.Server
 @using Budget.Core.UseCases.Transactions.FileEtl
+@using Refit
 
 <InputFile id="inputFile" class="visually-hidden" @ref="_inputFile" OnChange="LoadFileAsync"/>
 
@@ -33,16 +34,24 @@
 
     private async Task LoadFileAsync(InputFileChangeEventArgs e)
     {
-        await using var stream = e.File.OpenReadStream();
-        var response = await UseCase.HandleAsync(stream);
+        try
+        {
+            var streamPart = new StreamPart(e.File.OpenReadStream(), e.File.Name, e.File.ContentType, "file");
+            var response = await UseCase.HandleAsync(streamPart);
 
-        if (string.IsNullOrEmpty(response.ErrorMessage))
-        {
-            _errorMessage = response.ErrorMessage;
+            if (string.IsNullOrEmpty(response.ErrorMessage))
+            {
+                _errorMessage = response.ErrorMessage;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/", forceLoad: true);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            NavigationManager.NavigateTo("/", forceLoad: true);
+            _errorMessage = ex.Message;
+            Logger.LogError(ex, "Well, poffertjes!");
         }
     }
 

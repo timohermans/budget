@@ -9,10 +9,8 @@ public static class DateExtensions
         var day = (int)CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(date);
         return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(date.AddDays(4 - (day == 0 ? 7 : day)), CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
     }
-    public static int ToIsoWeekNumber(this DateOnly date)
-    {
-        return date.ToDateTime(TimeOnly.MinValue).ToIsoWeekNumber();
-    }
+    public static int ToIsoWeekNumber(this DateOnly date) => date.ToDateTime(TimeOnly.MinValue).ToIsoWeekNumber();
+    public static int ToIsoWeekNumber(this DateTimeOffset date) => date.DateTime.ToIsoWeekNumber();
 
     public static string TimePassed(this DateTime date, TimeProvider dateProvider)
     {

@@ -16,8 +16,9 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Identity.Web" Version="3.2.0" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
+		<PackageReference Include="Refit" Version="8.0.0" />
+		<PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
 		<PackageReference Include="Roslynator.Analyzers" Version="4.12.4">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -27,6 +28,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\submodules\Hertmans.Shared\src\Hertmans.Shared.Auth\Hertmans.Shared.Auth.csproj" />
+		<ProjectReference Include="..\Budget.ApiClient\Budget.ApiClient.csproj" />
 		<ProjectReference Include="..\Budget.Core\Budget.Core.csproj" />
 	</ItemGroup>
 
