@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.1"/>
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UserSecretsId>e4fe8d15-9dc7-4627-b41e-12894e402dae</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.1"/>
+        <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.4.1" />
+        <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.4.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\src\Budget.App\Budget.App.csproj" />
+      <ProjectReference Include="..\submodules\Budget-API\src\Budget.Api\Budget.Api.csproj" />
+      <ProjectReference Include="..\submodules\Budget-API\src\Budget.MigrationsRunner\Budget.MigrationsRunner.csproj" />
+      <ProjectReference Include="..\submodules\Budget-API\src\Budget.Worker\Budget.Worker.csproj" />
+    </ItemGroup>
+
+</Project>
