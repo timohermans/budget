@@ -12,11 +12,12 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Budget.App/Budget.App.csproj", "Budget.App/"]
-COPY ["Budget.Core/Budget.Core.csproj", "Budget.Core/"]
-RUN dotnet restore "./Budget.App/Budget.App.csproj"
-COPY . .
-WORKDIR "/src/Budget.App"
+COPY ["src/Budget.App/Budget.App.csproj", "src/Budget.App/"]
+COPY ["src/Budget.Core/Budget.Core.csproj", "src/Budget.Core/"]
+RUN dotnet restore "./src/Budget.App/Budget.App.csproj"
+COPY src/. src/.
+COPY submodules/. submodules/.
+WORKDIR "/src/src/Budget.App"
 RUN dotnet build "./Budget.App.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage

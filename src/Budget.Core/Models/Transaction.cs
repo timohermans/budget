@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 
 namespace Budget.Core.Models;
@@ -16,10 +15,8 @@ public class Transaction
     public required string Iban { get; set; }
     [StringLength(5)]
     public required string Currency { get; set; }
-    [Precision(12, 2)]
     public decimal Amount { get; set; }
 
-    [BackingField(nameof(_dateTransaction))]
     public DateOnly DateTransaction
     {
         get => CashbackForDate ?? _dateTransaction;
@@ -28,15 +25,10 @@ public class Transaction
 
     public DateOnly OriginalDate => _dateTransaction;
 
-    [Precision(12, 2)]
     public decimal BalanceAfterTransaction { get; set; }
-    [StringLength(255)]
     public string? NameOtherParty { get; set; }
-    [StringLength(34)]
     public string? IbanOtherParty { get; set; }
-    [StringLength(255)]
     public string? AuthorizationCode { get; set; }
-    [StringLength(255)]
     public string? Description { get; set; }
     public DateOnly? CashbackForDate { get; set; }
 

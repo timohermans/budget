@@ -1,6 +1,5 @@
 using Budget.Core.DataAccess;
 using Budget.Core.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using Budget.ApiClient;

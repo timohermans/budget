@@ -1,7 +1,6 @@
 using Budget.ApiClient;
 using Budget.Core.DataAccess;
 using Budget.Core.Infrastructure;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Budget.Core.UseCases.Transactions.MarkAsCashback;
