@@ -17,10 +17,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\src\Budget.Api\Budget.Api.csproj" />
-      <ProjectReference Include="..\src\Budget.MigrationsRunner\Budget.MigrationsRunner.csproj" />
-      <ProjectReference Include="..\src\Budget.Ui\Budget.Ui.csproj" />
-      <ProjectReference Include="..\src\Budget.Worker\Budget.Worker.csproj" />
+      <ProjectReference Include="..\Budget.Api\Budget.Api.csproj" />
+      <ProjectReference Include="..\Budget.MigrationsRunner\Budget.MigrationsRunner.csproj" />
+      <ProjectReference Include="..\Budget.Ui\Budget.Ui.csproj" />
+      <ProjectReference Include="..\Budget.Worker\Budget.Worker.csproj" />
     </ItemGroup>
 
 </Project>
