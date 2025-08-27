@@ -1,8 +1,8 @@
 using System.Linq.Dynamic.Core;
 using Budget.ApiClient;
-using Budget.App.Extensions;
+using Budget.Ui.Extensions;
 
-namespace Budget.App.Core.UseCases.Transactions.Overview;
+namespace Budget.Ui.Core.UseCases.Transactions.Overview;
 
 public class OverviewUseCase(IBudgetClient httpClient)
 {

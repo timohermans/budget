@@ -1,9 +1,9 @@
-﻿using Budget.App.States;
+﻿using System.Globalization;
+using Budget.Ui.Core.UseCases.Transactions.Overview;
+using Budget.Ui.States;
 using Microsoft.AspNetCore.Components;
-using System.Globalization;
-using Budget.App.Core.UseCases.Transactions.Overview;
 
-namespace Budget.App.Components.Shared;
+namespace Budget.Ui.Components.Shared;
 
 public partial class TransactionsSection : IDisposable
 {

@@ -1,10 +1,10 @@
-﻿using Budget.App.Server;
-using Budget.App.States;
+﻿using System.Security.Claims;
+using Budget.Ui.Core.UseCases.Transactions.Overview;
+using Budget.Ui.Server;
+using Budget.Ui.States;
 using Microsoft.AspNetCore.Components;
-using System.Security.Claims;
-using Budget.App.Core.UseCases.Transactions.Overview;
 
-namespace Budget.App.Components.Pages;
+namespace Budget.Ui.Components.Pages;
 
 public partial class Home : IDisposable
 {

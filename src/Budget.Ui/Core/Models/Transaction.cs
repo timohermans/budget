@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 
-namespace Budget.App.Core.Models;
+namespace Budget.Ui.Core.Models;
 
 [DebuggerDisplay("{DateTransaction} {Iban} <- {NameOtherParty} {Amount} {Description}")]
 public class Transaction

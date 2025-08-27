@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 
-namespace Budget.IntegrationTests.Consumers;
+namespace Budget.Api.IntegrationTests.Consumers;
 
 public class ProcessTransactionsFileConsumerTests : IClassFixture<DatabaseAssemblyFixture>
 {

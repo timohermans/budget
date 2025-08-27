@@ -1,8 +1,8 @@
+using System.Net.Http.Json;
 using Budget.Api.Models;
 using Budget.Domain.Entities;
-using System.Net.Http.Json;
 
-namespace Budget.IntegrationTests.ApiTests;
+namespace Budget.Api.IntegrationTests.ApiTests;
 
 public class TransactionsFileJobControllerTests : IClassFixture<DatabaseAssemblyFixture>
 {

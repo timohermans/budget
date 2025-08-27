@@ -1,4 +1,4 @@
-﻿namespace Budget.App.Extensions;
+﻿namespace Budget.Ui.Extensions;
 
 public static class NumberExtensions
 {

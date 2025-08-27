@@ -8,7 +8,7 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <LangVersion>default</LangVersion>
-    <RootNamespace>Budget.Tests</RootNamespace>
+    <RootNamespace>Budget.Ui.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

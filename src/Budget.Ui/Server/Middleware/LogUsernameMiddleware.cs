@@ -1,6 +1,6 @@
 ﻿using Serilog.Context;
 
-namespace Budget.App.Server.Middleware;
+namespace Budget.Ui.Server.Middleware;
 
 public class LogUsernameMiddleware
 {

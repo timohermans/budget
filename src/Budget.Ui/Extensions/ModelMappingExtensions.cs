@@ -1,7 +1,7 @@
 using Budget.ApiClient;
-using Budget.App.Core.Models;
+using Budget.Ui.Core.Models;
 
-namespace Budget.App.Extensions;
+namespace Budget.Ui.Extensions;
 
 public static class ModelMappingExtensions
 {

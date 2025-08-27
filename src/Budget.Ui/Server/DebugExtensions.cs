@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Budget.App.Server;
+namespace Budget.Ui.Server;
 
 public static class DebugExtensions
 {

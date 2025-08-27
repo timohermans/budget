@@ -1,14 +1,13 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using Budget.Application.UseCases.TransactionsFileJobStart;
 using Budget.Domain.Commands;
 using MassTransit;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 
-namespace Budget.IntegrationTests.ApiTests;
+namespace Budget.Api.IntegrationTests.ApiTests;
 
 public class TransactionsControllerUploadTests(DatabaseAssemblyFixture fixture) : IClassFixture<DatabaseAssemblyFixture>
 {

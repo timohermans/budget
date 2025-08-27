@@ -1,7 +1,6 @@
-using Budget.Api;
+using Budget.Api.IntegrationTests;
 using Budget.Application.Settings;
 using Budget.Infrastructure.Database;
-using Budget.IntegrationTests;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +9,7 @@ using Testcontainers.PostgreSql;
 
 [assembly: AssemblyFixture(typeof(DatabaseAssemblyFixture))]
 
-namespace Budget.IntegrationTests;
+namespace Budget.Api.IntegrationTests;
 
 public class Sut(BudgetDbContext Db, HttpClient Client, IServiceScope scope) : IAsyncDisposable
 {

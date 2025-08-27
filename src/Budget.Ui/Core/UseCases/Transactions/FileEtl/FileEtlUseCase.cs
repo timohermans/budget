@@ -3,7 +3,7 @@ using Polly;
 using Polly.Retry;
 using Refit;
 
-namespace Budget.App.Core.UseCases.Transactions.FileEtl;
+namespace Budget.Ui.Core.UseCases.Transactions.FileEtl;
 
 public class FileEtlUseCase(IBudgetClient httpClient, ILogger<FileEtlUseCase> logger)
 {

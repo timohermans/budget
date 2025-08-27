@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Budget.App.Extensions;
+namespace Budget.Ui.Extensions;
 
 public static class DateExtensions
 {

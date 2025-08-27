@@ -1,8 +1,8 @@
 using Budget.ApiClient;
-using Budget.App.Components;
-using Budget.App.Server;
-using Budget.App.Server.Middleware;
-using Budget.App.Server.Options;
+using Budget.Ui.Components;
+using Budget.Ui.Server;
+using Budget.Ui.Server.Middleware;
+using Budget.Ui.Server.Options;
 using Hertmans.Shared.Auth.Extensions;
 using Serilog;
 

@@ -6,7 +6,7 @@ using Budget.ApiClient;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 
-namespace Budget.Tests.BudgetArchitecture;
+namespace Budget.Ui.Tests.BudgetArchitecture;
 
 public class LayeringTests
 {

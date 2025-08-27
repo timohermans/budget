@@ -1,6 +1,6 @@
-using Budget.App.Core.Models;
+using Budget.Ui.Core.Models;
 
-namespace Budget.App.Core.UseCases.Transactions.Overview;
+namespace Budget.Ui.Core.UseCases.Transactions.Overview;
 
 public class OverviewRequest
 {

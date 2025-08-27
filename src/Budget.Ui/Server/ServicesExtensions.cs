@@ -1,9 +1,4 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-
-namespace Budget.App.Server;
+namespace Budget.Ui.Server;
 
 public static class ServicesExtensions
 {

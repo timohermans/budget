@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
 
-namespace Budget.App.Extensions;
+namespace Budget.Ui.Extensions;
 
 public static class EnumExtensions
 {

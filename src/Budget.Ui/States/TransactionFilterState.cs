@@ -1,6 +1,6 @@
-﻿using Budget.App.Core.Models;
+﻿using Budget.Ui.Core.Models;
 
-namespace Budget.App.States;
+namespace Budget.Ui.States;
 
 public record HeaderData(string? OrderByCurrent, string? DirectionCurrent);
 

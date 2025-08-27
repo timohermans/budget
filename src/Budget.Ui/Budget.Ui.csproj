@@ -9,7 +9,7 @@
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<Version>3.0.9</Version>
 		<LangVersion>default</LangVersion>
-		<RootNamespace>Budget.App</RootNamespace>
+		<RootNamespace>Budget.Ui</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>

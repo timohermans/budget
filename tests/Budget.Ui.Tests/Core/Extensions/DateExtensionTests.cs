@@ -1,7 +1,7 @@
 ﻿
-using Budget.App.Extensions;
+using Budget.Ui.Extensions;
 
-namespace Budget.Tests.Core.Extensions
+namespace Budget.Ui.Tests.Core.Extensions
 {
     public class DateExtensionTests
     {

@@ -1,7 +1,7 @@
-﻿using Budget.App.Core.UseCases.Transactions.Overview;
-using Budget.App.States;
+﻿using Budget.Ui.Core.UseCases.Transactions.Overview;
+using Budget.Ui.States;
 
-namespace Budget.App.Server;
+namespace Budget.Ui.Server;
 
 public static class AppExtensions
 {

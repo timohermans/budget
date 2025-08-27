@@ -1,6 +1,6 @@
 using Hertmans.Shared.Auth;
 
-namespace Budget.App.Server.Options;
+namespace Budget.Ui.Server.Options;
 
 public class BudgetApiOptions : IApiClientOptions
 {

@@ -1,5 +1,6 @@
+using System.Data.Common;
+using Budget.Api.IntegrationTests;
 using Budget.Infrastructure.Database;
-using Budget.IntegrationTests;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -7,11 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
-using System.Data.Common;
 
 [assembly: AssemblyFixture(typeof(DatabaseAssemblyFixture))]
 
-namespace Budget.IntegrationTests;
+namespace Budget.Api.IntegrationTests;
 
 /// <summary>
 /// Usage of the factory: https://github.com/dotnet/AspNetCore.Docs.Samples/blob/main/test/integration-tests/9.x/IntegrationTestsSample/tests/RazorPagesProject.Tests/IntegrationTests/IndexPageTests.cs

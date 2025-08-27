@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Budget.App.Core.Models;
+namespace Budget.Ui.Core.Models;
 
 public class User
 {

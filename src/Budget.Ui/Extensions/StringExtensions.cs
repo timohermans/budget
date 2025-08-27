@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Budget.App.Extensions;
+namespace Budget.Ui.Extensions;
 
 public static class StringExtensions
 {

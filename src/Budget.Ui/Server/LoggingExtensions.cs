@@ -1,7 +1,7 @@
 
 using Serilog;
 
-namespace Budget.App.Server;
+namespace Budget.Ui.Server;
 
 public static class LoggingExtensions
 {

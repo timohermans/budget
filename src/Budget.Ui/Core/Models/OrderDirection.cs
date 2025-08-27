@@ -1,4 +1,4 @@
-﻿namespace Budget.App.Core.Models;
+﻿namespace Budget.Ui.Core.Models;
 
 public enum OrderDirection
 {

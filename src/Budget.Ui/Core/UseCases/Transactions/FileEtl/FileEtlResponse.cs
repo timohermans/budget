@@ -1,3 +1,3 @@
-namespace Budget.App.Core.UseCases.Transactions.FileEtl;
+namespace Budget.Ui.Core.UseCases.Transactions.FileEtl;
 
 public record FileEtlResponse(string? ErrorMessage);

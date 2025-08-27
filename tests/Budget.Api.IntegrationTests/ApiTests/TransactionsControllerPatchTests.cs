@@ -1,8 +1,8 @@
+using System.Net.Http.Json;
 using Budget.Application.UseCases.UpdateTransactionCashbackDate;
 using Budget.Domain.Entities;
-using System.Net.Http.Json;
 
-namespace Budget.IntegrationTests.ApiTests;
+namespace Budget.Api.IntegrationTests.ApiTests;
 
 public class TransactionsControllerPatchTests(DatabaseAssemblyFixture fixture) : IClassFixture<DatabaseAssemblyFixture>
 {
