@@ -1,4 +1,4 @@
-﻿using Budget.Core.DataAccess;
+﻿using Budget.App.Core.Models;
 
 namespace Budget.App.States;
 

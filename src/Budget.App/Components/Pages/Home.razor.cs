@@ -1,8 +1,8 @@
 ﻿using Budget.App.Server;
 using Budget.App.States;
-using Budget.Core.UseCases.Transactions.Overview;
 using Microsoft.AspNetCore.Components;
 using System.Security.Claims;
+using Budget.App.Core.UseCases.Transactions.Overview;
 
 namespace Budget.App.Components.Pages;
 

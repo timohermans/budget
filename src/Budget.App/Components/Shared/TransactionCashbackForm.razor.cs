@@ -1,5 +1,5 @@
-﻿using Budget.Core.UseCases.Transactions.MarkAsCashback;
-using Budget.Core.UseCases.Transactions.Overview;
+﻿using Budget.App.Core.UseCases.Transactions.MarkAsCashback;
+using Budget.App.Core.UseCases.Transactions.Overview;
 using Microsoft.AspNetCore.Components;
 
 namespace Budget.App.Components.Shared;

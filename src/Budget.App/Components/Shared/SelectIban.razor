@@ -1,6 +1,4 @@
-﻿@using Budget.Core.UseCases.Transactions.Overview
-
-<div class="form-floating">
+﻿<div class="form-floating">
     <select name="iban" class="form-select" @bind:get="_iban" @bind:set="LoadOtherIban">
         @foreach (var iban in Ibans)
         {

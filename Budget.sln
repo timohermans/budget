@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.Core", "src\Budget.Core\Budget.Core.csproj", "{55B4649E-C992-4B2E-A948-81EDD91ADEF4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.Tests", "tests\Budget.Tests\Budget.Tests.csproj", "{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Budget.App.Tests", "tests\Budget.App.Tests\Budget.App.Tests.csproj", "{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "src\Solution Items", "{FF0DFC6B-A002-42FA-8B5D-6D3767B916EF}"
 	ProjectSection(SolutionItems) = preProject
@@ -47,10 +45,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{55B4649E-C992-4B2E-A948-81EDD91ADEF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{55B4649E-C992-4B2E-A948-81EDD91ADEF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{55B4649E-C992-4B2E-A948-81EDD91ADEF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{55B4649E-C992-4B2E-A948-81EDD91ADEF4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D95CCE5B-49D9-4EB3-8FA7-8260AF74AEF1}.Release|Any CPU.ActiveCfg = Release|Any CPU

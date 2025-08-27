@@ -1,5 +1,5 @@
-﻿@using Budget.App.Server
-@using Budget.Core.UseCases.Transactions.FileEtl
+﻿@using Budget.App.Core.UseCases.Transactions.FileEtl
+@using Budget.App.Server
 @using Refit
 
 <InputFile id="inputFile" class="visually-hidden" @ref="_inputFile" OnChange="LoadFileAsync"/>
@@ -39,7 +39,7 @@
             var streamPart = new StreamPart(e.File.OpenReadStream(), e.File.Name, e.File.ContentType, "file");
             var response = await UseCase.HandleAsync(streamPart);
 
-            if (string.IsNullOrEmpty(response.ErrorMessage))
+            if (!string.IsNullOrEmpty(response.ErrorMessage))
             {
                 _errorMessage = response.ErrorMessage;
             }
