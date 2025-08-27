@@ -11,7 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "src\Solut
 		.runsettings = .runsettings
 		azure-pipelines-app.yml = azure-pipelines-app.yml
 		docker-compose.yml = docker-compose.yml
-		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
