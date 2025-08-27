@@ -11,7 +11,7 @@ namespace Budget.Tests.BudgetArchitecture;
 public class LayeringTests
 {
     private static readonly Architecture Architecture = new ArchLoader().LoadAssemblies(
-            System.Reflection.Assembly.Load("Budget.App")
+            System.Reflection.Assembly.Load("Budget.Ui")
         ).Build();
 
     //declare variables you'll use throughout your tests up here
@@ -20,8 +20,8 @@ public class LayeringTests
         Classes().That().HaveNameEndingWith("UseCase").As("Use cases");
 
     private readonly IObjectProvider<IType> _coreLayer =
-        Types().That().ResideInNamespace("Budget.App.Core.UseCases.*", true).As("Core Layer");
-
+        Types().That()
+            .ResideInNamespaceMatching("Budget.Ui.Core.UseCases.*");
 
     [Fact]
     public void Types_should_be_in_correct_layer()

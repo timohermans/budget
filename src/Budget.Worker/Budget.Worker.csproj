@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MassTransit" Version="8.5.2" />
+      <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.2" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
+      <PackageReference Include="Roslynator.Analyzers" Version="4.14.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+      <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Budget.Application\Budget.Application.csproj" />
+      <ProjectReference Include="..\Budget.Domain\Budget.Domain.csproj" />
+      <ProjectReference Include="..\Budget.Infrastructure\Budget.Infrastructure.csproj" />
+    </ItemGroup>
+</Project>

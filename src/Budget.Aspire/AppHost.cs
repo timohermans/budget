@@ -27,7 +27,7 @@ var worker = builder.AddProject<Budget_Worker>("budget-worker")
     .WaitFor(rabbit)
     .WaitFor(migrations);
 
-builder.AddProject<Budget_App>("budget-app")
+builder.AddProject<Budget_Ui>("budget-app")
     .WithReference(budgetApi)
     .WithEnvironment("BudgetApi__BaseUrl", budgetApi.GetEndpoint("https"))
     .WaitFor(budgetApi);

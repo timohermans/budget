@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Budget.App\Budget.App.csproj" />
+    <ProjectReference Include="..\..\src\Budget.Ui\Budget.Ui.csproj" />
   </ItemGroup>
 
 </Project>
