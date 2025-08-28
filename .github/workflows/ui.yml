@@ -56,7 +56,7 @@ jobs:
     - name: Create image tag
       id: version
       run: |
-        CURRENT_DATE=$(date +'%Y.%m')
+        CURRENT_DATE=$(date +'%Y.%-m')
         VERSION="$CURRENT_DATE.${{ github.run_number }}"
         echo "tag=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$VERSION" >> $GITHUB_OUTPUT
         echo "Created tag: $tag"
