@@ -6,18 +6,24 @@ name: UI
 env:
   PROJECT_PATH: 'src/Budget.Ui'
   TESTS_PATH: 'tests/Budget.Ui*'
+  REGISTRY: 'registry.timo-hermans.nl'
+  IMAGE_NAME: 'budget-app'
+  DOTNET_VERSION: '9.0.x'
+  CLUSTER_REPO: 'https://github.com/timohermans/Cluster.git'
+  DEPLOYMENT_PATH: 'k8s/budget/frontend/deployment.yaml'
 
 on:
   push:
     paths: 
     - 'src/Budget.Ui/**'
     - 'tests/Budget.Ui.*/**'
+    - '.github/workflows/ui.yaml'
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,10 +36,87 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Restore dependencies
       run: dotnet restore $PROJECT_PATH
     - name: Build
       run: dotnet build $PROJECT_PATH --no-restore
     - name: Test
       run: dotnet test $TESTS_PATH --verbosity normal
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to private registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v6.18.0
+      with:
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        context: .
+        # Path to the Dockerfile
+        file: ${{ env.PROJECT_PATH}}/Dockerfile
+        push: true          
+        tags: |
+            ${{ steps.version.outputs.tag }}
+            ${{ steps.version.outputs.latest }}
+    
+    - name: Output image tag for next job
+      run: echo "IMAGE_TAG=${{ steps.version.outputs.tag }}" >> $GITHUB_ENV
+
+    outputs:
+      image-tag: ${{ env.IMAGE_TAG }}
+
+  update-deployment:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - name: Checkout Cluster repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CLUSTER_REPO }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: cluster-repo
+
+      - name: Update image version in deployment.yaml
+        run: |
+          cd cluster-repo
+          DEPLOYMENT_FILE="./${{ env.DEPLOYMENT_PATH }}"
+          
+          cp "$DEPLOYMENT_FILE" "$DEPLOYMENT_FILE.backup"
+          
+          sed -i "s|image:.*${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:.*|image: ${{ needs.build-and-push.outputs.image-tag }}|" "$DEPLOYMENT_FILE"
+          
+          # Verify changes
+          echo "Updated deployment file:"
+          grep "image:" "$DEPLOYMENT_FILE"
+
+      - name: Configure Git
+        run: |
+          cd cluster-repo
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Commit and push changes
+        run: |
+          cd cluster-repo
+          git add "./${{ env.DEPLOYMENT_PATH }}"
+          
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update frontend image to ${{ needs.build-and-push.outputs.image-tag }}"
+            git push origin main
+          fi
+
+      - name: Show changes made
+        run: |
+          cd cluster-repo
+          git diff HEAD^ HEAD -- "./${{ env.DEPLOYMENT_PATH }}" || echo "No changes or first commit"
