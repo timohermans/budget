@@ -17,10 +17,9 @@ on:
     paths: 
     - 'src/Budget.Ui/**'
     - 'tests/Budget.Ui.*/**'
-    - '.github/workflows/ui.yaml'
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
+      
 
 jobs:
   build-and-push:
@@ -53,6 +52,14 @@ jobs:
         registry: ${{ env.REGISTRY }}
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Create version number
+      id: version
+      run: |
+        CURRENT_DATE=$(date +'%Y.%m')
+        VERSION="$CURRENT_DATE.${{ github.run_number }}"
+        echo "tag=$VERSION" >> $GITHUB_ENV
+        echo "Created version: $VERSION"
 
     - name: Build and push Docker images
       uses: docker/build-push-action@v6.18.0
