@@ -24,7 +24,8 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
     steps:
     - name: Git checkout
       uses: actions/checkout@v4
@@ -70,8 +71,7 @@ jobs:
         platforms: linux/amd64,linux/arm64
         tags: ${{ steps.version.outputs.tag }}
     
-    outputs:
-      image-tag: ${{ steps.version.outputs.tag }}
+    
 
   update-deployment:
     runs-on: ubuntu-latest
@@ -85,13 +85,15 @@ jobs:
           path: cluster-repo
 
       - name: Update image version in deployment.yaml
+        env:
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.tag }}
         run: |
           cd cluster-repo
           DEPLOYMENT_FILE="./${{ env.DEPLOYMENT_PATH }}"
           
           cp "$DEPLOYMENT_FILE" "$DEPLOYMENT_FILE.backup"
           
-          sed -i "s|image:.*${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.image-tag }}|" "$DEPLOYMENT_FILE"
+          sed -i "s|image:.*${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG|" "$DEPLOYMENT_FILE"
           
           # Verify changes
           echo "Updated deployment file:"
