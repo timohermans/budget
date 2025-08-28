@@ -53,13 +53,13 @@ jobs:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
 
-    - name: Create version number
+    - name: Create image tag
       id: version
       run: |
         CURRENT_DATE=$(date +'%Y.%m')
         VERSION="$CURRENT_DATE.${{ github.run_number }}"
-        echo "tag=$VERSION" >> $GITHUB_ENV
-        echo "Created version: $VERSION"
+        echo "tag=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$VERSION" >> $GITHUB_OUTPUT
+        echo "Created tag: $tag"
 
     - name: Build and push Docker images
       uses: docker/build-push-action@v6.18.0
