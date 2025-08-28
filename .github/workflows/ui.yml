@@ -60,12 +60,10 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
         context: .
-        # Path to the Dockerfile
         file: ${{ env.PROJECT_PATH}}/Dockerfile
         push: true          
-        tags: |
-            ${{ steps.version.outputs.tag }}
-            ${{ steps.version.outputs.latest }}
+        platforms: linux/amd64,linux/arm64
+        tags: ${{ steps.version.outputs.tag }}
     
     - name: Output image tag for next job
       run: echo "IMAGE_TAG=${{ steps.version.outputs.tag }}" >> $GITHUB_ENV
