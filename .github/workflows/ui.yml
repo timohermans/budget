@@ -9,7 +9,7 @@ env:
   REGISTRY: 'registry.timo-hermans.nl'
   IMAGE_NAME: 'budget-app'
   DOTNET_VERSION: '9.0.x'
-  CLUSTER_REPO: 'https://github.com/timohermans/Cluster.git'
+  CLUSTER_REPO: 'timohermans/Cluster'
   DEPLOYMENT_PATH: 'k8s/budget/frontend/deployment.yaml'
 
 on:
@@ -64,8 +64,6 @@ jobs:
     - name: Build and push Docker images
       uses: docker/build-push-action@v6.18.0
       with:
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
         context: .
         file: ${{ env.PROJECT_PATH}}/Dockerfile
         push: true          
