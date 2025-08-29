@@ -3,15 +3,6 @@
 
 name: UI
 
-env:
-  PROJECT_PATH: 'src/Budget.Ui'
-  TESTS_PATH: 'tests/Budget.Ui*'
-  REGISTRY: 'registry.timo-hermans.nl'
-  IMAGE_NAME: 'budget-app'
-  DOTNET_VERSION: '9.0.x'
-  CLUSTER_REPO: 'timohermans/Cluster'
-  DEPLOYMENT_PATH: 'k8s/budget/frontend/deployment.yaml'
-
 on:
   push:
     paths: 
@@ -20,16 +11,14 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
       
-
 jobs:
   cluster_build_and_deploy:
     uses: ./.github/workflows/_template.yml
     with:
-      project_path: ${{ env.PROJECT_PATH }}
-      tests_path: ${{ env.TESTS_PATH }}
-      image_name: ${{ env.IMAGE_NAME }}
-      deployment_path: ${{ env.DEPLOYMENT_PATH }}
-      cluster_repo: ${{ env.CLUSTER_REPO }}
+      project_path: 'src/Budget.Ui'
+      tests_path: 'tests/Budget.Ui*'
+      image_name: 'budget-app'
+      deployment_path: 'k8s/budget/frontend/deployment.yaml'
     secrets:
       REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}

@@ -29,8 +29,6 @@ on:
             required: true
         PAT_TOKEN:
             required: true
-        GITHUB_TOKEN:
-            required: true
 
 env:
   PROJECT_PATH: ${{ inputs.project_path }}
