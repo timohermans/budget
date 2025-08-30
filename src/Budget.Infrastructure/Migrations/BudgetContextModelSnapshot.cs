@@ -17,7 +17,7 @@ namespace Budget.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -42,8 +42,15 @@ namespace Budget.Infrastructure.Migrations
                         .HasPrecision(12, 2)
                         .HasColumnType("numeric(12,2)");
 
+                    b.Property<string>("BatchId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateOnly?>("CashbackForDate")
                         .HasColumnType("date");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
 
                     b.Property<string>("Currency")
                         .IsRequired()
@@ -73,6 +80,10 @@ namespace Budget.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("FollowNumber", "Iban")
@@ -81,7 +92,7 @@ namespace Budget.Infrastructure.Migrations
                     b.ToTable("Transactions");
                 });
 
-            modelBuilder.Entity("Budget.Domain.TransactionsFileJob", b =>
+            modelBuilder.Entity("Budget.Domain.Entities.TransactionsFileJob", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

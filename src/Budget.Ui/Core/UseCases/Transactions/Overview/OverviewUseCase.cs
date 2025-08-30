@@ -4,7 +4,7 @@ using Budget.Ui.Extensions;
 
 namespace Budget.Ui.Core.UseCases.Transactions.Overview;
 
-public class OverviewUseCase(IBudgetClient httpClient)
+public class OverviewUseCase(IBudgetClient httpClient, ILogger<OverviewUseCase> logger)
 {
     public async Task<OverviewResponse> HandleAsync(OverviewRequest request)
     {
@@ -50,6 +50,8 @@ public class OverviewUseCase(IBudgetClient httpClient)
         var balancePerAccount = new Dictionary<string, decimal>();
         decimal incomeFromOwnAccounts = 0;
         decimal expensesVariable = 0;
+        string salaryCode = "sb";
+        string paymentCode = "cb";
 
         foreach (var transaction in transactionsAll)
         {
@@ -64,8 +66,13 @@ public class OverviewUseCase(IBudgetClient httpClient)
                 continue;
             }
 
+            if (isLastMonth && transaction.Amount > 2000)
+            {
+                logger.LogInformation("Large transaction last month: {Name} -> {Amount} -> {Code}", transaction.NameOtherParty, transaction.Amount, transaction.Code);
+            }
+            
             if (isLastMonth && transaction.IsIncome && transaction.IsFromOtherParty(ibans) &&
-                transaction.CashbackForDate == null && transaction.IsFixed)
+                transaction.CashbackForDate == null && ((string[])[salaryCode, paymentCode]).Contains(transaction.Code?.ToLower()))
             {
                 incomeLastMonth += amount;
             }

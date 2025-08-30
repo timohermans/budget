@@ -28,4 +28,10 @@ public class TransactionsFileCsvMap
     public string? Description2 { get; set; }
     [Name("Omschrijving-3")]
     public string? Description3 { get; set; }
+    [Name("Code")]
+    public string? Code { get; set; }
+    [Name("Batch ID")]
+    public string? BatchId { get; set; }
+    [Name("Transactiereferentie")]
+    public string? Reference { get; set; }
 }

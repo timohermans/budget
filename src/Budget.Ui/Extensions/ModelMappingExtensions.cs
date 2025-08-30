@@ -21,7 +21,8 @@ public static class ModelMappingExtensions
             IbanOtherParty = model.IbanOtherParty,
             AuthorizationCode = model.AuthorizationCode,
             Description = model.Description,
-            CashbackForDate = model.CashbackForDate.HasValue ? DateOnly.FromDateTime(model.CashbackForDate.Value.DateTime) : null
+            CashbackForDate = model.CashbackForDate.HasValue ? DateOnly.FromDateTime(model.CashbackForDate.Value.DateTime) : null,
+            Code = model.Code
         };
     }
 }

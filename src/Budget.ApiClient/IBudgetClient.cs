@@ -246,6 +246,9 @@ namespace Budget.ApiClient
         [JsonPropertyName("cashbackForDate")]
         [JsonConverter(typeof(DateFormatConverter))]
         public System.DateTimeOffset? CashbackForDate { get; set; } = default!;
+        
+        [JsonPropertyName("code")]
+        public string? Code { get; set; } = default!;
 
         private IDictionary<string, object>? _additionalProperties;
 

@@ -64,7 +64,8 @@ public class TransactionsController(ITransactionsFileJobStartUseCase useCase,
             IbanOtherParty = transaction.IbanOtherParty,
             AuthorizationCode = transaction.AuthorizationCode,
             Description = transaction.Description,
-            CashbackForDate = transaction.CashbackForDate
+            CashbackForDate = transaction.CashbackForDate,
+            Code = transaction.Code
         }).ToList();
 
         return Ok(response);

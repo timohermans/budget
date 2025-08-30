@@ -51,7 +51,10 @@ public class TransactionsFileEtlUseCase(ITransactionRepository repo, ILogger<Tra
                 BalanceAfterTransaction = r.BalanceAfter.Value,
                 IbanOtherParty = r.IbanOtherParty,
                 NameOtherParty = r.NameOtherParty,
-                Description = (r.Description1 + r.Description2 + r.Description3).Trim()
+                Description = (r.Description1 + r.Description2 + r.Description3).Trim(),
+                Code = r.Code,
+                BatchId = r.BatchId,
+                Reference = r.Reference
             });
         }
 

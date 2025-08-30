@@ -14,4 +14,8 @@ public class Transaction
     public string? AuthorizationCode { get; init; }
     public string? Description { get; init; }
     public DateOnly? CashbackForDate { get; set; }
+    public string? Code { get; set; }
+    public string? BatchId { get; set; }
+    public string? Reference { get; set; }
+
 }
