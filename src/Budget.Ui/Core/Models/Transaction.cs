@@ -37,7 +37,7 @@ public class Transaction
     public string? Code { get; set; }
 
     public bool IsIncome => Amount > 0;
-    public bool IsFixed => !string.IsNullOrWhiteSpace(AuthorizationCode) && _otherPartiesAlwaysNotFixed.All(p => !string.Equals(p, NameOtherParty, StringComparison.InvariantCultureIgnoreCase));
+    public bool IsFixed => Code == "ei" && _otherPartiesAlwaysNotFixed.All(p => !string.Equals(p, NameOtherParty, StringComparison.InvariantCultureIgnoreCase));
     public bool IsFromOtherParty(IEnumerable<string> ibansOwned) => !ibansOwned.Contains(IbanOtherParty);
     public bool IsFromOwnAccount(IEnumerable<string> ibansOwned) => ibansOwned.Contains(IbanOtherParty);
     public bool IsFromThisMonth(DateTimeOffset date) => DateTransaction.Year == date.Year && DateTransaction.Month == date.Month;

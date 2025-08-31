@@ -27,7 +27,7 @@ public class OverviewUseCase(IBudgetClient httpClient, ILogger<OverviewUseCase> 
             .OrderByDescending(kvp => kvp.Value)
             .Select(kvp => kvp.Key)
             .ToList();
-        var ibans = ibansOrdered;
+        var ibans = await httpClient.GetIbansDistinctAsync();
         var ibanSelected = iban == null || !ibansOrdered.Contains(iban) ? ibansOrdered.FirstOrDefault("") : iban;
         var transactions = transactionsAll
             .Where(t => t.Iban == ibanSelected && t.DateTransaction.Year == year && t.DateTransaction.Month == month);
@@ -65,15 +65,11 @@ public class OverviewUseCase(IBudgetClient httpClient, ILogger<OverviewUseCase> 
             {
                 continue;
             }
-
-            if (isLastMonth && transaction.Amount > 2000)
-            {
-                logger.LogInformation("Large transaction last month: {Name} -> {Amount} -> {Code}", transaction.NameOtherParty, transaction.Amount, transaction.Code);
-            }
             
             if (isLastMonth && transaction.IsIncome && transaction.IsFromOtherParty(ibans) &&
                 transaction.CashbackForDate == null && ((string[])[salaryCode, paymentCode]).Contains(transaction.Code?.ToLower()))
             {
+                logger.LogInformation("Income: {Name} -> {Amount} -> {Code}", transaction.NameOtherParty, transaction.Amount, transaction.Code);
                 incomeLastMonth += amount;
             }
 
