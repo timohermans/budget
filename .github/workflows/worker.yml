@@ -20,7 +20,7 @@ jobs:
       project_path: 'src/Budget.Worker'
       tests_path: 'tests/Budget.Api.UnitTests'
       image_name: 'budget-worker'
-      deployment_path: 'k8s/budget/backend/deployment.yaml'
+      deployment_path: 'k8s/budget/worker/deployment.yaml'
     secrets:
       REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
