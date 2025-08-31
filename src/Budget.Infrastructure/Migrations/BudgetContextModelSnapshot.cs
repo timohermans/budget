@@ -43,7 +43,6 @@ namespace Budget.Infrastructure.Migrations
                         .HasColumnType("numeric(12,2)");
 
                     b.Property<string>("BatchId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateOnly?>("CashbackForDate")
@@ -81,7 +80,6 @@ namespace Budget.Infrastructure.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<string>("Reference")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
