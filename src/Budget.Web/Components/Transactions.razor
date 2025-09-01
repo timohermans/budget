@@ -1,0 +1,14 @@
+@layout MainLayout
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, @Args.Name!</h1>
+
+Budgets here!
+
+@code {
+
+    public record struct TransactionsArgs(string Name);
+    
+    [Parameter, EditorRequired] public TransactionsArgs Args { get; set; }
+}
