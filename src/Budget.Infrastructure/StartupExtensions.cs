@@ -16,6 +16,8 @@ public static class StartupExtensions
         {
             options.UseNpgsql(configuration.GetConnectionStringFromSection("Database"));
         });
+        
+        // TODO: swtich to NATS
 
         services.AddMassTransit(x =>
         {

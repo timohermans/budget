@@ -4,6 +4,7 @@ namespace Budget.Domain.Entities;
 
 public class TransactionsFileJob
 {
+    public const string StreamName = "TRANSACTION_FILES";
     public Guid Id { get; set; }
     public required string OriginalFileName { get; set; }
     public required byte[] FileContent { get; set; }

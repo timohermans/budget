@@ -5,6 +5,8 @@ using Budget.Domain.Entities;
 using Budget.Domain.Repositories;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NATS.Client.JetStream.Models;
+using NATS.Net;
 
 namespace Budget.Application.UseCases.TransactionsFileJobStart;
 
@@ -15,7 +17,6 @@ public interface ITransactionsFileJobStartUseCase
 
 public class TransactionsFileJobStartUseCase(
     ITransactionsFileJobRepository repo,
-    IPublishEndpoint endpoint,
     ILogger<TransactionsFileJobStartUseCase> logger,
     FileStorageSettings fileSettings,
     TimeProvider timeProvider) : ITransactionsFileJobStartUseCase
@@ -30,6 +31,11 @@ public class TransactionsFileJobStartUseCase(
 
     public async Task<Result<TransactionsFileJobStartResponse>> HandleAsync(TransactionsFileJobStartCommand command)
     {
+        await using var natsClient = new NatsClient();
+        var jetstreamContext = natsClient.CreateJetStreamContext();
+        await jetstreamContext.CreateStreamAsync(new StreamConfig(name: TransactionsFileJob.StreamName,
+            subjects: ["transaction_files.new.>"]));
+        
         var fileValidator = new TransactionsFileValidator(fileSettings, logger);
 
         var validateResult = fileValidator.IsValid(command.File);
@@ -49,10 +55,7 @@ public class TransactionsFileJobStartUseCase(
         await repo.AddAsync(job);
         await repo.SaveChangesAsync();
 
-        await endpoint.Publish<ProcessTransactionsFile>(new
-        {
-            JobId = job.Id
-        });
+        await jetstreamContext.PublishAsync(subject: $"transaction_files.new.{job.Id}", data: job.Id);
 
         return Result<TransactionsFileJobStartResponse>.Success(new TransactionsFileJobStartResponse
         {

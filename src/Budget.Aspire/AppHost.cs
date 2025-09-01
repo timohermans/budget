@@ -4,6 +4,9 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var rabbit = builder.AddRabbitMQ("rabbit");
 
+var nats = builder.AddNats("nats")
+    .WithJetStream();
+
 var postgres = builder.AddPostgres("budget-db")
     .WithPgAdmin()
     .WithHostPort(5050)
@@ -16,12 +19,14 @@ var migrations = builder.AddProject<Budget_MigrationsRunner>("budget-migrations"
 
 var budgetApi = builder.AddProject<Budget_Api>("budget-api")
     .WithReference(rabbit)
+    .WithReference(nats)
     .WithReference(postgres)
     .WaitFor(postgres)
     .WaitFor(migrations); // no need to wait for rabbitmq, as it slows down the startup
 
 var worker = builder.AddProject<Budget_Worker>("budget-worker")
     .WithReference(rabbit)
+    .WithReference(nats)
     .WithReference(postgres)    
     .WaitFor(postgres)
     .WaitFor(rabbit)

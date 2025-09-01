@@ -14,6 +14,8 @@ public class ProcessTransactionsFileConsumer(
 {
     public async Task Consume(ConsumeContext<ProcessTransactionsFile> context)
     {
+        // TODO: switch to NATs
+        
         logger.LogInformation("Going to process transactions file job {JobId}", context.Message.JobId);
         var job = await repo.GetByIdAsync(context.Message.JobId);
 
