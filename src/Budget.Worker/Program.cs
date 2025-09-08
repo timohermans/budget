@@ -5,6 +5,7 @@ using Budget.Infrastructure;
 using Budget.Worker;
 using MassTransit;
 using System.Reflection;
+using Budget.Worker.Consumers;
 
 await Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
@@ -12,7 +13,9 @@ await Host.CreateDefaultBuilder(args)
         var entryAssembly = Assembly.GetEntryAssembly();
         services.AddWorker(hostContext.Configuration);
         services.AddBudgetApplication(hostContext.Configuration);
-        services.AddInfrastructure(hostContext.Configuration, x => x.AddConsumers(entryAssembly));
+        services.AddInfrastructure(hostContext.Configuration);
+        services.AddHostedService<TransactionsFilesConsumer>();
+        
     })
     .Build()
     .RunAsync();

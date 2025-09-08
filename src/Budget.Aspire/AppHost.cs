@@ -2,10 +2,7 @@ using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var rabbit = builder.AddRabbitMQ("rabbit");
-
-var nats = builder.AddNats("nats")
-    .WithJetStream();
+var nats = builder.AddNats("nats");
 
 var postgres = builder.AddPostgres("budget-db")
     .WithPgAdmin()
@@ -18,19 +15,16 @@ var migrations = builder.AddProject<Budget_MigrationsRunner>("budget-migrations"
     .WaitFor(postgres);
 
 var budgetApi = builder.AddProject<Budget_Api>("budget-api")
-    .WithReference(rabbit)
     .WithReference(nats)
     .WithReference(postgres)
     .WaitFor(postgres)
     .WaitFor(migrations); // no need to wait for rabbitmq, as it slows down the startup
 
 var worker = builder.AddProject<Budget_Worker>("budget-worker")
-    .WithReference(rabbit)
     .WithReference(nats)
     .WithReference(postgres)    
     .WaitFor(postgres)
-    .WaitFor(rabbit)
-    .WaitFor(migrations);
+    .WaitFor(nats);
 
 builder.AddProject<Budget_Ui>("budget-app")
     .WithReference(budgetApi)

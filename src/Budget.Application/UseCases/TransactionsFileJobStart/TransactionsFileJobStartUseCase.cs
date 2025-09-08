@@ -1,12 +1,9 @@
 using Budget.Application.Settings;
 using Budget.Domain;
-using Budget.Domain.Commands;
 using Budget.Domain.Entities;
+using Budget.Domain.Messaging;
 using Budget.Domain.Repositories;
-using MassTransit;
 using Microsoft.Extensions.Logging;
-using NATS.Client.JetStream.Models;
-using NATS.Net;
 
 namespace Budget.Application.UseCases.TransactionsFileJobStart;
 
@@ -18,6 +15,7 @@ public interface ITransactionsFileJobStartUseCase
 public class TransactionsFileJobStartUseCase(
     ITransactionsFileJobRepository repo,
     ILogger<TransactionsFileJobStartUseCase> logger,
+    IMessageBusClient messageBusClient,
     FileStorageSettings fileSettings,
     TimeProvider timeProvider) : ITransactionsFileJobStartUseCase
 {
@@ -31,11 +29,6 @@ public class TransactionsFileJobStartUseCase(
 
     public async Task<Result<TransactionsFileJobStartResponse>> HandleAsync(TransactionsFileJobStartCommand command)
     {
-        await using var natsClient = new NatsClient();
-        var jetstreamContext = natsClient.CreateJetStreamContext();
-        await jetstreamContext.CreateStreamAsync(new StreamConfig(name: TransactionsFileJob.StreamName,
-            subjects: ["transaction_files.new.>"]));
-        
         var fileValidator = new TransactionsFileValidator(fileSettings, logger);
 
         var validateResult = fileValidator.IsValid(command.File);
@@ -47,7 +40,7 @@ public class TransactionsFileJobStartUseCase(
 
         var job = new TransactionsFileJob
         {
-            Id = NewId.NextGuid(),
+            Id = Guid.NewGuid(),
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             FileContent = command.File.Content,
             OriginalFileName = command.File.FileName,
@@ -55,7 +48,7 @@ public class TransactionsFileJobStartUseCase(
         await repo.AddAsync(job);
         await repo.SaveChangesAsync();
 
-        await jetstreamContext.PublishAsync(subject: $"transaction_files.new.{job.Id}", data: job.Id);
+        await messageBusClient.PublishAsync(MessageConstants.TransactionsFileJobCreated, data: job.Id);
 
         return Result<TransactionsFileJobStartResponse>.Success(new TransactionsFileJobStartResponse
         {
