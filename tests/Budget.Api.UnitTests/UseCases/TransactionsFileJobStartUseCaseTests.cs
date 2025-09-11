@@ -2,6 +2,7 @@ using Budget.Application.Settings;
 using Budget.Application.UseCases.TransactionsFileJobStart;
 using Budget.Domain.Commands;
 using Budget.Domain.Entities;
+using Budget.Domain.Messaging;
 using Budget.Domain.Repositories;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -13,7 +14,7 @@ namespace Budget.Api.UnitTests.UseCases;
 public class TransactionsFileJobStartUseCaseTests
 {
     private readonly ITransactionsFileJobRepository _repo = Substitute.For<ITransactionsFileJobRepository>();
-    private readonly IPublishEndpoint _endpoint = Substitute.For<IPublishEndpoint>();
+    private readonly IMessageBusClient _endpoint = Substitute.For<IMessageBusClient>();
 
     private readonly ILogger<TransactionsFileJobStartUseCase> _logger =
         Substitute.For<ILogger<TransactionsFileJobStartUseCase>>();
@@ -35,8 +36,8 @@ public class TransactionsFileJobStartUseCaseTests
 
         return new(
             _repo,
-            _endpoint,
             _logger,
+            _endpoint,
             _fileSettings,
             _timeProvider);
     }
@@ -68,7 +69,7 @@ public class TransactionsFileJobStartUseCaseTests
         await _repo.Received(1).AddAsync(Arg.Is<TransactionsFileJob>(j =>
             j.CreatedAt == testTime.UtcDateTime));
         await _repo.Received(1).SaveChangesAsync();
-        await _endpoint.Received(1).Publish<ProcessTransactionsFile>(Arg.Any<object>(), Arg.Any<CancellationToken>());
+        await _endpoint.Received(1).PublishAsync(MessageConstants.TransactionsFileJobCreated, Arg.Any<Guid?>());
         Assert.NotNull(capturedJob);
         Assert.NotEqual(Guid.Empty, capturedJob.Id);
         Assert.Equal(testTime, capturedJob.CreatedAt, TimeSpan.FromMilliseconds(100));

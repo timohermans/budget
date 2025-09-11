@@ -3,6 +3,7 @@ using Budget.Domain;
 using Budget.Domain.Commands;
 using Budget.Domain.Entities;
 using Budget.Domain.Enums;
+using Budget.Domain.Messaging;
 using Budget.Domain.Repositories;
 using Budget.Worker.Consumers;
 using MassTransit;
@@ -12,10 +13,20 @@ using Xunit;
 
 namespace Budget.Api.UnitTests.Workers
 {
+    public class TestableTransactionsFileConsumer(IMessageBusClient messageBusClient, ITransactionsFileJobRepository repo, ITransactionsFileEtlUseCase useCase, ILogger<ProcessTransactionsFile> logger) : TransactionsFilesConsumer(messageBusClient, repo, useCase, logger)
+    {
+        public async Task CallExecute()
+        {
+            await base.ExecuteAsync(CancellationToken.None);
+        }
+    }
+
+    
     public class ProcessTransactionsFileConsumerTests
     {
         private readonly ITransactionsFileJobRepository repoMock;
         private readonly ITransactionsFileEtlUseCase useCaseMock;
+        private readonly IMessageBusClient messageBusClient;
         private readonly ILogger<ProcessTransactionsFile> loggerMock;
         private readonly ConsumeContext<ProcessTransactionsFile> contextMock;
         private readonly TransactionsFileJob job = new()
@@ -33,13 +44,17 @@ namespace Budget.Api.UnitTests.Workers
             useCaseMock = Substitute.For<ITransactionsFileEtlUseCase>();
             loggerMock = Substitute.For<ILogger<ProcessTransactionsFile>>();
             contextMock = Substitute.For<ConsumeContext<ProcessTransactionsFile>>();
+            messageBusClient = Substitute.For<IMessageBusClient>();
         }
 
-        private ProcessTransactionsFileConsumer CreateConsumer()
+        private TestableTransactionsFileConsumer CreateConsumer()
         {
             repoMock.GetByIdAsync(Arg.Any<Guid>()).Returns(job);
             contextMock.Message.Returns(new ProcessTransactionsFile { JobId = job.Id });
-            return new ProcessTransactionsFileConsumer(repoMock, useCaseMock, loggerMock);
+            messageBusClient.SubscribeAsync<Guid>(MessageConstants.TransactionsFileJobCreated,
+                "transactions-files-group")
+                .Returns(new List<Guid> { job.Id }.ToAsyncEnumerable());
+            return new TestableTransactionsFileConsumer(messageBusClient, repoMock, useCaseMock, loggerMock);
         }
 
         [Fact]
@@ -50,7 +65,7 @@ namespace Budget.Api.UnitTests.Workers
             var consumer = CreateConsumer();
 
             // Act
-            await consumer.Consume(contextMock);
+            await consumer.CallExecute();
 
             // Assert
             Assert.Equal(JobStatus.Completed, job.Status);
@@ -67,7 +82,7 @@ namespace Budget.Api.UnitTests.Workers
             var consumer = CreateConsumer();
 
             // Act
-            await consumer.Consume(contextMock);
+            await consumer.CallExecute();
 
             // Assert
             loggerMock.Received().LogInformation("Job is already picked up by a previous process");
@@ -82,7 +97,7 @@ namespace Budget.Api.UnitTests.Workers
             useCaseMock.HandleAsync(Arg.Any<Stream>()).Returns(Result.Failure("UseCase failed"));
 
             // Act
-            await consumer.Consume(contextMock);
+            await consumer.CallExecute();
 
             // Assert
             Assert.Equal(JobStatus.Failed, job.Status);

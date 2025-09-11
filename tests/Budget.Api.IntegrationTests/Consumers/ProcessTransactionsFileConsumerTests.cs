@@ -3,6 +3,8 @@ using Budget.Application.UseCases.TransactionsFileEtl;
 using Budget.Domain.Commands;
 using Budget.Domain.Entities;
 using Budget.Domain.Enums;
+using Budget.Domain.Messaging;
+using Budget.Domain.Repositories;
 using Budget.Infrastructure.Database;
 using Budget.Infrastructure.Database.Repositories;
 using Budget.Worker.Consumers;
@@ -12,6 +14,14 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 
 namespace Budget.Api.IntegrationTests.Consumers;
+
+public class TestableTransactionsFileConsumer(IMessageBusClient messageBusClient, ITransactionsFileJobRepository repo, ITransactionsFileEtlUseCase useCase, ILogger<ProcessTransactionsFile> logger) : TransactionsFilesConsumer(messageBusClient, repo, useCase, logger)
+{
+    public async Task CallExecute()
+    {
+        await base.ExecuteAsync(CancellationToken.None);
+    }
+}
 
 public class ProcessTransactionsFileConsumerTests : IClassFixture<DatabaseAssemblyFixture>
 {
@@ -35,13 +45,17 @@ public class ProcessTransactionsFileConsumerTests : IClassFixture<DatabaseAssemb
         fileStorageSettings = fixture.FileStorageSettings;
     }
 
-    private ProcessTransactionsFileConsumer CreateConsumer(BudgetDbContext dbContext)
+    private TestableTransactionsFileConsumer CreateConsumer(BudgetDbContext dbContext)
     {
         var repo = new TransactionsFileJobRepository(dbContext);
         var transactionRepo = new TransactionRepository(dbContext);
         var useCase = new TransactionsFileEtlUseCase(transactionRepo, NullLogger<TransactionsFileEtlUseCase>.Instance);
         contextMock.Message.Returns(new ProcessTransactionsFile { JobId = job.Id });
-        return new ProcessTransactionsFileConsumer(repo, useCase, loggerMock);
+        var messageBusClient = Substitute.For<IMessageBusClient>();
+        messageBusClient.SubscribeAsync<Guid>(MessageConstants.TransactionsFileJobCreated,
+            "transactions-files-group")
+            .Returns(new List<Guid> { job.Id }.ToAsyncEnumerable());
+        return new TestableTransactionsFileConsumer(messageBusClient, repo, useCase, loggerMock);
     }
 
     [Fact]
@@ -56,7 +70,7 @@ public class ProcessTransactionsFileConsumerTests : IClassFixture<DatabaseAssemb
         var consumer = CreateConsumer(db);
 
         // Act
-        await consumer.Consume(contextMock);
+        await consumer.CallExecute();
 
         // Assert
         var updatedJob = await db.TransactionsFileJobs.FindAsync([job.Id], TestContext.Current.CancellationToken);

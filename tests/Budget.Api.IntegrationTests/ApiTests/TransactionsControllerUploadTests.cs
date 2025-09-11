@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Budget.Application.UseCases.TransactionsFileJobStart;
 using Budget.Domain.Commands;
+using Budget.Domain.Messaging;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,10 +15,10 @@ public class TransactionsControllerUploadTests(DatabaseAssemblyFixture fixture) 
     [Fact]
     public async Task Upload_CorrectFile_SavesCorrectly()
     {
-        object? publishedMessage = null;
-        var publishEndpoint = Substitute.For<IPublishEndpoint>();
-        publishEndpoint.When(p => p.Publish<ProcessTransactionsFile>(Arg.Any<object>(), Arg.Any<CancellationToken>()))
-            .Do(args => publishedMessage = args.Arg<object>());
+        Guid? publishedMessage = null;
+        var publishEndpoint = Substitute.For<IMessageBusClient>();
+        publishEndpoint.When(p => p.PublishAsync(MessageConstants.TransactionsFileJobCreated, Arg.Any<Guid>()))
+            .Do(args => publishedMessage = args.Arg<Guid>());
 
         await using var app = await fixture.CreateApiApp(
             nameof(Upload_CorrectFile_SavesCorrectly),
@@ -46,11 +47,11 @@ public class TransactionsControllerUploadTests(DatabaseAssemblyFixture fixture) 
         Assert.NotNull(job);
         Assert.Equal(job.Id, jobResponse?.JobId);
         await publishEndpoint.Received()
-            .Publish<ProcessTransactionsFile>(Arg.Any<object>(), Arg.Any<CancellationToken>());
+            .PublishAsync(MessageConstants.TransactionsFileJobCreated, Arg.Any<Guid>());
         Assert.Null(job.ErrorMessage);
         Assert.Equal("transactions.csv", job.OriginalFileName);
         Assert.True(fileStream.ToArray().SequenceEqual(job.FileContent));
         Assert.NotNull(publishedMessage);
-        Assert.Equivalent(new ProcessTransactionsFile { JobId = job.Id }, publishedMessage);
+        Assert.Equivalent(job.Id, publishedMessage);
     }
 }
