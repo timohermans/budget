@@ -8,9 +8,10 @@ using NSubstitute;
 
 namespace Budget.Api.IntegrationTests.ApiTests;
 
-public class TransactionsControllerUploadTests(DatabaseAssemblyFixture fixture) : IClassFixture<DatabaseAssemblyFixture>
+[TestClass]
+public class TransactionsControllerUploadTests : BaseApiTests
 {
-    [Fact]
+    [TestMethod]
     public async Task Upload_CorrectFile_SavesCorrectly()
     {
         Guid? publishedMessage = null;
@@ -18,16 +19,14 @@ public class TransactionsControllerUploadTests(DatabaseAssemblyFixture fixture) 
         publishEndpoint.When(p => p.PublishAsync(MessageConstants.TransactionsFileJobCreated, Arg.Any<Guid>()))
             .Do(args => publishedMessage = args.Arg<Guid>());
 
-        await using var app = await fixture.CreateApiApp(
+        await using var app = await CreateSut(
             nameof(Upload_CorrectFile_SavesCorrectly),
-            services =>
-            {
-                services.AddSingleton(publishEndpoint);
-            },
-            TestContext.Current.CancellationToken);
+            services => { services.AddSingleton(publishEndpoint); },
+            CancellationToken.None);
         var (client, db) = app;
 
-        var fileStream = new MemoryStream(await File.ReadAllBytesAsync("Data/transactions-1.csv", TestContext.Current.CancellationToken));
+        var fileStream =
+            new MemoryStream(await File.ReadAllBytesAsync("Data/transactions-1.csv", CancellationToken.None));
         var fileContent = new StreamContent(fileStream);
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
         using var formData = new MultipartFormDataContent
@@ -35,21 +34,23 @@ public class TransactionsControllerUploadTests(DatabaseAssemblyFixture fixture) 
             { fileContent, "file", "transactions.csv" }
         };
 
-        var response = await client.PostAsync("/transactions/upload", formData, TestContext.Current.CancellationToken); // how to add a file 
+        var response = await client.PostAsync("/transactions/upload", formData, CancellationToken.None);
 
         response.EnsureSuccessStatusCode();
 
-        var jobResponse = await response.Content.ReadFromJsonAsync<TransactionsFileJobStartResponse>(cancellationToken: TestContext.Current.CancellationToken);
-        Assert.NotNull(jobResponse);
-        var job = await db.TransactionsFileJobs.FirstOrDefaultAsync(cancellationToken: TestContext.Current.CancellationToken);
-        Assert.NotNull(job);
-        Assert.Equal(job.Id, jobResponse?.JobId);
+        var jobResponse =
+            await response.Content.ReadFromJsonAsync<TransactionsFileJobStartResponse>(
+                cancellationToken: CancellationToken.None);
+        Assert.IsNotNull(jobResponse);
+        var job = await db.TransactionsFileJobs.FirstOrDefaultAsync(cancellationToken: CancellationToken.None);
+        Assert.IsNotNull(job);
+        Assert.AreEqual(job.Id, jobResponse?.JobId);
         await publishEndpoint.Received()
             .PublishAsync(MessageConstants.TransactionsFileJobCreated, Arg.Any<Guid>());
-        Assert.Null(job.ErrorMessage);
-        Assert.Equal("transactions.csv", job.OriginalFileName);
-        Assert.True(fileStream.ToArray().SequenceEqual(job.FileContent));
-        Assert.NotNull(publishedMessage);
-        Assert.Equivalent(job.Id, publishedMessage);
+        Assert.IsNull(job.ErrorMessage);
+        Assert.AreEqual("transactions.csv", job.OriginalFileName);
+        Assert.IsTrue(fileStream.ToArray().SequenceEqual(job.FileContent));
+        Assert.IsNotNull(publishedMessage);
+        Assert.AreEqual(job.Id, publishedMessage);
     }
 }

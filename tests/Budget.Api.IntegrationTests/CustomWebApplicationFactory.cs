@@ -1,5 +1,4 @@
 using System.Data.Common;
-using Budget.Api.IntegrationTests;
 using Budget.Infrastructure.Database;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
@@ -9,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 
-[assembly: AssemblyFixture(typeof(DatabaseAssemblyFixture))]
 
 namespace Budget.Api.IntegrationTests;
 
