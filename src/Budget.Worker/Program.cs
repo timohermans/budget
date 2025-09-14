@@ -3,7 +3,6 @@
 using Budget.Application;
 using Budget.Infrastructure;
 using Budget.Worker;
-using MassTransit;
 using System.Reflection;
 using Budget.Worker.Consumers;
 

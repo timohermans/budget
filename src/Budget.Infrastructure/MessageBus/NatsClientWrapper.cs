@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Budget.Domain;
 using Budget.Domain.Messaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

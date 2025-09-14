@@ -1,9 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Budget.Application.UseCases.TransactionsFileJobStart;
-using Budget.Domain.Commands;
 using Budget.Domain.Messaging;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
