@@ -9,7 +9,6 @@ using Budget.Worker.Consumers;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Xunit;
 
 namespace Budget.Api.UnitTests.Workers
 {
@@ -21,7 +20,8 @@ namespace Budget.Api.UnitTests.Workers
         }
     }
 
-    
+
+    [TestClass]
     public class ProcessTransactionsFileConsumerTests
     {
         private readonly ITransactionsFileJobRepository repoMock;
@@ -57,7 +57,7 @@ namespace Budget.Api.UnitTests.Workers
             return new TestableTransactionsFileConsumer(messageBusClient, repoMock, useCaseMock, loggerMock);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task Consume_GoodJobAndFile_CompletesJobSuccessfully()
         {
             // Arrange
@@ -68,13 +68,13 @@ namespace Budget.Api.UnitTests.Workers
             await consumer.CallExecute();
 
             // Assert
-            Assert.Equal(JobStatus.Completed, job.Status);
-            Assert.Null(job.ErrorMessage);
+            Assert.AreEqual(JobStatus.Completed, job.Status);
+            Assert.IsNull(job.ErrorMessage);
         }
 
-        [Theory]
-        [InlineData(JobStatus.Completed)]
-        [InlineData(JobStatus.Failed)]
+        [TestMethod]
+        [DataRow(JobStatus.Completed)]
+        [DataRow(JobStatus.Failed)]
         public async Task Consume_JobAlreadyCompletedOrFailed_DoesNotProcess(JobStatus status)
         {
             // Arrange
@@ -89,7 +89,7 @@ namespace Budget.Api.UnitTests.Workers
             await repoMock.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
         }
 
-        [Fact]
+        [TestMethod]
         public async Task Consume_UseCaseFails_FailsAndSavesErrorInDb()
         {
             // Arrange
@@ -100,8 +100,8 @@ namespace Budget.Api.UnitTests.Workers
             await consumer.CallExecute();
 
             // Assert
-            Assert.Equal(JobStatus.Failed, job.Status);
-            Assert.Equal("UseCase failed with message: UseCase failed", job.ErrorMessage);
+            Assert.AreEqual(JobStatus.Failed, job.Status);
+            Assert.AreEqual("UseCase failed with message: UseCase failed", job.ErrorMessage);
         }
     }
 }

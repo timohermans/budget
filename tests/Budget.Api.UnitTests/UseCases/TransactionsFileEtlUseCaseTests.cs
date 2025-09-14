@@ -4,13 +4,13 @@ using Budget.Domain.Entities;
 using Budget.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Xunit;
 
 namespace Budget.Api.UnitTests.UseCases;
 
+[TestClass]
 public class TransactionsFileEtlUseCaseTests
 {
-    [Fact]
+    [TestMethod]
     public async Task HandleAsync_SingleTransaction_Success()
     {
         // Arrange
@@ -37,24 +37,24 @@ public class TransactionsFileEtlUseCaseTests
         var result = await useCase.HandleAsync(stream);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Single(transactions);
+        Assert.IsTrue(result.IsSuccess);
+        Assert.HasCount(1, transactions);
         var transaction = transactions.FirstOrDefault();
-        Assert.NotNull(transaction);
-        Assert.Equal(12107, transaction.FollowNumber);
-        Assert.Equal("NL11RABO0104946666", transaction.Iban);
-        Assert.Equal(new DateOnly(2023, 11, 20), transaction.DateTransaction);
-        Assert.Equal("EUR", transaction.Currency);
-        Assert.Equal(4000, transaction.Amount);
-        Assert.Equal(4000, transaction.BalanceAfterTransaction);
-        Assert.Equal("NL11INGB00022222", transaction.IbanOtherParty);
-        Assert.Equal("Werkgever 1", transaction.NameOtherParty);
-        Assert.NotNull(transaction.AuthorizationCode);
-        Assert.Empty(transaction.AuthorizationCode);
-        Assert.Equal("Salaris 1", transaction.Description);
+        Assert.IsNotNull(transaction);
+        Assert.AreEqual(12107, transaction.FollowNumber);
+        Assert.AreEqual("NL11RABO0104946666", transaction.Iban);
+        Assert.AreEqual(new DateOnly(2023, 11, 20), transaction.DateTransaction);
+        Assert.AreEqual("EUR", transaction.Currency);
+        Assert.AreEqual(4000, transaction.Amount);
+        Assert.AreEqual(4000, transaction.BalanceAfterTransaction);
+        Assert.AreEqual("NL11INGB00022222", transaction.IbanOtherParty);
+        Assert.AreEqual("Werkgever 1", transaction.NameOtherParty);
+        Assert.IsNotNull(transaction.AuthorizationCode);
+        Assert.AreEqual(0, transaction.AuthorizationCode.Length);
+        Assert.AreEqual("Salaris 1", transaction.Description);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task HandleAsync_MultipleTransactions_Success()
     {
         // Arrange
@@ -83,36 +83,36 @@ public class TransactionsFileEtlUseCaseTests
         var result = await useCase.HandleAsync(stream);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Equal(2, transactions.Count());
+        Assert.IsTrue(result.IsSuccess);
+        Assert.AreEqual(2, transactions.Count());
         var transaction1 = transactions.FirstOrDefault(t => t.FollowNumber == 12107);
         var transaction2 = transactions.FirstOrDefault(t => t.FollowNumber == 12108);
-        Assert.NotNull(transaction1);
-        Assert.NotNull(transaction2);
-        Assert.Equal("NL11RABO0104946666", transaction1.Iban);
-        Assert.Equal(new DateOnly(2023, 11, 20), transaction1.DateTransaction);
-        Assert.Equal("EUR", transaction1.Currency);
-        Assert.Equal(4000, transaction1.Amount);
-        Assert.Equal(4000, transaction1.BalanceAfterTransaction);
-        Assert.Equal("NL11INGB00022222", transaction1.IbanOtherParty);
-        Assert.Equal("Werkgever 1", transaction1.NameOtherParty);
-        Assert.NotNull(transaction1.AuthorizationCode);
-        Assert.Empty(transaction1.AuthorizationCode);
-        Assert.Equal("Salaris 1", transaction1.Description);
+        Assert.IsNotNull(transaction1);
+        Assert.IsNotNull(transaction2);
+        Assert.AreEqual("NL11RABO0104946666", transaction1.Iban);
+        Assert.AreEqual(new DateOnly(2023, 11, 20), transaction1.DateTransaction);
+        Assert.AreEqual("EUR", transaction1.Currency);
+        Assert.AreEqual(4000, transaction1.Amount);
+        Assert.AreEqual(4000, transaction1.BalanceAfterTransaction);
+        Assert.AreEqual("NL11INGB00022222", transaction1.IbanOtherParty);
+        Assert.AreEqual("Werkgever 1", transaction1.NameOtherParty);
+        Assert.IsNotNull(transaction1.AuthorizationCode);
+        Assert.AreEqual(0, transaction1.AuthorizationCode.Length);
+        Assert.AreEqual("Salaris 1", transaction1.Description);
 
-        Assert.Equal("NL11RABO0104946666", transaction2.Iban);
-        Assert.Equal(new DateOnly(2023, 11, 21), transaction2.DateTransaction);
-        Assert.Equal("EUR", transaction2.Currency);
-        Assert.Equal(-2000, transaction2.Amount);
-        Assert.Equal(4000, transaction2.BalanceAfterTransaction);
-        Assert.Equal("NL11INGB00033333", transaction2.IbanOtherParty);
-        Assert.Equal("Werkgever 2", transaction2.NameOtherParty);
-        Assert.NotNull(transaction2.AuthorizationCode);
-        Assert.Empty(transaction2.AuthorizationCode);
-        Assert.Equal("Salaris 2", transaction2.Description);
+        Assert.AreEqual("NL11RABO0104946666", transaction2.Iban);
+        Assert.AreEqual(new DateOnly(2023, 11, 21), transaction2.DateTransaction);
+        Assert.AreEqual("EUR", transaction2.Currency);
+        Assert.AreEqual(-2000, transaction2.Amount);
+        Assert.AreEqual(4000, transaction2.BalanceAfterTransaction);
+        Assert.AreEqual("NL11INGB00033333", transaction2.IbanOtherParty);
+        Assert.AreEqual("Werkgever 2", transaction2.NameOtherParty);
+        Assert.IsNotNull(transaction2.AuthorizationCode);
+        Assert.AreEqual(0, transaction2.AuthorizationCode.Length);
+        Assert.AreEqual("Salaris 2", transaction2.Description);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task HandleAsync_SkipExistingTransaction_InsertNewTransaction_Success()
     {
         // Arrange
@@ -144,20 +144,20 @@ public class TransactionsFileEtlUseCaseTests
         var result = await useCase.HandleAsync(stream);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Single(transactions);
+        Assert.IsTrue(result.IsSuccess);
+        Assert.AreEqual(1, transactions.Count());
         var transaction = transactions.FirstOrDefault();
-        Assert.NotNull(transaction);
-        Assert.Equal(12108, transaction.FollowNumber);
-        Assert.Equal("NL11RABO0104946666", transaction.Iban);
-        Assert.Equal(new DateOnly(2023, 11, 21), transaction.DateTransaction);
-        Assert.Equal("EUR", transaction.Currency);
-        Assert.Equal(-2000, transaction.Amount);
-        Assert.Equal(2000, transaction.BalanceAfterTransaction);
-        Assert.Equal("NL11INGB00033333", transaction.IbanOtherParty);
-        Assert.Equal("Werkgever 2", transaction.NameOtherParty);
-        Assert.NotNull(transaction.AuthorizationCode);
-        Assert.Empty(transaction.AuthorizationCode);
-        Assert.Equal("Salaris 2", transaction.Description);
+        Assert.IsNotNull(transaction);
+        Assert.AreEqual(12108, transaction.FollowNumber);
+        Assert.AreEqual("NL11RABO0104946666", transaction.Iban);
+        Assert.AreEqual(new DateOnly(2023, 11, 21), transaction.DateTransaction);
+        Assert.AreEqual("EUR", transaction.Currency);
+        Assert.AreEqual(-2000, transaction.Amount);
+        Assert.AreEqual(2000, transaction.BalanceAfterTransaction);
+        Assert.AreEqual("NL11INGB00033333", transaction.IbanOtherParty);
+        Assert.AreEqual("Werkgever 2", transaction.NameOtherParty);
+        Assert.IsNotNull(transaction.AuthorizationCode);
+        Assert.AreEqual(0, transaction.AuthorizationCode.Length);
+        Assert.AreEqual("Salaris 2", transaction.Description);
     }
 }
