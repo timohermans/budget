@@ -1,3 +1,4 @@
+using Budget.Api.Server;
 using Budget.ApiClient;
 using Budget.Ui.Components;
 using Budget.Ui.Server;
@@ -25,12 +26,12 @@ services.AddRazorComponents()
 
 services
  .AddSeriLogLogging(config)
- .AddOidcAuthentication(config)
+ .AddOidcAuthentication(config, environment)
  .AddProxyConfig(environment)
  .AddBudgetServices();
 
 services.AddHttpContextAccessor();
-services.AddApiClientRegistration<BudgetApiOptions>(config, "BudgetApi")
+services.AddApiClientRegistration<BudgetApiOptions>(config, "BudgetApi", environment.IsEnvironment("Test") ? FakeAuthHandler.SchemeName : "OpenIdConnect")
     .AddRefitClient<IBudgetClient>();
 
 var app = builder.Build();
