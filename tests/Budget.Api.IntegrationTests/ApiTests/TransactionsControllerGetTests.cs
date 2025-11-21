@@ -5,20 +5,14 @@ using Budget.Domain.Entities;
 
 namespace Budget.Api.IntegrationTests.ApiTests;
 
-public class TransactionsControllerGetTests : IClassFixture<DatabaseAssemblyFixture>
+[TestClass]
+public class TransactionsControllerGetTests : BaseApiTests
 {
-    private readonly DatabaseAssemblyFixture _fixture;
-
-    public TransactionsControllerGetTests(DatabaseAssemblyFixture fixture)
-    {
-        _fixture = fixture;
-    }
-
-    [Fact]
+    [TestMethod]
     public async Task GetTransactions_IncludesAndExcludesCorrectDates()
     {
         // Arrange
-        await using var app = await _fixture.CreateApiApp(nameof(GetTransactions_IncludesAndExcludesCorrectDates), TestContext.Current.CancellationToken);
+        await using var app = await CreateSut(nameof(GetTransactions_IncludesAndExcludesCorrectDates), CancellationToken.None);
         var (client, db) = app;
 
         var transactions = new List<Transaction>
@@ -32,24 +26,24 @@ public class TransactionsControllerGetTests : IClassFixture<DatabaseAssemblyFixt
         db.SaveChanges();
 
         // Act
-        var result = await client.GetAsync($"/transactions?startDate={new DateOnly(2025, 3, 1).ToString("yyyy-MM-dd")}&endDate={new DateOnly(2025, 3, 31).ToString("yyyy-MM-dd")}", TestContext.Current.CancellationToken);
+        var result = await client.GetAsync($"/transactions?startDate={new DateOnly(2025, 3, 1).ToString("yyyy-MM-dd")}&endDate={new DateOnly(2025, 3, 31).ToString("yyyy-MM-dd")}", CancellationToken.None);
 
         result.EnsureSuccessStatusCode();
 
         // Assert
-        var returnedTransactions = await result.Content.ReadFromJsonAsync<List<TransactionResponseModel>>(TestContext.Current.CancellationToken);
-        Assert.NotNull(returnedTransactions);
-        Assert.Equal(2, returnedTransactions.Count);
-        Assert.Contains(returnedTransactions, t => t.Id == 1);
-        Assert.Contains(returnedTransactions, t => t.Id == 2);
-        Assert.DoesNotContain(returnedTransactions, t => t.Id == 3);
+        var returnedTransactions = await result.Content.ReadFromJsonAsync<List<TransactionResponseModel>>(CancellationToken.None);
+        Assert.IsNotNull(returnedTransactions);
+        Assert.AreEqual(2, returnedTransactions.Count);
+        Assert.IsTrue(returnedTransactions.Any(t => t.Id == 1));
+        Assert.IsTrue(returnedTransactions.Any(t => t.Id == 2));
+        Assert.IsFalse(returnedTransactions.Any(t => t.Id == 3));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetTransactions_FiltersByIban()
     {
         // Arrange
-        await using var app = await _fixture.CreateApiApp(nameof(GetTransactions_IncludesAndExcludesCorrectDates), TestContext.Current.CancellationToken);
+        await using var app = await CreateSut(nameof(GetTransactions_IncludesAndExcludesCorrectDates), CancellationToken.None);
         var (client, db) = app;
 
         var transactions = new List<Transaction>
@@ -60,30 +54,30 @@ public class TransactionsControllerGetTests : IClassFixture<DatabaseAssemblyFixt
             new Transaction { Id = 4, FollowNumber = 4, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 4, 3), BalanceAfterTransaction = 600 }
         };
 
-        await db.Transactions.AddRangeAsync(transactions, TestContext.Current.CancellationToken);
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await db.Transactions.AddRangeAsync(transactions, CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await client.GetAsync($"/transactions?startDate={new DateOnly(2025, 3, 1).ToString("yyyy-MM-dd")}&endDate={new DateOnly(2025, 3, 31).ToString("yyyy-MM-dd")}&iban=NL01TEST", TestContext.Current.CancellationToken);
+        var result = await client.GetAsync($"/transactions?startDate={new DateOnly(2025, 3, 1).ToString("yyyy-MM-dd")}&endDate={new DateOnly(2025, 3, 31).ToString("yyyy-MM-dd")}&iban=NL01TEST", CancellationToken.None);
 
         result.EnsureSuccessStatusCode();
 
-        var returnedTransactions = await result.Content.ReadFromJsonAsync<List<TransactionResponseModel>>(TestContext.Current.CancellationToken);
+        var returnedTransactions = await result.Content.ReadFromJsonAsync<List<TransactionResponseModel>>(CancellationToken.None);
 
         // Assert
-        Assert.NotNull(returnedTransactions);
-        Assert.Equal(2, returnedTransactions.Count);
-        Assert.Contains(returnedTransactions, t => t.Id == 1);
-        Assert.Contains(returnedTransactions, t => t.Id == 3);
-        Assert.DoesNotContain(returnedTransactions, t => t.Id == 2);
-        Assert.DoesNotContain(returnedTransactions, t => t.Id == 4);
+        Assert.IsNotNull(returnedTransactions);
+        Assert.AreEqual(2, returnedTransactions.Count);
+        Assert.IsTrue(returnedTransactions.Any(t => t.Id == 1));
+        Assert.IsTrue(returnedTransactions.Any(t => t.Id == 3));
+        Assert.IsFalse(returnedTransactions.Any(t => t.Id == 2));
+        Assert.IsFalse(returnedTransactions.Any(t => t.Id == 4));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetAllDistinctIbans_ReturnsDistinctIbans()
     {
         // Arrange
-        await using var app = await _fixture.CreateApiApp(nameof(GetTransactions_IncludesAndExcludesCorrectDates), TestContext.Current.CancellationToken);
+        await using var app = await CreateSut(nameof(GetTransactions_IncludesAndExcludesCorrectDates), CancellationToken.None);
         var (client, db) = app;
 
         var transactions = new List<Transaction>
@@ -93,26 +87,26 @@ public class TransactionsControllerGetTests : IClassFixture<DatabaseAssemblyFixt
             new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 3, 3), BalanceAfterTransaction = 600 }
         };
 
-        await db.Transactions.AddRangeAsync(transactions, TestContext.Current.CancellationToken);
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await db.Transactions.AddRangeAsync(transactions, CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await client.GetAsync("/transactions/ibans", TestContext.Current.CancellationToken);
+        var result = await client.GetAsync("/transactions/ibans", CancellationToken.None);
 
         // Assert
-        var ibansResult = await result.Content.ReadFromJsonAsync<IEnumerable<string>>(cancellationToken: TestContext.Current.CancellationToken);
+        var ibansResult = await result.Content.ReadFromJsonAsync<IEnumerable<string>>(cancellationToken: CancellationToken.None);
 
-        Assert.NotNull(ibansResult);
-        Assert.Equal(2, ibansResult.Count());
-        Assert.Contains("NL01TEST", ibansResult);
-        Assert.Contains("NL02TEST", ibansResult);
+        Assert.IsNotNull(ibansResult);
+        Assert.AreEqual(2, ibansResult.Count());
+        Assert.IsTrue(ibansResult.Contains("NL01TEST"));
+        Assert.IsTrue(ibansResult.Contains("NL02TEST"));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetAllDistinctIbans_ReturnsDistinctIbansOrderedByFrequency()
     {
         // Arrange
-        await using var app = await _fixture.CreateApiApp(nameof(GetTransactions_IncludesAndExcludesCorrectDates), TestContext.Current.CancellationToken);
+        await using var app = await CreateSut(nameof(GetTransactions_IncludesAndExcludesCorrectDates), CancellationToken.None);
         var (client, db) = app;
 
         var transactions = new List<Transaction>
@@ -124,28 +118,28 @@ public class TransactionsControllerGetTests : IClassFixture<DatabaseAssemblyFixt
             new Transaction { Id = 5, FollowNumber = 5, Iban = "NL01TEST", Currency = "EUR", Amount = 500, DateTransaction = new DateOnly(2025, 3, 5), BalanceAfterTransaction = 1500 }
         };
 
-        await db.Transactions.AddRangeAsync(transactions, TestContext.Current.CancellationToken);
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await db.Transactions.AddRangeAsync(transactions, CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await client.GetAsync("/transactions/ibans", TestContext.Current.CancellationToken);
+        var result = await client.GetAsync("/transactions/ibans", CancellationToken.None);
 
         // Assert
         result.EnsureSuccessStatusCode();
-        var returnedIbans = await result.Content.ReadFromJsonAsync<IEnumerable<string>>(cancellationToken: TestContext.Current.CancellationToken);
+        var returnedIbans = await result.Content.ReadFromJsonAsync<IEnumerable<string>>(cancellationToken: CancellationToken.None);
 
-        Assert.NotNull(returnedIbans);
-        Assert.Equal(3, returnedIbans.Count());
-        Assert.Equal("NL01TEST", returnedIbans.ElementAt(0));
-        Assert.Equal("NL02TEST", returnedIbans.ElementAt(1));
-        Assert.Equal("NL03TEST", returnedIbans.ElementAt(2));
+        Assert.IsNotNull(returnedIbans);
+        Assert.AreEqual(3, returnedIbans.Count());
+        Assert.AreEqual("NL01TEST", returnedIbans.ElementAt(0));
+        Assert.AreEqual("NL02TEST", returnedIbans.ElementAt(1));
+        Assert.AreEqual("NL03TEST", returnedIbans.ElementAt(2));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetCashFlowPerIbanAsync_ReturnsCorrectCashflow()
     {
         // Arrange
-        await using var app = await _fixture.CreateApiApp(nameof(GetTransactions_IncludesAndExcludesCorrectDates), TestContext.Current.CancellationToken);
+        await using var app = await CreateSut(nameof(GetTransactions_IncludesAndExcludesCorrectDates), CancellationToken.None);
         var (client, db) = app;
 
         var transactions = new List<Transaction>
@@ -158,34 +152,25 @@ public class TransactionsControllerGetTests : IClassFixture<DatabaseAssemblyFixt
             new Transaction { Id = 6, FollowNumber = 6, Iban = "NL01TEST", Currency = "EUR", Amount = 500, DateTransaction = new DateOnly(2025, 3, 5), BalanceAfterTransaction = 1500 }
         };
 
-        await db.Transactions.AddRangeAsync(transactions, TestContext.Current.CancellationToken);
-        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await db.Transactions.AddRangeAsync(transactions, CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var actionResult = await client.GetAsync($"/transactions/cashflow-per-iban?startDate={new DateOnly(2025, 3, 1).ToString("yyyy-MM-dd")}&endDate={new DateOnly(2025, 3, 31).ToString("yyyy-MM-dd")}", TestContext.Current.CancellationToken);
+        var actionResult = await client.GetAsync($"/transactions/cashflow-per-iban?startDate={new DateOnly(2025, 3, 1).ToString("yyyy-MM-dd")}&endDate={new DateOnly(2025, 3, 31).ToString("yyyy-MM-dd")}", CancellationToken.None);
 
         // Assert
         actionResult.EnsureSuccessStatusCode();
-        var result = await actionResult.Content.ReadFromJsonAsync<CashflowDto>(cancellationToken: TestContext.Current.CancellationToken);
+        var result = await actionResult.Content.ReadFromJsonAsync<CashflowDto>(cancellationToken: CancellationToken.None);
 
-        Assert.NotNull(result);
-        Assert.Equal("NL01TEST", result.Iban);
-        Assert.Equal(3, result.BalancesPerDate.Count());
-        Assert.Collection(result.BalancesPerDate,
-            bpd =>
-            {
-                Assert.Equal(new DateOnly(2025, 3, 1), bpd.Date);
-                Assert.Equal(100, bpd.Balance);
-            },
-            bpd =>
-            {
-                Assert.Equal(new DateOnly(2025, 3, 3), bpd.Date);
-                Assert.Equal(400, bpd.Balance);
-            },
-            bpd =>
-            {
-                Assert.Equal(new DateOnly(2025, 3, 5), bpd.Date);
-                Assert.Equal(1500, bpd.Balance);
-            });
+        Assert.IsNotNull(result);
+        Assert.AreEqual("NL01TEST", result.Iban);
+        Assert.AreEqual(3, result.BalancesPerDate.Count());
+        var balances = result.BalancesPerDate.ToList();
+        Assert.AreEqual(new DateOnly(2025, 3, 1), balances[0].Date);
+        Assert.AreEqual(100, balances[0].Balance);
+        Assert.AreEqual(new DateOnly(2025, 3, 3), balances[1].Date);
+        Assert.AreEqual(400, balances[1].Balance);
+        Assert.AreEqual(new DateOnly(2025, 3, 5), balances[2].Date);
+        Assert.AreEqual(1500, balances[2].Balance);
     }
 }

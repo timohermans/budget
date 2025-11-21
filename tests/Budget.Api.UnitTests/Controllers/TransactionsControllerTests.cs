@@ -6,10 +6,10 @@ using Budget.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
-using Xunit;
 
 namespace Budget.Api.UnitTests.Controllers;
 
+[TestClass]
 public class TransactionsControllerTests
 {
     private readonly ITransactionsFileJobStartUseCase _useCaseSubstitute;
@@ -21,18 +21,19 @@ public class TransactionsControllerTests
         _controller = new TransactionsController(_useCaseSubstitute, Substitute.For<IUpdateTransactionCashbackDateUseCase>(), Substitute.For<ITransactionRepository>());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Upload_WhenFileIsNull_ReturnsBadRequest()
     {
         // Act
         var result = await _controller.Upload(null!);
 
         // Assert
-        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("No file was uploaded.", badRequest.Value);
+        var badRequest = result as BadRequestObjectResult;
+        Assert.IsNotNull(badRequest);
+        Assert.AreEqual("No file was uploaded.", badRequest.Value);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Upload_WhenFileIsEmpty_ReturnsBadRequest()
     {
         // Arrange
@@ -43,11 +44,13 @@ public class TransactionsControllerTests
         var result = await _controller.Upload(fileSubstitute);
 
         // Assert
-        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("No file was uploaded.", badRequest.Value);
+        Assert.IsInstanceOfType<BadRequestObjectResult>(result);
+        var badRequest = result as BadRequestObjectResult;
+        Assert.IsNotNull(badRequest);
+        Assert.AreEqual("No file was uploaded.", badRequest.Value);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Upload_WithValidFile_ReturnsOkResult()
     {
         // Arrange
@@ -71,7 +74,7 @@ public class TransactionsControllerTests
         var result = await _controller.Upload(fileSubstitute);
 
         // Assert
-        Assert.IsType<OkObjectResult>(result);
+        Assert.IsInstanceOfType<OkObjectResult>(result);
         await _useCaseSubstitute.Received(1)
             .HandleAsync(Arg.Is<TransactionsFileJobStartCommand>(c =>
                 c.File.FileName == fileName &&
@@ -80,7 +83,7 @@ public class TransactionsControllerTests
             ));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Upload_WhenUseCaseFails_ReturnsBadRequest()
     {
         // Arrange
@@ -89,7 +92,7 @@ public class TransactionsControllerTests
         fileSubstitute.FileName.Returns("valid.csv");
         fileSubstitute.ContentType.Returns("text/csv");
         fileSubstitute.OpenReadStream().Returns(new MemoryStream());
-        var errorMessage = "Processing failed";
+        const string errorMessage = "Processing failed";
         _useCaseSubstitute.HandleAsync(Arg.Any<TransactionsFileJobStartCommand>())
             .Returns(Task.FromResult(Result<TransactionsFileJobStartResponse>.Failure(errorMessage)));
 
@@ -97,7 +100,8 @@ public class TransactionsControllerTests
         var result = await _controller.Upload(fileSubstitute);
 
         // Assert
-        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal(errorMessage, badRequest.Value);
+        var badRequest = result as BadRequestObjectResult;
+        Assert.IsNotNull(badRequest);
+        Assert.AreEqual(errorMessage, badRequest.Value);
     }
 }

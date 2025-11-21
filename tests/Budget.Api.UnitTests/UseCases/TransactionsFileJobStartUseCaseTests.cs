@@ -1,19 +1,18 @@
 using Budget.Application.Settings;
 using Budget.Application.UseCases.TransactionsFileJobStart;
-using Budget.Domain.Commands;
 using Budget.Domain.Entities;
+using Budget.Domain.Messaging;
 using Budget.Domain.Repositories;
-using MassTransit;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Xunit;
 
 namespace Budget.Api.UnitTests.UseCases;
 
+[TestClass]
 public class TransactionsFileJobStartUseCaseTests
 {
     private readonly ITransactionsFileJobRepository _repo = Substitute.For<ITransactionsFileJobRepository>();
-    private readonly IPublishEndpoint _endpoint = Substitute.For<IPublishEndpoint>();
+    private readonly IMessageBusClient _endpoint = Substitute.For<IMessageBusClient>();
 
     private readonly ILogger<TransactionsFileJobStartUseCase> _logger =
         Substitute.For<ILogger<TransactionsFileJobStartUseCase>>();
@@ -35,13 +34,13 @@ public class TransactionsFileJobStartUseCaseTests
 
         return new(
             _repo,
-            _endpoint,
             _logger,
+            _endpoint,
             _fileSettings,
             _timeProvider);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task HandleAsync_ValidRequest_SavesJobAndPublishesEvent()
     {
         // Arrange
@@ -64,19 +63,19 @@ public class TransactionsFileJobStartUseCaseTests
         var result = await sut.HandleAsync(new TransactionsFileJobStartCommand { File = validFile });
 
         // Assert
-        Assert.True(result.IsSuccess);
+        Assert.IsTrue(result.IsSuccess);
         await _repo.Received(1).AddAsync(Arg.Is<TransactionsFileJob>(j =>
             j.CreatedAt == testTime.UtcDateTime));
         await _repo.Received(1).SaveChangesAsync();
-        await _endpoint.Received(1).Publish<ProcessTransactionsFile>(Arg.Any<object>(), Arg.Any<CancellationToken>());
-        Assert.NotNull(capturedJob);
-        Assert.NotEqual(Guid.Empty, capturedJob.Id);
-        Assert.Equal(testTime, capturedJob.CreatedAt, TimeSpan.FromMilliseconds(100));
-        Assert.True(capturedJob.FileContent.SequenceEqual(validFile.Content));
-        Assert.Equal("valid.csv", capturedJob.OriginalFileName);
+        await _endpoint.Received(1).PublishAsync(MessageConstants.TransactionsFileJobCreated, Arg.Any<Guid?>());
+        Assert.IsNotNull(capturedJob);
+        Assert.AreNotEqual(Guid.Empty, capturedJob.Id);
+        Assert.IsTrue(Math.Abs((testTime - capturedJob.CreatedAt).TotalMilliseconds) < 100, "CreatedAt is not within 100ms tolerance");
+        Assert.IsTrue(capturedJob.FileContent.SequenceEqual(validFile.Content));
+        Assert.AreEqual("valid.csv", capturedJob.OriginalFileName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task HandleAsync_InvalidFileTooLarge_ReturnsFailure()
     {
         // Arrange
@@ -94,7 +93,7 @@ public class TransactionsFileJobStartUseCaseTests
         var result = await sut.HandleAsync(new TransactionsFileJobStartCommand { File = invalidFile });
 
         // Assert
-        Assert.True(result.IsFailure);
-        Assert.Contains("File size exceeds maximum", result.Error);
+        Assert.IsTrue(result.IsFailure);
+        StringAssert.Contains(result.Error, "File size exceeds maximum");
     }
 }

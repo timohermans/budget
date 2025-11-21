@@ -1,9 +1,8 @@
 using Budget.Application.Settings;
 using Budget.Domain;
-using Budget.Domain.Commands;
 using Budget.Domain.Entities;
+using Budget.Domain.Messaging;
 using Budget.Domain.Repositories;
-using MassTransit;
 using Microsoft.Extensions.Logging;
 
 namespace Budget.Application.UseCases.TransactionsFileJobStart;
@@ -15,8 +14,8 @@ public interface ITransactionsFileJobStartUseCase
 
 public class TransactionsFileJobStartUseCase(
     ITransactionsFileJobRepository repo,
-    IPublishEndpoint endpoint,
     ILogger<TransactionsFileJobStartUseCase> logger,
+    IMessageBusClient messageBusClient,
     FileStorageSettings fileSettings,
     TimeProvider timeProvider) : ITransactionsFileJobStartUseCase
 {
@@ -41,7 +40,7 @@ public class TransactionsFileJobStartUseCase(
 
         var job = new TransactionsFileJob
         {
-            Id = NewId.NextGuid(),
+            Id = Guid.NewGuid(),
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             FileContent = command.File.Content,
             OriginalFileName = command.File.FileName,
@@ -49,10 +48,7 @@ public class TransactionsFileJobStartUseCase(
         await repo.AddAsync(job);
         await repo.SaveChangesAsync();
 
-        await endpoint.Publish<ProcessTransactionsFile>(new
-        {
-            JobId = job.Id
-        });
+        await messageBusClient.PublishAsync(MessageConstants.TransactionsFileJobCreated, data: job.Id);
 
         return Result<TransactionsFileJobStartResponse>.Success(new TransactionsFileJobStartResponse
         {

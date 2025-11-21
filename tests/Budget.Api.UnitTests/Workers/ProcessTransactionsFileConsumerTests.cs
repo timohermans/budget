@@ -3,19 +3,30 @@ using Budget.Domain;
 using Budget.Domain.Commands;
 using Budget.Domain.Entities;
 using Budget.Domain.Enums;
+using Budget.Domain.Messaging;
 using Budget.Domain.Repositories;
 using Budget.Worker.Consumers;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Xunit;
 
 namespace Budget.Api.UnitTests.Workers
 {
+    public class TestableTransactionsFileConsumer(IMessageBusClient messageBusClient, ITransactionsFileJobRepository repo, ITransactionsFileEtlUseCase useCase, ILogger<ProcessTransactionsFile> logger) : TransactionsFilesConsumer(messageBusClient, repo, useCase, logger)
+    {
+        public async Task CallExecute()
+        {
+            await base.ExecuteAsync(CancellationToken.None);
+        }
+    }
+
+
+    [TestClass]
     public class ProcessTransactionsFileConsumerTests
     {
         private readonly ITransactionsFileJobRepository repoMock;
         private readonly ITransactionsFileEtlUseCase useCaseMock;
+        private readonly IMessageBusClient messageBusClient;
         private readonly ILogger<ProcessTransactionsFile> loggerMock;
         private readonly ConsumeContext<ProcessTransactionsFile> contextMock;
         private readonly TransactionsFileJob job = new()
@@ -33,16 +44,20 @@ namespace Budget.Api.UnitTests.Workers
             useCaseMock = Substitute.For<ITransactionsFileEtlUseCase>();
             loggerMock = Substitute.For<ILogger<ProcessTransactionsFile>>();
             contextMock = Substitute.For<ConsumeContext<ProcessTransactionsFile>>();
+            messageBusClient = Substitute.For<IMessageBusClient>();
         }
 
-        private ProcessTransactionsFileConsumer CreateConsumer()
+        private TestableTransactionsFileConsumer CreateConsumer()
         {
             repoMock.GetByIdAsync(Arg.Any<Guid>()).Returns(job);
             contextMock.Message.Returns(new ProcessTransactionsFile { JobId = job.Id });
-            return new ProcessTransactionsFileConsumer(repoMock, useCaseMock, loggerMock);
+            messageBusClient.SubscribeAsync<Guid>(MessageConstants.TransactionsFileJobCreated,
+                "transactions-files-group")
+                .Returns(new List<Guid> { job.Id }.ToAsyncEnumerable());
+            return new TestableTransactionsFileConsumer(messageBusClient, repoMock, useCaseMock, loggerMock);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task Consume_GoodJobAndFile_CompletesJobSuccessfully()
         {
             // Arrange
@@ -50,16 +65,16 @@ namespace Budget.Api.UnitTests.Workers
             var consumer = CreateConsumer();
 
             // Act
-            await consumer.Consume(contextMock);
+            await consumer.CallExecute();
 
             // Assert
-            Assert.Equal(JobStatus.Completed, job.Status);
-            Assert.Null(job.ErrorMessage);
+            Assert.AreEqual(JobStatus.Completed, job.Status);
+            Assert.IsNull(job.ErrorMessage);
         }
 
-        [Theory]
-        [InlineData(JobStatus.Completed)]
-        [InlineData(JobStatus.Failed)]
+        [TestMethod]
+        [DataRow(JobStatus.Completed)]
+        [DataRow(JobStatus.Failed)]
         public async Task Consume_JobAlreadyCompletedOrFailed_DoesNotProcess(JobStatus status)
         {
             // Arrange
@@ -67,14 +82,14 @@ namespace Budget.Api.UnitTests.Workers
             var consumer = CreateConsumer();
 
             // Act
-            await consumer.Consume(contextMock);
+            await consumer.CallExecute();
 
             // Assert
             loggerMock.Received().LogInformation("Job is already picked up by a previous process");
             await repoMock.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
         }
 
-        [Fact]
+        [TestMethod]
         public async Task Consume_UseCaseFails_FailsAndSavesErrorInDb()
         {
             // Arrange
@@ -82,11 +97,11 @@ namespace Budget.Api.UnitTests.Workers
             useCaseMock.HandleAsync(Arg.Any<Stream>()).Returns(Result.Failure("UseCase failed"));
 
             // Act
-            await consumer.Consume(contextMock);
+            await consumer.CallExecute();
 
             // Assert
-            Assert.Equal(JobStatus.Failed, job.Status);
-            Assert.Equal("UseCase failed with message: UseCase failed", job.ErrorMessage);
+            Assert.AreEqual(JobStatus.Failed, job.Status);
+            Assert.AreEqual("UseCase failed with message: UseCase failed", job.ErrorMessage);
         }
     }
 }

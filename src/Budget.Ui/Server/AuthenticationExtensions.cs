@@ -1,4 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
+using Budget.Api.Server;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -13,8 +15,15 @@ public static class AuthenticationExtensions
     /// <param name="services"></param>
     /// <param name="config">AppSettings needs to contain a key "Auth", which binds all the keys in there. Originally tested with Keycloak and keys: ClientId, Authority, ClientSecret</param>
     /// <returns>The same service collection</returns>
-    public static IServiceCollection AddOidcAuthentication(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddOidcAuthentication(this IServiceCollection services, IConfiguration config, IWebHostEnvironment environment)
     {
+        if (environment.EnvironmentName == "Test")
+        {
+            services.AddAuthentication(FakeAuthHandler.SchemeName)
+                .AddScheme<AuthenticationSchemeOptions, FakeAuthHandler>(FakeAuthHandler.SchemeName, _ => { });
+            return services;
+        }
+        
         services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, o => { o.SlidingExpiration = false; })
             .AddOpenIdConnect(options =>
