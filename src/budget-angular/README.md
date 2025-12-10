@@ -4,6 +4,9 @@
 
 See [install instructions here](https://daisyui.com/docs/install/angular/).
 
+### SVG icons to use
+
+Grab them from [this collection](https://www.svgrepo.com/collection/kalai-oval-interface-icons/)
 
 ## Development server
 

@@ -25,6 +25,13 @@ public static class StartupExtensions
                     outputTemplate:
                     "[{Timestamp:HH:mm:ss} {Level:u3}] ({SourceContext}) {Message:lj}{NewLine}{Exception}");
         });
+        builder.Services.AddCors(options =>
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin();
+            }));
     }
 
     private static void AddBudgetAuthentication(this IServiceCollection services, IConfiguration configuration,

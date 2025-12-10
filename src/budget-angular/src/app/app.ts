@@ -12,8 +12,6 @@ import { AuthService } from '../auth/auth.service';
 export class App {
   protected readonly authService = inject(AuthService);
 
-  protected readonly title = signal('budget-angular');
-
   constructor() {
   }
 
