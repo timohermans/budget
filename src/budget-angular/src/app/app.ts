@@ -15,4 +15,7 @@ export class App {
   constructor() {
   }
 
+  async ngOnInit() {
+    await this.authService.initialLogin();
+  }
 }
