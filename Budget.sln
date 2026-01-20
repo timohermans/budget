@@ -24,8 +24,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencie
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hertmans.Shared.Auth", "submodules\Hertmans.Shared\src\Hertmans.Shared.Auth\Hertmans.Shared.Auth.csproj", "{70901E4B-3001-462C-8BF2-0B38D3FE5F0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.Aspire", "src\Budget.Aspire\Budget.Aspire.csproj", "{9CE8AF0D-D83B-4194-9B99-953D8483D219}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{78BD47F6-1805-468E-B5FF-E513D31A6D9F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.Domain", "src\Budget.Domain\Budget.Domain.csproj", "{1B81509B-0DA9-47EB-ADA3-E49400B466C5}"
@@ -46,7 +44,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.Api.UnitTests", "tes
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ui", "Ui", "{6B0C68E9-034D-4033-804D-B62BBB0776A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.E2eTests", "Budget.E2eTests\Budget.E2eTests.csproj", "{19FB2B44-27EC-42C1-B6D2-EF274DC46A3F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Budget.E2eTests", "tests\Budget.E2eTests\Budget.E2eTests.csproj", "{19FB2B44-27EC-42C1-B6D2-EF274DC46A3F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{8D2450A3-D0E6-4BE5-80B6-5065AF73C8EE}"
 EndProject
@@ -72,10 +70,6 @@ Global
 		{70901E4B-3001-462C-8BF2-0B38D3FE5F0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70901E4B-3001-462C-8BF2-0B38D3FE5F0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70901E4B-3001-462C-8BF2-0B38D3FE5F0E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9CE8AF0D-D83B-4194-9B99-953D8483D219}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9CE8AF0D-D83B-4194-9B99-953D8483D219}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9CE8AF0D-D83B-4194-9B99-953D8483D219}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9CE8AF0D-D83B-4194-9B99-953D8483D219}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1B81509B-0DA9-47EB-ADA3-E49400B466C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1B81509B-0DA9-47EB-ADA3-E49400B466C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B81509B-0DA9-47EB-ADA3-E49400B466C5}.Release|Any CPU.ActiveCfg = Release|Any CPU

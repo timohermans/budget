@@ -31,27 +31,8 @@ public class BaseE2ETests : PageTest
         Environment.SetEnvironmentVariable("PWDEBUG", "0");
         
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
-        var builder = await DistributedApplicationTestingBuilder
-            .CreateAsync<Projects.Budget_Aspire>(testContext.CancellationToken);
 
-        builder.Services.ConfigureHttpClientDefaults(clientBuilder =>
-        {
-            clientBuilder.AddStandardResilienceHandler();
-        });
-
-        var app = await builder.BuildAsync(testContext.CancellationToken);
-        await app.StartAsync(testContext.CancellationToken);
-        // var httpClient = app.CreateHttpClient("webfrontend");
-        // var response = await httpClient.GetAsync("/");
-
-        var resourceNotificationService =
-            app.Services.GetRequiredService<ResourceNotificationService>();
-        await resourceNotificationService
-            .WaitForResourceAsync("budget-app", KnownResourceStates.Running, testContext.CancellationToken)
-            .WaitAsync(TimeSpan.FromSeconds(30), testContext.CancellationToken);
-
-        _app = app;
-        AppUrl = app.GetEndpoint("budget-app");
+        AppUrl = new Uri("localhost:5001");
     }
 
     [TestInitialize]
