@@ -35,6 +35,7 @@ export class TransactionService {
 
     return this.http.post(`https://localhost:7070/Transactions/upload`, formData).pipe(
       tap(() => {
+        console.log('going to reload');
         this.transactions.reload();
       }),
     );

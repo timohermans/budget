@@ -6,6 +6,9 @@ import { AuthService } from '../auth/auth.service';
   selector: 'app-root',
   imports: [RouterOutlet],
   template: `
+    @if (!authService.isDoneLoading()) {
+      <p>Logging in...</p>
+    }
     <router-outlet></router-outlet>`,
   styleUrls: ['./app.css']
 })

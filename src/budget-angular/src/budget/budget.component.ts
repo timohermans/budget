@@ -13,14 +13,14 @@ import { TransactionsUploadComponent } from '../shared/transactions-upload.compo
         <app-transactions-upload></app-transactions-upload>
       </div>
 
-      @if (transactions.hasValue()) {
-        <p>There are transactions!</p>
-      } @else if (transactions.error()) {
-        <p>Error loading transactions: {{ transactions.error() }}</p>
-      } @else if (transactions.isLoading()) {
+      @if (transactions.isLoading()) {
         <p data-testid="transactions-loader">
           <span class="loading loading-infinity loading-lg"></span>
         </p>
+      } @else if (transactions.hasValue()) {
+        <p>There are transactions!</p>
+      } @else if (transactions.error()) {
+        <p>Error loading transactions: {{ transactions.error() }}</p>
       }
     </div>
   `,

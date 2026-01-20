@@ -37,7 +37,7 @@ public static class StartupExtensions
     private static void AddBudgetAuthentication(this IServiceCollection services, IConfiguration configuration,
         IHostEnvironment environment)
     {
-        if (environment.IsEnvironment("Test"))
+        if (environment.IsDevelopment())
         {
             services.AddAuthentication(FakeAuthHandler.SchemeName)
                 .AddScheme<AuthenticationSchemeOptions, FakeAuthHandler>(FakeAuthHandler.SchemeName, _ => { });

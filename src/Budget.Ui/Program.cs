@@ -31,7 +31,7 @@ services
  .AddBudgetServices();
 
 services.AddHttpContextAccessor();
-services.AddApiClientRegistration<BudgetApiOptions>(config, "BudgetApi", environment.IsEnvironment("Test") ? FakeAuthHandler.SchemeName : "OpenIdConnect")
+services.AddApiClientRegistration<BudgetApiOptions>(config, "BudgetApi", environment.IsDevelopment() ? FakeAuthHandler.SchemeName : "OpenIdConnect")
     .AddRefitClient<IBudgetClient>();
 
 var app = builder.Build();

@@ -80,7 +80,9 @@ export class AuthService {
   }
 
   private checkIfAuthenticated() {
-    this._isAuthenticated.set(this.oauthService.hasValidAccessToken());
+    const accessToken = this.oauthService.hasValidAccessToken();
+    this._isAuthenticated.set(accessToken);
+    if (accessToken) this._isDoneLoading.set(true);
   }
 
   private onAllOAuthEventsRefreshIsAuthenticated() {
@@ -112,9 +114,9 @@ export class AuthService {
         console.error(error);
         this.login();
       }
+      this._isDoneLoading.set(true);
     }
 
-    this._isDoneLoading.set(true);
     this.router.navigate(['/budget']);
   }
 
