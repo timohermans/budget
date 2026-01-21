@@ -1,6 +1,3 @@
-using Aspire.Hosting;
-using Aspire.Hosting.ApplicationModel;
-using Aspire.Hosting.Testing;
 using Budget.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +18,6 @@ public static class PageExtensions
 
 public class BaseE2ETests : PageTest
 {
-    private static DistributedApplication _app = null!;
     protected static Uri AppUrl { get; private set; } = null!;
 
     [ClassInitialize(InheritanceBehavior.BeforeEachDerivedClass)]
@@ -38,22 +34,21 @@ public class BaseE2ETests : PageTest
     [TestInitialize]
     public async Task BeforeEach()
     {
-        var connectionString = await _app.GetConnectionStringAsync("budget-db");
+        var connectionString = "Host=localhost;Post=5122;Username=postgres;Password=postgres;Database=budgetdb";
 
         await using var dbContext = new BudgetDbContext(
             new DbContextOptionsBuilder<BudgetDbContext>()
-                .UseNpgsql($"{connectionString};Database=budgetdb")
+                .UseNpgsql(connectionString)
                 .Options);
 
         await dbContext.Database.EnsureCreatedAsync();
-        await dbContext.Transactions.ExecuteDeleteAsync();
-        await dbContext.TransactionsFileJobs.ExecuteDeleteAsync();
-    }
 
-    [ClassCleanup(InheritanceBehavior.BeforeEachDerivedClass)]
-    public static async Task AfterAll(TestContext testContext)
-    {
-        await _app.StopAsync(testContext.CancellationToken);
-        await _app.DisposeAsync();
+        await dbContext.Transactions
+            .Where(t => t.User.StartsWith("test_"))
+            .ExecuteDeleteAsync();
+
+        await dbContext.TransactionsFileJobs
+            .Where(t => t.User.StartsWith("test_"))
+            .ExecuteDeleteAsync();
     }
 }
