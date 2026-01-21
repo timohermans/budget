@@ -1,6 +1,4 @@
 using System.IdentityModel.Tokens.Jwt;
-using Budget.Api.Server;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -19,8 +17,15 @@ public static class AuthenticationExtensions
     {
         if (environment.IsDevelopment())
         {
-            services.AddAuthentication(FakeAuthHandler.SchemeName)
-                .AddScheme<AuthenticationSchemeOptions, FakeAuthHandler>(FakeAuthHandler.SchemeName, _ => { });
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/FakeLogin";
+                });
+    
+            services.AddAuthorization();
+            services.AddCascadingAuthenticationState();
+            
             return services;
         }
         

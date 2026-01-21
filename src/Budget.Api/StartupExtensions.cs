@@ -39,8 +39,8 @@ public static class StartupExtensions
     {
         if (environment.IsDevelopment())
         {
-            services.AddAuthentication(FakeAuthHandler.SchemeName)
-                .AddScheme<AuthenticationSchemeOptions, FakeAuthHandler>(FakeAuthHandler.SchemeName, _ => { });
+            services.AddAuthentication("FakeJwt")
+                .AddScheme<FakeJwtOptions, FakeAuthHandler>("FakeJwt", null);
         }
         else
         {

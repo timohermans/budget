@@ -1,5 +1,19 @@
+@page "/FakeLogin"
 @using Microsoft.AspNetCore.Authorization
 @attribute [AllowAnonymous]
-@page "/fake-login"
 
-<h3>FakeLogin</h3>
+<div class="login-container" style="max-width: 300px; margin: 100px auto; text-align: center; font-family: sans-serif;">
+    <h3>Developer Login</h3>
+    <p>Environment: <b>Development</b></p>
+
+    <form action="/api/fake-login" method="post">
+        <AntiforgeryToken />
+        <div style="margin-bottom: 1rem;">
+            <input type="text" name="username" placeholder="Enter Username" required
+                   style="width: 100%; padding: 8px; box-sizing: border-box;"/>
+        </div>
+        <button type="submit" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Sign In
+        </button>
+    </form>
+</div>
