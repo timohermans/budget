@@ -13,6 +13,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=budgetdb
+    ports:
+      - "5122:5432"
     volumes:
       - budget-development-data:/var/lib/postgresql/data
     healthcheck:
@@ -48,6 +50,8 @@ services:
       context: .
       dockerfile: src/Budget.Api/Dockerfile
     container_name: budget-api
+    ports:
+      - "7070:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__nats=nats://nats:4222

@@ -15,12 +15,19 @@ public class FakeAuthHandler(
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        var username = Request.Cookies["FakeAuth.Username"];
+
+        if (string.IsNullOrEmpty(username))
+        {
+            Response.Redirect("/fake-login");
+            return Task.FromResult(AuthenticateResult.NoResult());
+        }
+        
         // Create a dummy user
         var claims = new[]
         {
-            new Claim(ClaimTypes.Name, "TestUser"),
-            new Claim(ClaimTypes.NameIdentifier, "123"),
-            new Claim(ClaimTypes.Role, "Tester")
+            new Claim(ClaimTypes.Name, username),
+            new Claim(ClaimTypes.Role, "Dev")
         };
 
         var identity = new ClaimsIdentity(claims, SchemeName);
