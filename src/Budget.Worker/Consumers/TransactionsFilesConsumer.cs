@@ -43,7 +43,7 @@ public class TransactionsFilesConsumer(
 
             await using var fileStream = new MemoryStream(job.FileContent);
 
-            var result = await useCase.HandleAsync(fileStream);
+            var result = await useCase.HandleAsync(fileStream, job.User);
 
             if (result.IsFailure)
             {

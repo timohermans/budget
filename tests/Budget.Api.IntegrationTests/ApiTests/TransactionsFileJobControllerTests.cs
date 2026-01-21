@@ -23,7 +23,8 @@ public class TransactionsFileJobControllerTests : BaseApiTests
             FileContent = [1, 2, 3, 4],
             OriginalFileName = "TestFile.csv",
             CreatedAt = DateTime.UtcNow,
-            Status = Domain.Enums.JobStatus.Pending
+            Status = Domain.Enums.JobStatus.Pending,
+            User = "testuser"
         };
         db.TransactionsFileJobs.Add(job);
     await db.SaveChangesAsync(CancellationToken.None);

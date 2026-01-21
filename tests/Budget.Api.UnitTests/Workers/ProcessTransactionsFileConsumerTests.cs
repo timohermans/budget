@@ -34,7 +34,8 @@ namespace Budget.Api.UnitTests.Workers
             Id = Guid.NewGuid(),
             Status = JobStatus.Pending,
             FileContent = new byte[1000],
-            OriginalFileName = "file.txt"
+            OriginalFileName = "file.txt",
+            User = "testuser"
         };
 
 
@@ -61,7 +62,7 @@ namespace Budget.Api.UnitTests.Workers
         public async Task Consume_GoodJobAndFile_CompletesJobSuccessfully()
         {
             // Arrange
-            useCaseMock.HandleAsync(Arg.Any<Stream>()).Returns(Result.Success());
+            useCaseMock.HandleAsync(Arg.Any<Stream>(), Arg.Any<string>()).Returns(Result.Success());
             var consumer = CreateConsumer();
 
             // Act
@@ -94,7 +95,7 @@ namespace Budget.Api.UnitTests.Workers
         {
             // Arrange
             var consumer = CreateConsumer();
-            useCaseMock.HandleAsync(Arg.Any<Stream>()).Returns(Result.Failure("UseCase failed"));
+            useCaseMock.HandleAsync(Arg.Any<Stream>(), Arg.Any<string>()).Returns(Result.Failure("UseCase failed"));
 
             // Act
             await consumer.CallExecute();

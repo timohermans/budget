@@ -23,7 +23,8 @@ public class TransactionsControllerPatchTests : BaseApiTests
             DateTransaction = new DateOnly(2023, 1, 1),
             BalanceAfterTransaction = 500,
             Description = "Test transaction",
-            CashbackForDate = null
+            CashbackForDate = null,
+            User = "testuser"
         };
 
         db.Transactions.Add(transaction);

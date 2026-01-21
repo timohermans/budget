@@ -1,3 +1,4 @@
+using Budget.Application.Providers;
 using Budget.Domain.Entities;
 using Budget.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -12,5 +13,6 @@ public class TransactionsFileJobTypeConfiguration : IEntityTypeConfiguration<Tra
     {
         builder.Property(j => j.Status)
             .HasConversion(new EnumToStringConverter<JobStatus>());
+        builder.Property(j => j.User).IsRequired();
     }
 }

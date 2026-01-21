@@ -1,3 +1,4 @@
+using Budget.Application.Providers;
 using Budget.Application.Settings;
 using Budget.Application.UseCases.TransactionsFileJobStart;
 using Budget.Domain.Entities;
@@ -13,6 +14,7 @@ public class TransactionsFileJobStartUseCaseTests
 {
     private readonly ITransactionsFileJobRepository _repo = Substitute.For<ITransactionsFileJobRepository>();
     private readonly IMessageBusClient _endpoint = Substitute.For<IMessageBusClient>();
+    private readonly IUserProvider _userProvider = Substitute.For<IUserProvider>();
 
     private readonly ILogger<TransactionsFileJobStartUseCase> _logger =
         Substitute.For<ILogger<TransactionsFileJobStartUseCase>>();
@@ -37,7 +39,8 @@ public class TransactionsFileJobStartUseCaseTests
             _logger,
             _endpoint,
             _fileSettings,
-            _timeProvider);
+            _timeProvider,
+            _userProvider);
     }
 
     [TestMethod]
@@ -49,6 +52,7 @@ public class TransactionsFileJobStartUseCaseTests
             .Do(x => capturedJob = x.Arg<TransactionsFileJob>());
         var testTime = new DateTimeOffset(new DateTime(2025, 1, 1));
         _timeProvider.GetUtcNow().Returns(testTime);
+        _userProvider.GetCurrentUser().Returns("testuser");
 
         var sut = CreateSut();
         var validFile = new TransactionsFileJobStartUseCase.FileModel
@@ -73,6 +77,7 @@ public class TransactionsFileJobStartUseCaseTests
         Assert.IsTrue(Math.Abs((testTime - capturedJob.CreatedAt).TotalMilliseconds) < 100, "CreatedAt is not within 100ms tolerance");
         Assert.IsTrue(capturedJob.FileContent.SequenceEqual(validFile.Content));
         Assert.AreEqual("valid.csv", capturedJob.OriginalFileName);
+        Assert.AreEqual("testuser", capturedJob.User);
     }
 
     [TestMethod]

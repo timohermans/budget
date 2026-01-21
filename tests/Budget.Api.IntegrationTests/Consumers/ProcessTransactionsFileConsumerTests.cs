@@ -32,7 +32,8 @@ public class ProcessTransactionsFileConsumerTests
         Id = Guid.NewGuid(),
         Status = JobStatus.Pending,
         FileContent = File.ReadAllBytes("./Data/transactions-1.csv"),
-        OriginalFileName = "transactions-1.csv"
+        OriginalFileName = "transactions-1.csv",
+        User = "testuser"
     };
 
     public ProcessTransactionsFileConsumerTests()

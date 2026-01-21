@@ -1,5 +1,5 @@
 using Budget.Api.Server;
-using Microsoft.AspNetCore.Authentication;
+using Budget.Application.Providers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -15,6 +15,8 @@ public static class StartupExtensions
 
         services.AddControllers();
         services.AddOpenApi(); // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+        services.AddHttpContextAccessor();
+        services.AddScoped<IUserProvider, UserProvider>();
         services.AddBudgetAuthentication(config, builder.Environment);
         services.AddSerilog((sp, lc) =>
         {

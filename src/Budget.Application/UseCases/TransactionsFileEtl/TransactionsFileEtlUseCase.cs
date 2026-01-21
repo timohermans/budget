@@ -10,13 +10,13 @@ namespace Budget.Application.UseCases.TransactionsFileEtl;
 
 public interface ITransactionsFileEtlUseCase
 {
-    Task<Result> HandleAsync(Stream stream);
+    Task<Result> HandleAsync(Stream stream, string user);
 }
 
 public class TransactionsFileEtlUseCase(ITransactionRepository repo, ILogger<TransactionsFileEtlUseCase> logger)
     : ITransactionsFileEtlUseCase
 {
-    public async Task<Result> HandleAsync(Stream stream)
+    public async Task<Result> HandleAsync(Stream stream, string user)
     {
         logger.LogInformation("Handling Transaction file upload");
 
@@ -54,7 +54,8 @@ public class TransactionsFileEtlUseCase(ITransactionRepository repo, ILogger<Tra
                 Description = (r.Description1 + r.Description2 + r.Description3).Trim(),
                 Code = r.Code,
                 BatchId = r.BatchId,
-                Reference = r.Reference
+                Reference = r.Reference,
+                User = user
             });
         }
 

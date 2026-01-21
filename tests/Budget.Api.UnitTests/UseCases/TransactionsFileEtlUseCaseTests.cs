@@ -34,7 +34,7 @@ public class TransactionsFileEtlUseCaseTests
         var useCase = new TransactionsFileEtlUseCase(repo, logger);
 
         // Act
-        var result = await useCase.HandleAsync(stream);
+        var result = await useCase.HandleAsync(stream, "testuser");
 
         // Assert
         Assert.IsTrue(result.IsSuccess);
@@ -80,7 +80,7 @@ public class TransactionsFileEtlUseCaseTests
         var useCase = new TransactionsFileEtlUseCase(repo, logger);
 
         // Act
-        var result = await useCase.HandleAsync(stream);
+        var result = await useCase.HandleAsync(stream, "testuser");
 
         // Assert
         Assert.IsTrue(result.IsSuccess);
@@ -141,7 +141,7 @@ public class TransactionsFileEtlUseCaseTests
         var useCase = new TransactionsFileEtlUseCase(repo, logger);
 
         // Act
-        var result = await useCase.HandleAsync(stream);
+        var result = await useCase.HandleAsync(stream, "testuser");
 
         // Assert
         Assert.IsTrue(result.IsSuccess);

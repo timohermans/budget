@@ -1,3 +1,4 @@
+using Budget.Application.Providers;
 using Budget.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -16,6 +17,7 @@ public class TransactionTypeConfiguration : IEntityTypeConfiguration<Transaction
         builder.Property(t => t.Description).HasMaxLength(255);
         builder.Property(t => t.Amount).HasPrecision(12, 2);
         builder.Property(t => t.BalanceAfterTransaction).HasPrecision(12, 2);
+        builder.Property(t => t.User).IsRequired();
         builder.HasIndex(t => new { t.FollowNumber, t.Iban }).IsUnique();
     }
 }
