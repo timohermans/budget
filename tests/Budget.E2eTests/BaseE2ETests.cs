@@ -1,4 +1,5 @@
 using Budget.Infrastructure.Database;
+using Budget.Application.Providers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Playwright;
@@ -39,7 +40,7 @@ public class BaseE2ETests : PageTest
         await using var dbContext = new BudgetDbContext(
             new DbContextOptionsBuilder<BudgetDbContext>()
                 .UseNpgsql(connectionString)
-                .Options);
+                .Options, new TestUserProvider());
 
         await dbContext.Database.EnsureCreatedAsync();
 
@@ -50,5 +51,10 @@ public class BaseE2ETests : PageTest
         await dbContext.TransactionsFileJobs
             .Where(t => t.User.StartsWith("test_"))
             .ExecuteDeleteAsync();
+    }
+
+    private class TestUserProvider : IUserProvider
+    {
+        public string? GetCurrentUser() => "testuser";
     }
 }

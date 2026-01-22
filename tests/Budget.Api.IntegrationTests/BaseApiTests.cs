@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Testcontainers.PostgreSql;
+using Budget.Api.IntegrationTests.Utils.Providers;
 
 [assembly: Parallelize(Scope = ExecutionScope.MethodLevel)]
 
@@ -44,13 +45,13 @@ public class BaseApiTests
     }
 
     protected Task<Sut> CreateSut(string testName, CancellationToken token = default) =>
-        CreateSut(testName, null, token);
+        CreateSut(testName, "testuser", null, token);
 
-    protected async Task<Sut> CreateSut(string testName, Action<IServiceCollection>? configureTestServicesFn = null,
+    protected async Task<Sut> CreateSut(string testName, string userName, Action<IServiceCollection>? configureTestServicesFn = null,
         CancellationToken token = default)
     {
         var clientFactory =
-            await CustomWebApplicationFactory<Program>.CreateApiClientAsync(ConnectionString, testName, token);
+            await CustomWebApplicationFactory<Program>.CreateApiClientAsync(ConnectionString, testName, token, userName);
         var scope = clientFactory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<BudgetDbContext>();
         var client = clientFactory
@@ -67,7 +68,7 @@ public class BaseApiTests
     }
 
 
-    public static async Task<BudgetDbContext> CreateContext(string testName)
+    public static async Task<BudgetDbContext> CreateContext(string testName, string userName = "testuser")
     {
         var dbName = $"{testName.Substring(0, 27)}_{Guid.NewGuid().ToString().Replace("-", "_")}".ToLower();
         var apiConnectionString = new NpgsqlConnectionStringBuilder(ConnectionString)
@@ -77,7 +78,7 @@ public class BaseApiTests
         var db = new BudgetDbContext(
             new DbContextOptionsBuilder<BudgetDbContext>()
                 .UseNpgsql(apiConnectionString)
-                .Options);
+                .Options, new TestUserProvider(userName));
 
         await db.Database.MigrateAsync();
         return db;
@@ -91,4 +92,6 @@ public class BaseApiTests
         //     new Blog { Name = "Blog2", Url = "http://blog2.com" });
         return Task.CompletedTask;
     }
+
+
 }

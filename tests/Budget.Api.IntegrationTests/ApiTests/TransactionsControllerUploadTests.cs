@@ -21,6 +21,7 @@ public class TransactionsControllerUploadTests : BaseApiTests
 
         await using var app = await CreateSut(
             nameof(Upload_CorrectFile_SavesCorrectly),
+            "Test user",
             services => { services.AddSingleton(publishEndpoint); },
             CancellationToken.None);
         var (client, db) = app;
@@ -42,7 +43,7 @@ public class TransactionsControllerUploadTests : BaseApiTests
             await response.Content.ReadFromJsonAsync<TransactionsFileJobStartResponse>(
                 cancellationToken: CancellationToken.None);
         Assert.IsNotNull(jobResponse);
-        var job = await db.TransactionsFileJobs.FirstOrDefaultAsync(cancellationToken: CancellationToken.None);
+        var job = await db.TransactionsFileJobs.IgnoreQueryFilters().FirstOrDefaultAsync(cancellationToken: CancellationToken.None);
         Assert.IsNotNull(job);
         Assert.AreEqual(job.Id, jobResponse?.JobId);
         await publishEndpoint.Received()

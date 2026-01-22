@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using Budget.Application.UseCases.UpdateTransactionCashbackDate;
 using Budget.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Api.IntegrationTests.ApiTests;
 
@@ -45,7 +46,9 @@ public class TransactionsControllerPatchTests : BaseApiTests
         Assert.AreEqual(response!.Id, id);
         Assert.AreEqual(newCashbackDate, response.CashbackForDate);
 
-        var updatedTransaction = await db.Transactions.FindAsync([id], CancellationToken.None);
+        var updatedTransaction = await db.Transactions
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(t => t.Id == id, CancellationToken.None);
         Assert.AreEqual(newCashbackDate, updatedTransaction!.CashbackForDate);
     }
 }

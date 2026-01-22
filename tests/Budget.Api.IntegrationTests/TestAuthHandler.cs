@@ -6,10 +6,15 @@ using Microsoft.Extensions.Options;
 
 namespace Budget.Api.IntegrationTests;
 
-public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+public class TestAuthOptions : AuthenticationSchemeOptions
+{
+    public string UserName { get; set; } = "Test user";
+}
+
+public class TestAuthHandler : AuthenticationHandler<TestAuthOptions>
 {
     public TestAuthHandler(
-        IOptionsMonitor<AuthenticationSchemeOptions> options,
+        IOptionsMonitor<TestAuthOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -22,7 +27,7 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var claims = new[] {
-            new Claim(ClaimTypes.Name, "Test user"),
+            new Claim(ClaimTypes.Name, Options.UserName),
             new Claim(ClaimTypes.NameIdentifier, "1"),
             new Claim(ClaimTypes.Role, "Admin")
         };

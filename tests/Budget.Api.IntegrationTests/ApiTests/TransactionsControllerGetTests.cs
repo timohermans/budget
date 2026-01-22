@@ -23,7 +23,7 @@ public class TransactionsControllerGetTests : BaseApiTests
         };
 
         db.Transactions.AddRange(transactions);
-        db.SaveChanges();
+        await db.SaveChangesAsync(TestContext.CancellationTokenSource.Token);
 
         // Act
         var result = await client.GetAsync($"/transactions?startDate={new DateOnly(2025, 3, 1).ToString("yyyy-MM-dd")}&endDate={new DateOnly(2025, 3, 31).ToString("yyyy-MM-dd")}", CancellationToken.None);
@@ -173,4 +173,34 @@ public class TransactionsControllerGetTests : BaseApiTests
         Assert.AreEqual(new DateOnly(2025, 3, 5), balances[2].Date);
         Assert.AreEqual(1500, balances[2].Balance);
     }
+
+    [TestMethod]
+    public async Task GetTransactions_DoesNotRetrieveTransactionsFromOtherUsers()
+    {
+        // Arrange
+        await using var app = await CreateSut(nameof(GetTransactions_DoesNotRetrieveTransactionsFromOtherUsers), "other_user", null, CancellationToken.None);
+        var (client, db) = app;
+
+        var transactions = new List<Transaction>
+        {
+            new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = "testuser" },
+            new Transaction { Id = 2, FollowNumber = 2, Iban = "NL01TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = "testuser" },
+            new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 4, 1), BalanceAfterTransaction = 600, User = "testuser" }
+        };
+
+        db.Transactions.AddRange(transactions);
+        await db.SaveChangesAsync(TestContext.CancellationTokenSource.Token);
+
+        // Act
+        var result = await client.GetAsync($"/transactions?startDate={new DateOnly(2025, 3, 1).ToString("yyyy-MM-dd")}&endDate={new DateOnly(2025, 3, 31).ToString("yyyy-MM-dd")}", CancellationToken.None);
+
+        result.EnsureSuccessStatusCode();
+
+        // Assert
+        var returnedTransactions = await result.Content.ReadFromJsonAsync<List<TransactionResponseModel>>(CancellationToken.None);
+        Assert.IsNotNull(returnedTransactions);
+        Assert.AreEqual(0, returnedTransactions.Count);
+    }
+
+    public TestContext TestContext { get; set; }
 }

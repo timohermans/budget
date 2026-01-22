@@ -1,4 +1,5 @@
 using System.Data.Common;
+using Budget.Application.Providers;
 using Budget.Infrastructure.Database;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Budget.Api.IntegrationTests.Utils.Providers;
 
 
 namespace Budget.Api.IntegrationTests;
@@ -18,13 +20,15 @@ namespace Budget.Api.IntegrationTests;
 public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
 {
     private readonly string _connectionString;
+    private readonly string _userName;
 
-    private CustomWebApplicationFactory(string connectionString)
+    private CustomWebApplicationFactory(string connectionString, string userName)
     {
         _connectionString = connectionString;
+        _userName = userName;
     }
 
-    public static async Task<CustomWebApplicationFactory<TProgram>> CreateApiClientAsync(string? connectionString, string testName, CancellationToken? cancellationToken = null)
+    public static async Task<CustomWebApplicationFactory<TProgram>> CreateApiClientAsync(string? connectionString, string testName, CancellationToken? cancellationToken = null, string userName = "Test user")
     {
         // postgres table is max 63 chars, without giving errors. Guid makes sure db names are unique if I'd use xunit theories
         var dbName = $"{testName.Substring(0, 27)}_{Guid.NewGuid().ToString().Replace("-", "_")}".ToLower();
@@ -41,13 +45,13 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
         await using var context = new BudgetDbContext(
           new DbContextOptionsBuilder<BudgetDbContext>()
               .UseNpgsql(apiConnectionString)
-              .Options);
+              .Options, new TestUserProvider(userName));
 
         await context.Database.MigrateAsync(cancellationToken ?? CancellationToken.None);
         // future seeding
         await context.SaveChangesAsync(cancellationToken ?? CancellationToken.None);
 
-        var factory = new CustomWebApplicationFactory<TProgram>(apiConnectionString);
+        var factory = new CustomWebApplicationFactory<TProgram>(apiConnectionString, userName);
         return factory;
     }
 
@@ -82,15 +86,19 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
                 options.UseNpgsql(connection);
             });
 
+            //             services.AddSingleton<IUserProvider>(new TestUserProvider(_userName));
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = "Test";
                 options.DefaultChallengeScheme = "Test";
             })
-             .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });
+             .AddScheme<TestAuthOptions, TestAuthHandler>("Test", options => { options.UserName = _userName; });
 
         });
 
         builder.UseEnvironment("Development");
     }
+
+
 }

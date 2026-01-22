@@ -47,7 +47,6 @@ public class TransactionsFileJobControllerTests : BaseApiTests
         // Arrange
         await using var app = await CreateSut(
             nameof(GetById_ReturnsNotFound_WhenJobDoesNotExist),
-            null,
             CancellationToken.None);
     var (client, _) = app;
 
