@@ -46,9 +46,7 @@ public class TransactionsControllerPatchTests : BaseApiTests
         Assert.AreEqual(response!.Id, id);
         Assert.AreEqual(newCashbackDate, response.CashbackForDate);
 
-        var updatedTransaction = await db.Transactions
-            .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(t => t.Id == id, CancellationToken.None);
+        var updatedTransaction = await db.Transactions.FirstOrDefaultAsync(t => t.Id == id, CancellationToken.None);
         Assert.AreEqual(newCashbackDate, updatedTransaction!.CashbackForDate);
     }
 }

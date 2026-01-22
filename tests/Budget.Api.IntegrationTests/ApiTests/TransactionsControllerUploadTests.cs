@@ -43,11 +43,12 @@ public class TransactionsControllerUploadTests : BaseApiTests
             await response.Content.ReadFromJsonAsync<TransactionsFileJobStartResponse>(
                 cancellationToken: CancellationToken.None);
         Assert.IsNotNull(jobResponse);
-        var job = await db.TransactionsFileJobs.IgnoreQueryFilters().FirstOrDefaultAsync(cancellationToken: CancellationToken.None);
+        var job = await db.TransactionsFileJobs.FirstOrDefaultAsync(cancellationToken: CancellationToken.None);
         Assert.IsNotNull(job);
         Assert.AreEqual(job.Id, jobResponse?.JobId);
         await publishEndpoint.Received()
             .PublishAsync(MessageConstants.TransactionsFileJobCreated, Arg.Any<Guid>());
+        Assert.AreEqual(job.User, "Test user");
         Assert.IsNull(job.ErrorMessage);
         Assert.AreEqual("transactions.csv", job.OriginalFileName);
         Assert.IsTrue(fileStream.ToArray().SequenceEqual(job.FileContent));

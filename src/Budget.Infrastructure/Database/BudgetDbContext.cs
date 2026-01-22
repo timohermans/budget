@@ -7,8 +7,6 @@ namespace Budget.Infrastructure.Database;
 
 public class BudgetDbContext(DbContextOptions<BudgetDbContext> options, IUserProvider userProvider) : DbContext(options)
 {
-    private readonly IUserProvider _userProvider = userProvider;
-
     public DbSet<Transaction> Transactions { get; set; }
     public DbSet<TransactionsFileJob> TransactionsFileJobs { get; set; }
 
@@ -16,7 +14,7 @@ public class BudgetDbContext(DbContextOptions<BudgetDbContext> options, IUserPro
     {
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-        modelBuilder.Entity<Transaction>().HasQueryFilter(t => t.User == _userProvider.GetCurrentUser());
-        modelBuilder.Entity<TransactionsFileJob>().HasQueryFilter(j => j.User == _userProvider.GetCurrentUser());
+        modelBuilder.Entity<Transaction>().HasQueryFilter(t => t.User == userProvider.GetCurrentUser());
+        modelBuilder.Entity<TransactionsFileJob>().HasQueryFilter(j => j.User == userProvider.GetCurrentUser());
     }
 }

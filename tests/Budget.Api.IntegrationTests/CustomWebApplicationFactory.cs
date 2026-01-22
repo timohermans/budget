@@ -80,6 +80,8 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
                 return connection;
             });
 
+            services.AddSingleton<IUserProvider>(new TestUserProvider(_userName));
+
             services.AddDbContext<BudgetDbContext>((container, options) =>
             {
                 var connection = container.GetRequiredService<DbConnection>();
