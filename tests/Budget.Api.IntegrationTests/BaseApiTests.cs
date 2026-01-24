@@ -69,13 +69,14 @@ public class BaseApiTests(TestContext testContext)
             .ExecuteDeleteAsync(testContext.CancellationTokenSource.Token);
     }
 
-    protected Task<Sut> CreateSut(string testName, CancellationToken token = default) =>
-        CreateSut(testName, "testuser", null, token);
+    protected Task<Sut> CreateSut(CancellationToken token = default) =>
+        CreateSut("testuser", null, token);
 
-    protected async Task<Sut> CreateSut(string testName, string userName,
+    protected async Task<Sut> CreateSut(string userName,
         Action<IServiceCollection>? configureTestServicesFn = null,
         CancellationToken token = default)
     {
+        var testName = testContext.TestName ?? "unknown-test";
         var clientFactory =
             await CustomWebApplicationFactory<Program>.CreateApiClientAsync(ConnectionString, testName, token,
                 userName);
@@ -106,6 +107,7 @@ public class BaseApiTests(TestContext testContext)
         {
             userNameBuilder.Add(string.Join("_", testContext.TestData.Select(o => o?.ToString())));
         }
+
         userNameBuilder.Add(userName);
         return string.Join("_", userNameBuilder);
     }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 
-namespace Budget.Api.IntegrationTests.ApiTests;
+namespace Budget.Api.IntegrationTests.Api.ApiTests;
 
 [TestClass]
 public class TransactionsControllerUploadTests(TestContext testContext) : BaseApiTests(testContext)
@@ -18,11 +18,11 @@ public class TransactionsControllerUploadTests(TestContext testContext) : BaseAp
         var publishEndpoint = Substitute.For<IMessageBusClient>();
         publishEndpoint.When(p => p.PublishAsync(MessageConstants.TransactionsFileJobCreated, Arg.Any<Guid>()))
             .Do(args => publishedMessage = args.Arg<Guid>());
+        var username = CreateUniqueUserName("Test user");
 
         await using var app = await CreateSut(
-            nameof(Upload_CorrectFile_SavesCorrectly),
-            "Test user",
-            services => { services.AddSingleton(publishEndpoint); },
+            username,
+            services => services.AddSingleton(publishEndpoint),
             CancellationToken.None);
         var (client, db) = app;
 
@@ -48,7 +48,7 @@ public class TransactionsControllerUploadTests(TestContext testContext) : BaseAp
         Assert.AreEqual(job.Id, jobResponse?.JobId);
         await publishEndpoint.Received()
             .PublishAsync(MessageConstants.TransactionsFileJobCreated, Arg.Any<Guid>());
-        Assert.AreEqual(job.User, "Test user");
+        Assert.AreEqual(job.User, username);
         Assert.IsNull(job.ErrorMessage);
         Assert.AreEqual("transactions.csv", job.OriginalFileName);
         Assert.IsTrue(fileStream.ToArray().SequenceEqual(job.FileContent));

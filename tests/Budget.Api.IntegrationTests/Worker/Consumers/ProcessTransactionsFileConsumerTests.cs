@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 
-namespace Budget.Api.IntegrationTests.Consumers;
+namespace Budget.Api.IntegrationTests.Worker.Consumers;
 
 public class TestableTransactionsFileConsumer(
     IMessageBusClient messageBusClient,

@@ -3,7 +3,7 @@ using Budget.Application.UseCases.UpdateTransactionCashbackDate;
 using Budget.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Budget.Api.IntegrationTests.ApiTests;
+namespace Budget.Api.IntegrationTests.Api.ApiTests;
 
 [TestClass]
 public class TransactionsControllerPatchTests(TestContext testContext) : BaseApiTests(testContext)
@@ -12,7 +12,7 @@ public class TransactionsControllerPatchTests(TestContext testContext) : BaseApi
     public async Task UpdateCashbackForDate_ShouldUpdateDateForCashback()
     {
         // Arrange
-        await using var app = await CreateSut(nameof(UpdateCashbackForDate_ShouldUpdateDateForCashback), CancellationToken.None);
+        await using var app = await CreateSut(testContext.CancellationTokenSource.Token);
         var (client, db) = app;
 
         var transaction = new Transaction

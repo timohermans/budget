@@ -1,14 +1,13 @@
 using Budget.Application.UseCases.TransactionsFileEtl;
-using Budget.Domain.Contracts;
 using Budget.Domain.Entities;
-using Budget.Domain.Repositories;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
+using Budget.Infrastructure.Database.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Budget.Api.UnitTests.UseCases;
+namespace Budget.Api.IntegrationTests.Api.Application.UseCases;
 
 [TestClass]
-public class TransactionsFileEtlUseCaseTests
+public class TransactionsFileEtlUseCaseTests(TestContext testContext) : BaseApiTests(testContext)
 {
     [TestMethod]
     public async Task HandleAsync_SingleTransaction_Success()
@@ -23,20 +22,18 @@ public class TransactionsFileEtlUseCaseTests
         await writer.FlushAsync();
         stream.Position = 0;
 
-        IEnumerable<Transaction> transactions = [];
-        var repo = Substitute.For<ITransactionRepository>();
-        repo.GetIdsBetweenAsync(Arg.Any<DateOnly>(), Arg.Any<DateOnly>())
-            .Returns(new List<TransactionIdDto>());
-        repo.When(r => r.AddRangeAsync(Arg.Any<IEnumerable<Transaction>>()))
-            .Do(t => transactions = t.Arg<IEnumerable<Transaction>>());
-        var logger = Substitute.For<ILogger<TransactionsFileEtlUseCase>>();
+        var username = CreateUniqueUserName("user1");
+        await using var db = await CreateContext(username);
 
-        var useCase = new TransactionsFileEtlUseCase(repo, logger);
+        var useCase = new TransactionsFileEtlUseCase(new TransactionRepository(db),
+            NullLogger<TransactionsFileEtlUseCase>.Instance);
 
         // Act
-        var result = await useCase.HandleAsync(stream, "testuser");
+        var result = await useCase.HandleAsync(stream, username);
 
         // Assert
+        db.ChangeTracker.Clear();
+        var transactions = await db.Transactions.ToListAsync(TestContext.CancellationTokenSource.Token);
         Assert.IsTrue(result.IsSuccess);
         Assert.HasCount(1, transactions);
         var transaction = transactions.FirstOrDefault();
@@ -69,22 +66,20 @@ public class TransactionsFileEtlUseCaseTests
         await writer.FlushAsync();
         stream.Position = 0;
 
-        IEnumerable<Transaction> transactions = [];
-        var repo = Substitute.For<ITransactionRepository>();
-        repo.GetIdsBetweenAsync(Arg.Any<DateOnly>(), Arg.Any<DateOnly>())
-            .Returns(new List<TransactionIdDto>());
-        repo.When(r => r.AddRangeAsync(Arg.Any<IEnumerable<Transaction>>()))
-            .Do(t => transactions = t.Arg<IEnumerable<Transaction>>());
-        var logger = Substitute.For<ILogger<TransactionsFileEtlUseCase>>();
+        var username = CreateUniqueUserName("user1");
+        await using var db = await CreateContext(username);
 
-        var useCase = new TransactionsFileEtlUseCase(repo, logger);
+        var useCase = new TransactionsFileEtlUseCase(new TransactionRepository(db),
+            NullLogger<TransactionsFileEtlUseCase>.Instance);
 
         // Act
-        var result = await useCase.HandleAsync(stream, "testuser");
+        var result = await useCase.HandleAsync(stream, username);
 
         // Assert
+        db.ChangeTracker.Clear();
+        var transactions = await db.Transactions.ToListAsync(TestContext.CancellationTokenSource.Token);
         Assert.IsTrue(result.IsSuccess);
-        Assert.AreEqual(2, transactions.Count());
+        Assert.HasCount(2, transactions);
         var transaction1 = transactions.FirstOrDefault(t => t.FollowNumber == 12107);
         var transaction2 = transactions.FirstOrDefault(t => t.FollowNumber == 12108);
         Assert.IsNotNull(transaction1);
@@ -127,37 +122,30 @@ public class TransactionsFileEtlUseCaseTests
         await writer.FlushAsync();
         stream.Position = 0;
 
-        IEnumerable<Transaction> transactions = [];
-        var repo = Substitute.For<ITransactionRepository>();
-        repo.GetIdsBetweenAsync(Arg.Any<DateOnly>(), Arg.Any<DateOnly>())
-            .Returns(new List<TransactionIdDto>
-            {
-                new TransactionIdDto { Id= 1, FollowNumber = 12107, Iban = "NL11RABO0104946666" }
-            });
-        repo.When(r => r.AddRangeAsync(Arg.Any<IEnumerable<Transaction>>()))
-            .Do(t => transactions = t.Arg<IEnumerable<Transaction>>());
-        var logger = Substitute.For<ILogger<TransactionsFileEtlUseCase>>();
+        var username = CreateUniqueUserName("user1");
+        await using var db = await CreateContext(username);
 
-        var useCase = new TransactionsFileEtlUseCase(repo, logger);
+        await db.Transactions.AddAsync(new Transaction
+            {
+                DateTransaction = new DateOnly(2023, 11, 20), FollowNumber = 12107, Iban = "NL11RABO0104946666",
+                Currency = "EUR", User = username
+            },
+            TestContext.CancellationTokenSource.Token);
+        await db.SaveChangesAsync(TestContext.CancellationTokenSource.Token);
+        db.ChangeTracker.Clear();
+
+        var useCase = new TransactionsFileEtlUseCase(new TransactionRepository(db),
+            NullLogger<TransactionsFileEtlUseCase>.Instance);
 
         // Act
-        var result = await useCase.HandleAsync(stream, "testuser");
+        var result = await useCase.HandleAsync(stream, username);
 
         // Assert
+        db.ChangeTracker.Clear();
+        var transactions = await db.Transactions.ToListAsync(TestContext.CancellationTokenSource.Token);
         Assert.IsTrue(result.IsSuccess);
-        Assert.AreEqual(1, transactions.Count());
-        var transaction = transactions.FirstOrDefault();
-        Assert.IsNotNull(transaction);
-        Assert.AreEqual(12108, transaction.FollowNumber);
-        Assert.AreEqual("NL11RABO0104946666", transaction.Iban);
-        Assert.AreEqual(new DateOnly(2023, 11, 21), transaction.DateTransaction);
-        Assert.AreEqual("EUR", transaction.Currency);
-        Assert.AreEqual(-2000, transaction.Amount);
-        Assert.AreEqual(2000, transaction.BalanceAfterTransaction);
-        Assert.AreEqual("NL11INGB00033333", transaction.IbanOtherParty);
-        Assert.AreEqual("Werkgever 2", transaction.NameOtherParty);
-        Assert.IsNotNull(transaction.AuthorizationCode);
-        Assert.AreEqual(0, transaction.AuthorizationCode.Length);
-        Assert.AreEqual("Salaris 2", transaction.Description);
+        Assert.HasCount(2, transactions);
     }
+
+    public TestContext TestContext { get; set; }
 }

@@ -3,16 +3,18 @@ using Budget.Api.Models;
 using Budget.Domain.Contracts;
 using Budget.Domain.Entities;
 
-namespace Budget.Api.IntegrationTests.ApiTests;
+namespace Budget.Api.IntegrationTests.Api.ApiTests;
 
 [TestClass]
 public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTests(testContext)
 {
+    public TestContext TestContext { get; set; }
+
     [TestMethod]
     public async Task GetTransactions_IncludesAndExcludesCorrectDates()
     {
         // Arrange
-        await using var app = await CreateSut(nameof(GetTransactions_IncludesAndExcludesCorrectDates), CancellationToken.None);
+        await using var app = await CreateSut(TestContext.CancellationTokenSource.Token);
         var (client, db) = app;
 
         var transactions = new List<Transaction>
@@ -43,7 +45,7 @@ public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTe
     public async Task GetTransactions_FiltersByIban()
     {
         // Arrange
-        await using var app = await CreateSut(nameof(GetTransactions_IncludesAndExcludesCorrectDates), CancellationToken.None);
+        await using var app = await CreateSut(TestContext.CancellationTokenSource.Token);
         var (client, db) = app;
 
         var transactions = new List<Transaction>
@@ -77,7 +79,7 @@ public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTe
     public async Task GetAllDistinctIbans_ReturnsDistinctIbans()
     {
         // Arrange
-        await using var app = await CreateSut(nameof(GetTransactions_IncludesAndExcludesCorrectDates), CancellationToken.None);
+        await using var app = await CreateSut(TestContext.CancellationTokenSource.Token);
         var (client, db) = app;
 
         var transactions = new List<Transaction>
@@ -106,7 +108,7 @@ public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTe
     public async Task GetAllDistinctIbans_ReturnsDistinctIbansOrderedByFrequency()
     {
         // Arrange
-        await using var app = await CreateSut(nameof(GetTransactions_IncludesAndExcludesCorrectDates), CancellationToken.None);
+        await using var app = await CreateSut(TestContext.CancellationTokenSource.Token);
         var (client, db) = app;
 
         var transactions = new List<Transaction>
@@ -139,7 +141,7 @@ public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTe
     public async Task GetCashFlowPerIbanAsync_ReturnsCorrectCashflow()
     {
         // Arrange
-        await using var app = await CreateSut(nameof(GetTransactions_IncludesAndExcludesCorrectDates), CancellationToken.None);
+        await using var app = await CreateSut(TestContext.CancellationTokenSource.Token);
         var (client, db) = app;
 
         var transactions = new List<Transaction>
@@ -178,7 +180,7 @@ public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTe
     public async Task GetTransactions_DoesNotRetrieveTransactionsFromOtherUsers()
     {
         // Arrange
-        await using var app = await CreateSut(nameof(GetTransactions_DoesNotRetrieveTransactionsFromOtherUsers), "other_user", null, CancellationToken.None);
+        await using var app = await CreateSut("other_user", null, TestContext.CancellationTokenSource.Token);
         var (client, db) = app;
 
         var transactions = new List<Transaction>
@@ -201,6 +203,4 @@ public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTe
         Assert.IsNotNull(returnedTransactions);
         Assert.AreEqual(0, returnedTransactions.Count);
     }
-
-    public TestContext TestContext { get; set; }
 }

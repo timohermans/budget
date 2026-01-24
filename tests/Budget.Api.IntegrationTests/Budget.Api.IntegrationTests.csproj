@@ -47,4 +47,9 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Api\Application\" />
+      <Folder Include="Worker\" />
+    </ItemGroup>
+
 </Project>
