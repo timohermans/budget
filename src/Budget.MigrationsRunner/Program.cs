@@ -1,5 +1,7 @@
-﻿using Budget.Infrastructure;
+using Budget.Application.Providers;
+using Budget.Infrastructure;
 using Budget.Infrastructure.Database;
+using Budget.MigrationsRunner.Providers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +13,7 @@ try
     var services = builder.Services;
     
     services.AddInfrastructure(config);
+    services.AddScoped<IUserProvider, DummyUserProvider>();
 
     var app = builder.Build();
 
