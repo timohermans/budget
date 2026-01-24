@@ -2,7 +2,7 @@ using System.Net.Http.Json;
 using Budget.Api.Models;
 using Budget.Domain.Entities;
 
-namespace Budget.Api.IntegrationTests.Api.ApiTests;
+namespace Budget.Tests.Api.ApiTests;
 
 [TestClass]
 public class TransactionsFileJobControllerTests(TestContext testContext) : BaseApiTests(testContext)

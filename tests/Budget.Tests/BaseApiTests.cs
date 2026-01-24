@@ -1,14 +1,15 @@
+using Budget.Api;
 using Budget.Infrastructure.Database;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Testcontainers.PostgreSql;
-using Budget.Api.IntegrationTests.Utils.Providers;
+using Budget.Tests.Utils.Providers;
 
 [assembly: Parallelize(Scope = ExecutionScope.MethodLevel)]
 
-namespace Budget.Api.IntegrationTests;
+namespace Budget.Tests;
 
 public class Sut(BudgetDbContext Db, HttpClient Client, IServiceScope scope) : IAsyncDisposable
 {

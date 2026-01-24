@@ -7,7 +7,7 @@ using Budget.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
-namespace Budget.Api.IntegrationTests.Api.Application.UseCases;
+namespace Budget.Tests.Api.Application.UseCases;
 
 [TestClass]
 public class TransactionsFileJobStartUseCaseTests

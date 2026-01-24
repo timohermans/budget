@@ -1,6 +1,6 @@
 using Budget.Application.Providers;
 
-namespace Budget.Api.IntegrationTests.Utils.Providers;
+namespace Budget.Tests.Utils.Providers;
 
 public class TestUserProvider : IUserProvider
 {

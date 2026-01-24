@@ -3,7 +3,7 @@ using Budget.Api.Models;
 using Budget.Domain.Contracts;
 using Budget.Domain.Entities;
 
-namespace Budget.Api.IntegrationTests.Api.ApiTests;
+namespace Budget.Tests.Api.ApiTests;
 
 [TestClass]
 public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTests(testContext)

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Budget.Api.IntegrationTests;
+namespace Budget.Tests;
 
 public class TestAuthOptions : AuthenticationSchemeOptions
 {

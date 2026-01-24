@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 
-namespace Budget.Api.IntegrationTests.Api.ApiTests;
+namespace Budget.Tests.Api.ApiTests;
 
 [TestClass]
 public class TransactionsControllerUploadTests(TestContext testContext) : BaseApiTests(testContext)

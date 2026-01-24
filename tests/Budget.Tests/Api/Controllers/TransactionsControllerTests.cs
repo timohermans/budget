@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 
-namespace Budget.Api.IntegrationTests.Api.Controllers;
+namespace Budget.Tests.Api.Controllers;
 
 [TestClass]
 public class TransactionsControllerTests

@@ -3,7 +3,7 @@ using Budget.Application.UseCases.UpdateTransactionCashbackDate;
 using Budget.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Budget.Api.IntegrationTests.Api.ApiTests;
+namespace Budget.Tests.Api.ApiTests;
 
 [TestClass]
 public class TransactionsControllerPatchTests(TestContext testContext) : BaseApiTests(testContext)

@@ -4,7 +4,7 @@ using Budget.Infrastructure.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Budget.Api.IntegrationTests.Api.Application.UseCases;
+namespace Budget.Tests.Api.Application.UseCases;
 
 [TestClass]
 public class TransactionsFileEtlUseCaseTests(TestContext testContext) : BaseApiTests(testContext)

@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
-using Budget.Api.IntegrationTests.Utils.Providers;
+using Budget.Tests.Utils.Providers;
 
 
-namespace Budget.Api.IntegrationTests;
+namespace Budget.Tests;
 
 /// <summary>
 /// Usage of the factory: https://github.com/dotnet/AspNetCore.Docs.Samples/blob/main/test/integration-tests/9.x/IntegrationTestsSample/tests/RazorPagesProject.Tests/IntegrationTests/IndexPageTests.cs
