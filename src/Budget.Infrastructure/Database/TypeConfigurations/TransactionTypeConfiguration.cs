@@ -18,6 +18,6 @@ public class TransactionTypeConfiguration : IEntityTypeConfiguration<Transaction
         builder.Property(t => t.Amount).HasPrecision(12, 2);
         builder.Property(t => t.BalanceAfterTransaction).HasPrecision(12, 2);
         builder.Property(t => t.User).IsRequired();
-        builder.HasIndex(t => new { t.FollowNumber, t.Iban }).IsUnique();
+        builder.HasIndex(t => new { t.FollowNumber, t.Iban, t.User }).IsUnique();
     }
 }

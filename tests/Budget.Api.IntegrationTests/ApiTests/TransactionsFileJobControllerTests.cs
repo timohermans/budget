@@ -5,7 +5,7 @@ using Budget.Domain.Entities;
 namespace Budget.Api.IntegrationTests.ApiTests;
 
 [TestClass]
-public class TransactionsFileJobControllerTests : BaseApiTests
+public class TransactionsFileJobControllerTests(TestContext testContext) : BaseApiTests(testContext)
 {
     [TestMethod]
     public async Task GetById_ReturnsOk_WhenJobExists()

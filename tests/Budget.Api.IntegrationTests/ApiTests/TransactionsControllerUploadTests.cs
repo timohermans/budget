@@ -9,7 +9,7 @@ using NSubstitute;
 namespace Budget.Api.IntegrationTests.ApiTests;
 
 [TestClass]
-public class TransactionsControllerUploadTests : BaseApiTests
+public class TransactionsControllerUploadTests(TestContext testContext) : BaseApiTests(testContext)
 {
     [TestMethod]
     public async Task Upload_CorrectFile_SavesCorrectly()

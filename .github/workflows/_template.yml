@@ -63,6 +63,8 @@ jobs:
       - name: Test
         if: ${{ env.TESTS_PATH != '' }}
         run: dotnet test $TESTS_PATH --verbosity normal
+        env:
+          USE_TESTCONTAINERS: true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

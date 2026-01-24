@@ -6,7 +6,7 @@ using Budget.Domain.Entities;
 namespace Budget.Api.IntegrationTests.ApiTests;
 
 [TestClass]
-public class TransactionsControllerGetTests : BaseApiTests
+public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTests(testContext)
 {
     [TestMethod]
     public async Task GetTransactions_IncludesAndExcludesCorrectDates()

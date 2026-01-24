@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Budget.Api.IntegrationTests.ApiTests;
 
 [TestClass]
-public class TransactionsControllerPatchTests : BaseApiTests
+public class TransactionsControllerPatchTests(TestContext testContext) : BaseApiTests(testContext)
 {
     [TestMethod]
     public async Task UpdateCashbackForDate_ShouldUpdateDateForCashback()

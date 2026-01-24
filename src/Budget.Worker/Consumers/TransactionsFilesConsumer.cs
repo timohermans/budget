@@ -3,12 +3,14 @@ using Budget.Domain.Commands;
 using Budget.Domain.Enums;
 using Budget.Domain.Messaging;
 using Budget.Domain.Repositories;
+using Budget.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Budget.Worker.Consumers;
 
 public class TransactionsFilesConsumer(
     IMessageBusClient messageBusClient,
-    ITransactionsFileJobRepository repo,
+    BudgetDbContext db,
     ITransactionsFileEtlUseCase useCase,
     ILogger<ProcessTransactionsFile> logger) : BackgroundService
 {
@@ -19,43 +21,59 @@ public class TransactionsFilesConsumer(
                                MessageConstants.TransactionsFileJobCreated, "transactions-files-group")
                            .WithCancellation(stoppingToken))
         {
-            if (jobId == null) continue;
-
-            logger.LogInformation("Going to process transactions file job {JobId}", jobId);
-            var job = await repo.GetByIdAsync(jobId);
-
-            if (job == null || job.Status is JobStatus.Completed or JobStatus.Failed)
+            try
             {
-                logger.LogInformation("Job is already picked up by a previous process");
-                return;
+                if (jobId == null) continue;
+
+                logger.LogInformation("Going to process transactions file job {JobId}", jobId);
+
+                var job = await db.TransactionsFileJobs
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(j => j.Id == jobId, stoppingToken);
+
+                if (job == null || job.Status is JobStatus.Completed or JobStatus.Failed)
+                {
+                    logger.LogInformation("Job is already picked up by a previous process");
+                    continue;
+                }
+
+                logger.LogInformation("Start processing transactions file job {JobId}", jobId);
+
+                job.Status = JobStatus.Processing;
+                await db.SaveChangesAsync(stoppingToken);
+
+                if (job.FileContent.Length == 0)
+                {
+                    job.Status = JobStatus.Failed;
+                    job.ErrorMessage = "File content is empty";
+                    logger.LogWarning("Job {JobId} failed with message: {result}", jobId, job.ErrorMessage);
+                    await db.SaveChangesAsync(stoppingToken);
+                    continue;
+                }
+
+                await using var fileStream = new MemoryStream(job.FileContent);
+
+                var result = await useCase.HandleAsync(fileStream, job.User);
+
+                if (result.IsFailure)
+                {
+                    job.Status = JobStatus.Failed;
+                    job.ErrorMessage = $"UseCase failed with message: {result.Error}";
+                    logger.LogWarning("Job {JobId} failed with message: {result}", jobId, result.Error);
+                }
+                else
+                {
+                    job.Status = JobStatus.Completed;
+                }
+
+                await db.SaveChangesAsync(stoppingToken);
+
+                logger.LogInformation("Finished processing transactions file job {JobId}", jobId);
             }
-
-            job.Status = JobStatus.Processing;
-            await repo.SaveChangesAsync(stoppingToken);
-
-            if (job.FileContent.Length == 0)
+            catch (Exception ex)
             {
-                job.Status = JobStatus.Failed;
-                job.ErrorMessage = "File content is empty";
-                await repo.SaveChangesAsync(stoppingToken);
-                return;
+                logger.LogError(ex, "Unexpected error while trying to process transactions file job {JobId}", jobId);
             }
-
-            await using var fileStream = new MemoryStream(job.FileContent);
-
-            var result = await useCase.HandleAsync(fileStream, job.User);
-
-            if (result.IsFailure)
-            {
-                job.Status = JobStatus.Failed;
-                job.ErrorMessage = $"UseCase failed with message: {result.Error}";
-            }
-            else
-            {
-                job.Status = JobStatus.Completed;
-            }
-
-            await repo.SaveChangesAsync(stoppingToken);
         }
 
         logger.LogInformation("Exiting transactions file jobs...");
