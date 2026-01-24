@@ -30,12 +30,14 @@ public class Sut(BudgetDbContext Db, HttpClient Client, IServiceScope scope) : I
 public class BaseApiTests(TestContext testContext)
 {
     private static readonly PostgreSqlContainer PostgreSqlContainer = new PostgreSqlBuilder().Build();
-    private static bool UseTestContainers => 
-        Environment.GetEnvironmentVariable("USE_TESTCONTAINERS")?.Equals("true", StringComparison.OrdinalIgnoreCase) == true 
+
+    private static bool UseTestContainers =>
+        Environment.GetEnvironmentVariable("USE_TESTCONTAINERS")?.Equals("true", StringComparison.OrdinalIgnoreCase) ==
+        true
         || Environment.GetEnvironmentVariable("CI") != null;
 
-    private static string? ConnectionString => UseTestContainers 
-        ? PostgreSqlContainer.GetConnectionString() 
+    private static string? ConnectionString => UseTestContainers
+        ? PostgreSqlContainer.GetConnectionString()
         : "Host=localhost;Port=5122;Database=budgetdb;Username=postgres;Password=password";
 
     [AssemblyInitialize]
@@ -61,7 +63,8 @@ public class BaseApiTests(TestContext testContext)
     {
         await using var db = await CreateContext("base");
         if (testContext.TestName == null) return;
-        await db.Transactions.IgnoreQueryFilters().Where(t => t.User.StartsWith(testContext.TestName)).ExecuteDeleteAsync(testContext.CancellationTokenSource.Token);
+        await db.Transactions.IgnoreQueryFilters().Where(t => t.User.StartsWith(testContext.TestName))
+            .ExecuteDeleteAsync(testContext.CancellationTokenSource.Token);
         await db.TransactionsFileJobs.IgnoreQueryFilters().Where(t => t.User.StartsWith(testContext.TestName))
             .ExecuteDeleteAsync(testContext.CancellationTokenSource.Token);
     }
@@ -96,7 +99,16 @@ public class BaseApiTests(TestContext testContext)
     /// </summary>
     /// <param name="userName">the username you'd like to add (e.g. "Toby")</param>
     /// <returns>Username prefixed with the test name</returns>
-    protected string CreateUniqueUserName(string userName) => $"{testContext.TestName}_{userName}";
+    protected string CreateUniqueUserName(string userName)
+    {
+        var userNameBuilder = new List<string> { testContext.TestName ?? "test" };
+        if (testContext.TestData is { Length: > 0 })
+        {
+            userNameBuilder.Add(string.Join("_", testContext.TestData.Select(o => o?.ToString())));
+        }
+        userNameBuilder.Add(userName);
+        return string.Join("_", userNameBuilder);
+    }
 
     /// <summary>
     /// Creates a DB context with a UserProvider for the provided username.
