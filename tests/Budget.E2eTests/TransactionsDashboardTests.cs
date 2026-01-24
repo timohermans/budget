@@ -1,5 +1,6 @@
 ﻿using Budget.Ui.Server.Constants;
 using Microsoft.Playwright;
+using static Microsoft.Playwright.Assertions;
 
 namespace Budget.E2eTests;
 
@@ -13,37 +14,39 @@ public class TransactionsDashboardPageObject(IPage page)
 }
 
 [TestClass]
-public class TransactionsDashboardTests : BaseE2ETests
+public class TransactionsDashboardTests(TestContext testContext) : BaseE2ETests(testContext)
 {
     [TestMethod]
     public async Task Has_budget_as_title()
     {
+        var page = await _browser.NewPageAsync();
         var url = AppUrl;
 
-        await Page.GotoAsync(url.ToString());
+        await page.GotoAsync(url.ToString());
 
-        await Expect(Page).ToHaveTitleAsync(new Regex("Budget"));
+        await Expect(page).ToHaveTitleAsync(new Regex("Budget"));
     }
     
     [TestMethod]
     public async Task Shows_current_month_and_can_navigate_to_neighbouring_months()
     {
-        var page = new TransactionsDashboardPageObject(Page);
+        var page = await _browser.NewPageAsync();
+        var pageObj = new TransactionsDashboardPageObject(page);
         var url = AppUrl;
 
-        await Page.GotoWithIdleWaitAsync(url.ToString());
+        await page.GotoWithIdleWaitAsync(url.ToString());
 
         var date = DateTime.Today;
-        await Expect(page.Heading).ToContainTextAsync($"{date:yyyy}-{date:MM}");
-        await page.NextMonthButton.ClickAsync();
+        await Expect(pageObj.Heading).ToContainTextAsync($"{date:yyyy}-{date:MM}");
+        await pageObj.NextMonthButton.ClickAsync();
         
         date = date.AddMonths(1);
-        await Expect(page.Heading).ToContainTextAsync($"{date:yyyy}-{date:MM}");
+        await Expect(pageObj.Heading).ToContainTextAsync($"{date:yyyy}-{date:MM}");
         
-        await page.PreviousMonthButton.ClickAsync();
-        await page.PreviousMonthButton.ClickAsync();
+        await pageObj.PreviousMonthButton.ClickAsync();
+        await pageObj.PreviousMonthButton.ClickAsync();
         date = date.AddMonths(-2);
-        await Expect(page.Heading).ToContainTextAsync($"{date:yyyy}-{date:MM}");
+        await Expect(pageObj.Heading).ToContainTextAsync($"{date:yyyy}-{date:MM}");
     }
     
 }

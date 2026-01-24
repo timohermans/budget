@@ -71,7 +71,7 @@ public class BaseApiTests(TestContext testContext)
     }
 
     protected Task<Sut> CreateSut(CancellationToken token = default) =>
-        CreateSut("testuser", null, token);
+        CreateSut(CreateUniqueUserName("testuser"), null, token);
 
     protected async Task<Sut> CreateSut(string userName,
         Action<IServiceCollection>? configureTestServicesFn = null,
