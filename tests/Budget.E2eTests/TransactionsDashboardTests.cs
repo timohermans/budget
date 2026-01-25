@@ -1,4 +1,4 @@
-﻿using Budget.Ui.Server.Constants;
+using Budget.Ui.Server.Constants;
 using Microsoft.Playwright;
 using static Microsoft.Playwright.Assertions;
 
@@ -22,11 +22,13 @@ public class TransactionsDashboardTests(TestContext testContext) : BaseE2ETests(
         var page = await _browser.NewPageAsync();
         var url = AppUrl;
 
-        await page.GotoAsync(url.ToString());
+        await page.GotoWithIdleWaitAsync(url.ToString());
+        var user = CreateUniqueUserName("title");
+        await AuthenticateUserAsync(page, user);
 
         await Expect(page).ToHaveTitleAsync(new Regex("Budget"));
     }
-    
+
     [TestMethod]
     public async Task Shows_current_month_and_can_navigate_to_neighbouring_months()
     {
@@ -35,18 +37,19 @@ public class TransactionsDashboardTests(TestContext testContext) : BaseE2ETests(
         var url = AppUrl;
 
         await page.GotoWithIdleWaitAsync(url.ToString());
+        var user = CreateUniqueUserName("navigation");
+        await AuthenticateUserAsync(page, user);
 
         var date = DateTime.Today;
         await Expect(pageObj.Heading).ToContainTextAsync($"{date:yyyy}-{date:MM}");
         await pageObj.NextMonthButton.ClickAsync();
-        
+
         date = date.AddMonths(1);
         await Expect(pageObj.Heading).ToContainTextAsync($"{date:yyyy}-{date:MM}");
-        
+
         await pageObj.PreviousMonthButton.ClickAsync();
         await pageObj.PreviousMonthButton.ClickAsync();
         date = date.AddMonths(-2);
         await Expect(pageObj.Heading).ToContainTextAsync($"{date:yyyy}-{date:MM}");
     }
-    
 }

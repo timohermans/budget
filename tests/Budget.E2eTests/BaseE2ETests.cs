@@ -18,7 +18,6 @@ public static class PageExtensions
     }
 }
 
-[TestClass]
 public class BaseE2ETests(TestContext testContext)
 {
     protected static Uri AppUrl { get; private set; } = null!;
@@ -88,7 +87,12 @@ public class BaseE2ETests(TestContext testContext)
         await db.Database.MigrateAsync();
         return db;
     }
-
+    
+    protected async Task AuthenticateUserAsync(IPage page, string userName)
+    {
+        await page.FillAsync("[name='username']", userName);
+        await page.ClickAsync("button[type='submit']");
+    }
 
     private class TestUserProvider(string username) : IUserProvider
     {
