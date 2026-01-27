@@ -1,9 +1,9 @@
 ﻿@using Budget.Ui.Core.UseCases.Transactions.FileEtl
 @using Refit
 
-<InputFile id="inputFile" class="visually-hidden" @ref="_inputFile" OnChange="LoadFileAsync"/>
+<InputFile data-testid="@TestIdConstants.UploadTransactionsButton" id="inputFile" class="visually-hidden" @ref="_inputFile" OnChange="LoadFileAsync"/>
 
-<button type="button" class="btn btn-primary fs-4" onclick="document.querySelector('#inputFile').click()">
+<button  type="button" class="btn btn-primary fs-4" onclick="document.querySelector('#inputFile').click()">
     <i class="bi bi-cloud-arrow-up"></i>
     <span class="visually-hidden">Upload transactions</span>
 </button>

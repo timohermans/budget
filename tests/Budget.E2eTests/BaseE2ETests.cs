@@ -16,6 +16,32 @@ public static class PageExtensions
             WaitUntil = WaitUntilState.NetworkIdle
         });
     }
+
+    /// <summary>
+    /// This method will log in the user after navigating to the first url provided.
+    /// </summary>
+    /// <remarks>ONLY USE THIS when logging in for the first time, as it assumes you need to log in initially</remarks>
+    /// <param name="page"></param>
+    /// <param name="url"></param>
+    /// <param name="username"></param>
+    /// <returns></returns>
+    public static async Task GoToWithAuthenticationAsync(this IPage page, string url, string username)
+    {
+        await page.GotoWithIdleWaitAsync(url);
+        await AuthenticateUserAsync(page, username);
+    }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="userName"></param>
+    private static async Task AuthenticateUserAsync(IPage page, string userName)
+    {
+        await page.FillAsync("[name='username']", userName);
+        await page.ClickAsync("button[type='submit']");
+    }
+
 }
 
 public class BaseE2ETests(TestContext testContext)
@@ -32,7 +58,8 @@ public class BaseE2ETests(TestContext testContext)
 
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
 
-        AppUrl = new Uri("localhost:5001");
+        // AppUrl = new Uri("localhost:5001");
+        AppUrl = new Uri("https://localhost:7110");
     }
 
     [TestInitialize]
@@ -88,12 +115,6 @@ public class BaseE2ETests(TestContext testContext)
         return db;
     }
     
-    protected async Task AuthenticateUserAsync(IPage page, string userName)
-    {
-        await page.FillAsync("[name='username']", userName);
-        await page.ClickAsync("button[type='submit']");
-    }
-
     private class TestUserProvider(string username) : IUserProvider
     {
         public string? GetCurrentUser() => username;
