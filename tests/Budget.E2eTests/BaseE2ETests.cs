@@ -56,8 +56,6 @@ public class BaseE2ETests(TestContext testContext)
     {
         Environment.SetEnvironmentVariable("PWDEBUG", "0");
 
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
-
         // AppUrl = new Uri("localhost:5001");
         AppUrl = new Uri("https://localhost:7110");
     }
@@ -69,7 +67,7 @@ public class BaseE2ETests(TestContext testContext)
         _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
         {
             ExecutablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-            Headless = false,
+            Headless = true,
         });
 
     }

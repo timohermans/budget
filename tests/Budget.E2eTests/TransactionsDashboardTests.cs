@@ -1,7 +1,6 @@
-using System.Globalization;
-using Budget.Application.UseCases.TransactionsFileEtl;
+﻿using Budget.Application.UseCases.TransactionsFileEtl;
+using Budget.E2eTests.Helpers;
 using Budget.Ui.Server.Constants;
-using CsvHelper;
 using Microsoft.Playwright;
 using static Microsoft.Playwright.Assertions;
 
@@ -55,13 +54,13 @@ public class TransactionsDashboardTests(TestContext testContext) : BaseE2ETests(
     [TestMethod]
     public async Task Uploads_transactions_file_and_displays_transactions()
     {
+        // Arrange
         var username = CreateUniqueUserName("file-uploader");
         var page = await _browser.NewPageAsync();
         var pageObj = new TransactionsDashboardPageObject(page);
 
         await page.GoToWithAuthenticationAsync(AppUrl.ToString(), username);
 
-        // Create CSV content
         var fixture = new TransactionsFileCsvMap
         {
             Iban = "NL01RABO0123456789",
@@ -76,32 +75,14 @@ public class TransactionsDashboardTests(TestContext testContext) : BaseE2ETests(
             Code = "GT"
         };
 
-        var fileName = $"transactions-{Guid.NewGuid()}.csv";
-        var filePath = Path.Combine(Path.GetTempPath(), fileName);
+        await using var csvBuilder = new TransactionsCsvFileBuilder();
+        var filePath = await csvBuilder.AddRecord(fixture).BuildAsync();
 
-        try
-        {
-            await using (var writer = new StreamWriter(filePath))
-            await using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-            {
-                await csv.WriteRecordsAsync(new[] { fixture });
-            }
+        // Act
+        var fileInput = page.GetByTestId(TestIdConstants.UploadTransactionsButton);
+        await fileInput.SetInputFilesAsync(filePath);
 
-            // Upload file
-            var fileInput = page.GetByTestId(TestIdConstants.UploadTransactionsButton);
-            await fileInput.SetInputFilesAsync(filePath);
-
-            await Expect(pageObj.Heading).ToContainTextAsync($"{fixture.Date:yyyy}-{fixture.Date:MM}");
-            // Verify transaction appears in the list (assuming description is shown)
-            // We use a locator that looks for the row containing the description
-            await Expect(page.GetByText("Test Transaction Upload")).ToBeVisibleAsync();
-        }
-        finally
-        {
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
-        }
+        await Expect(pageObj.Heading).ToContainTextAsync($"{fixture.Date:yyyy}-{fixture.Date:MM}");
+        await Expect(page.GetByText("Test Transaction Upload")).ToBeVisibleAsync();
     }
 }

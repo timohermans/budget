@@ -28,6 +28,16 @@ public class TransactionsFileEtlUseCase(ITransactionRepository repo, ILogger<Tra
         });
 
         var records = csv.GetRecords<TransactionsFileCsvMap>();
+        
+#if DEBUG
+        stream.Seek(0, SeekOrigin.Begin);
+        using (var r = new StreamReader(stream, System.Text.Encoding.UTF8, leaveOpen: true))
+        {
+            string value = await r.ReadToEndAsync();
+            logger.LogInformation("trans file contents: {CsvString}", value);
+            stream.Seek(0, SeekOrigin.Begin);
+        }
+#endif
 
         List<Transaction> transactions = new();
 
