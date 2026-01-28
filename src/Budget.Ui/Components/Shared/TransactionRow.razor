@@ -4,20 +4,20 @@
 
 @if (!_isCashbacking)
 {
-    <tr class="align-middle">
+    <tr class="align-middle" data-testid="@($"transaction-row-{Transaction.Id}")">
         <td>
-            @if (!Transaction.IsFromOwnAccount && !Transaction.IsFixed && Transaction.IsIncome)
+            @if (Transaction is { IsFromOwnAccount: false, IsFixed: false, IsIncome: true})
             {
                 <TransactionRowOptions Id="Transaction.Id" OnOpenCashback="OpenCashbackForm" />
             }
         </td>
-        <td>@Transaction.OriginalDate.ToIsoWeekNumber()</td>
-        <td>@Transaction.Date.ToString("dd-MM", _dutch)</td>
-        <td>@Transaction.NameOtherParty</td>
+        <td data-testid="transaction-week-number">@Transaction.OriginalDate.ToIsoWeekNumber()</td>
+        <td data-testid="transaction-date">@Transaction.Date.ToString("dd-MM", _dutch)</td>
+        <td data-testid="transaction-name">@Transaction.NameOtherParty</td>
         <td>
-            <span class="badge text-bg-@(Transaction.Amount < 0 ? "danger" : "success")">@Transaction.Amount</span>
+            <span class="badge text-bg-@(Transaction.Amount < 0 ? "danger" : "success")" data-testid="transaction-amount">@Transaction.Amount</span>
         </td>
-        <td>
+        <td data-testid="transaction-fixed-status">
             @(Transaction.IsFixed ? "🔒" : "")
 
             @if (Transaction.CashbackForDate != null)
@@ -30,7 +30,7 @@
                 </button>
             }
         </td>
-        <td>@Transaction.Description</td>
+        <td data-testid="transaction-description">@Transaction.Description</td>
     </tr>
 }
 else

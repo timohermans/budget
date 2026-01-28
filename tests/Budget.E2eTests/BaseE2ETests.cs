@@ -103,7 +103,7 @@ public class BaseE2ETests(TestContext testContext)
     /// <returns>the context</returns>
     protected async Task<BudgetDbContext> CreateContext(string userName)
     {
-        var connectionString = "Host=localhost;Post=5122;Username=postgres;Password=postgres;Database=budgetdb";
+        var connectionString = "Host=localhost;Port=5122;Username=postgres;Password=password;Database=budgetdb";
         var db = new BudgetDbContext(
             new DbContextOptionsBuilder<BudgetDbContext>()
                 .UseNpgsql(connectionString)

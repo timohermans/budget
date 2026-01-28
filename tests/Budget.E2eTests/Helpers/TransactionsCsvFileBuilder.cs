@@ -22,7 +22,7 @@ public class TransactionsCsvFileBuilder : IAsyncDisposable
         return this;
     }
 
-    public TransactionsCsvFileBuilder AddRecords(IEnumerable<TransactionsFileCsvMap> records)
+    public TransactionsCsvFileBuilder AddRecords(params IEnumerable<TransactionsFileCsvMap> records)
     {
         _records.AddRange(records);
         return this;
