@@ -7,7 +7,7 @@ on:
   push:
     paths: 
     - 'src/Budget.Ui/**'
-    - 'tests/Budget.Ui.*/**'
+    - 'tests/Budget.Tests/**'
     branches: [ "main" ]
   workflow_dispatch:
       
@@ -16,7 +16,7 @@ jobs:
     uses: ./.github/workflows/_template.yml
     with:
       project_path: 'src/Budget.Ui'
-      tests_path: 'tests/Budget.Ui*'
+      tests_path: 'tests/Budget.Tests'
       image_name: 'budget-app'
       deployment_path: 'k8s/budget/frontend/deployment.yaml'
     secrets:
