@@ -1,4 +1,5 @@
 using System.Globalization;
+using Budget.Application.Settings;
 using Budget.Application.UseCases.TransactionsFileEtl;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -31,7 +32,7 @@ public class TransactionsCsvFileBuilder : IAsyncDisposable
     public async Task<string> BuildAsync()
     {
         await using (var writer = new StreamWriter(_filePath))
-        await using (var csv = new CsvWriter(writer, new CsvConfiguration(new CultureInfo("nl-NL")) { Delimiter = "," }))
+        await using (var csv = new CsvWriter(writer, CsvSettings.BudgetCsvConfig))
         {
             await csv.WriteRecordsAsync(_records);
         }

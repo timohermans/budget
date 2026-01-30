@@ -76,26 +76,39 @@ public class TransactionsDashboardTests(TestContext testContext) : BaseE2ETests(
             NameOtherParty = "Other Party",
             Code = "GT"
         };
-        // TODO: transform this to TransactionsFileCsvMap: "NL96RABO0112222222","EUR","RABONL2U","000000000000001289","2025-10-07","2025-10-07","-42,34","+349,74","LU89751001135104201E","PayPal Europe S.a.r.l. et Cie S.C.A","","","PPLXLUL2","ei","","1045309341178","463J224V9GDTA","LU96ZZZ0000000000000000028","","1045309341372/PAYPAL"," ","","","","",""
-        // TODO: transform this to TransactionsFileCsvMap: "NL11RABO0111111111","EUR","RABONL2U","000000000000014927","2025-10-08","2025-10-08","-9,99","+328,11","LU89751000115104201E","PayPal Europe S.a.r.l. et Cie S.C.A","","","PPLXLUL2","ei","","1045338748300","463J224SYQ81U","LU96ZZZ0000000000000000028","","1045338748320/PAYPAL"," ","","","","",""
-        var fixture2 = new TransactionsFileCsvMap
+        var paypal1 = new TransactionsFileCsvMap
         {
             Iban = "NL01RABO0123456789",
-            Amount = 123.45m,
-            Date = DateOnly.FromDateTime(DateTime.Today),
-            Description1 = "Test Transaction Upload",
             Currency = "EUR",
-            FollowNumber = 1,
-            BalanceAfter = 1000m,
-            IbanOtherParty = "NL02RABO9876543210",
-            NameOtherParty = "Other Party",
-            Code = "GT"
+            FollowNumber = 1289,
+            Date = DateOnly.FromDateTime(DateTime.Today),
+            Amount = -42.34m,
+            BalanceAfter = 349.74m,
+            IbanOtherParty = "LU89751001135104201E",
+            NameOtherParty = "PayPal Europe S.a.r.l. et Cie S.C.A",
+            Code = "ei",
+            Description1 = "1045309341372/PAYPAL"
+        };
+
+        var paypal2 = new TransactionsFileCsvMap
+        {
+            Iban = "NL01RABO0123456789",
+            Currency = "EUR",
+            FollowNumber = 14927,
+            Date = DateOnly.FromDateTime(DateTime.Today),
+            Amount = -9.99m,
+            BalanceAfter = 328.11m,
+            IbanOtherParty = "LU89751000115104201E",
+            NameOtherParty = "PayPal Europe S.a.r.l. et Cie S.C.A",
+            Code = "ei",
+            Description1 = "1045338748320/PAYPAL"
         };
 
         await using var csvBuilder = new TransactionsCsvFileBuilder();
         var filePath = await csvBuilder.AddRecords(
-            fixture, 
-            fixture2)
+                fixture,
+                paypal1,
+                paypal2)
             .BuildAsync();
 
         // Act
@@ -117,6 +130,29 @@ public class TransactionsDashboardTests(TestContext testContext) : BaseE2ETests(
         await Expect(row.GetByTestId("transaction-amount")).ToContainTextAsync(fixture.Amount?.ToString() ?? "");
         await Expect(row.GetByTestId("transaction-fixed-status")).ToHaveTextAsync("");
 
-        // Assert second row
+        // Assert paypal1
+        var transactionPayPal1 = await db.Transactions.SingleAsync(t => t.Description == paypal1.Description1);
+        var rowPayPal1 = page.GetByTestId($"transaction-row-{transactionPayPal1.Id}");
+        await Expect(rowPayPal1).ToBeVisibleAsync();
+        await Expect(rowPayPal1.GetByTestId("transaction-week-number"))
+            .ToContainTextAsync(transactionPayPal1.DateTransaction.ToIsoWeekNumber().ToString());
+        await Expect(rowPayPal1.GetByTestId("transaction-date")).ToContainTextAsync(paypal1.Date.ToString("dd-MM"));
+        await Expect(rowPayPal1.GetByTestId("transaction-name")).ToContainTextAsync(paypal1.NameOtherParty!);
+        await Expect(rowPayPal1.GetByTestId("transaction-amount")).ToContainTextAsync(paypal1.Amount?.ToString() ?? "");
+        await Expect(rowPayPal1.GetByTestId("transaction-fixed-status")).ToBeEmptyAsync();
+
+        // Assert paypal2
+        var transactionPayPal2 = await db.Transactions.SingleAsync(t => t.Description == paypal2.Description1);
+        var rowPayPal2 = page.GetByTestId($"transaction-row-{transactionPayPal2.Id}");
+        await Expect(rowPayPal2).ToBeVisibleAsync();
+        await Expect(rowPayPal2.GetByTestId("transaction-week-number"))
+            .ToContainTextAsync(transactionPayPal2.DateTransaction.ToIsoWeekNumber().ToString());
+        await Expect(rowPayPal2.GetByTestId("transaction-date")).ToContainTextAsync(paypal2.Date.ToString("dd-MM"));
+        await Expect(rowPayPal2.GetByTestId("transaction-name")).ToContainTextAsync(paypal2.NameOtherParty!);
+        await Expect(rowPayPal2.GetByTestId("transaction-amount")).ToContainTextAsync(paypal2.Amount?.ToString() ?? "");
+        await Expect(rowPayPal2.GetByTestId("transaction-fixed-status")).ToBeEmptyAsync();
+        
+        
+        // TODO: Either remove flicker, or write everything in Angular (I choose angular)
     }
 }

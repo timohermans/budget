@@ -15,4 +15,9 @@ public class UserProvider : IUserProvider
     {
         return _httpContextAccessor.HttpContext?.User?.Identity?.Name;
     }
+
+    public void OverrideUser(string username)
+    {
+        throw new InvalidOperationException($"I'm sorry, I'm not allowing you to change the name to {username}");
+    }
 }

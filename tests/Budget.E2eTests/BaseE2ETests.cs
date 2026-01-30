@@ -30,7 +30,7 @@ public static class PageExtensions
         await page.GotoWithIdleWaitAsync(url);
         await AuthenticateUserAsync(page, username);
     }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -41,7 +41,6 @@ public static class PageExtensions
         await page.FillAsync("[name='username']", userName);
         await page.ClickAsync("button[type='submit']");
     }
-
 }
 
 public class BaseE2ETests(TestContext testContext)
@@ -67,9 +66,19 @@ public class BaseE2ETests(TestContext testContext)
         _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
         {
             ExecutablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-            Headless = true,
+            Headless = false,
         });
 
+        await using var db = await CreateContext("base");
+        if (testContext.TestName == null)
+        {
+            throw new InvalidOperationException("Test name should never be null?");
+        }
+
+        await db.Transactions.IgnoreQueryFilters().Where(t => t.User.StartsWith(testContext.TestName))
+            .ExecuteDeleteAsync(testContext.CancellationTokenSource.Token);
+        await db.TransactionsFileJobs.IgnoreQueryFilters().Where(t => t.User.StartsWith(testContext.TestName))
+            .ExecuteDeleteAsync(testContext.CancellationTokenSource.Token);
     }
 
     [TestCleanup]
@@ -112,9 +121,13 @@ public class BaseE2ETests(TestContext testContext)
         await db.Database.MigrateAsync();
         return db;
     }
-    
-    private class TestUserProvider(string username) : IUserProvider
+
+    private class TestUserProvider(string initialUsername) : IUserProvider
     {
-        public string? GetCurrentUser() => username;
+        public string? GetCurrentUser() => initialUsername;
+
+        public void OverrideUser(string username)
+        {
+        }
     }
 }

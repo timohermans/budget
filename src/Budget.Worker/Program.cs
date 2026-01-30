@@ -14,7 +14,6 @@ await Host.CreateDefaultBuilder(args)
         services.AddBudgetApplication(hostContext.Configuration);
         services.AddInfrastructure(hostContext.Configuration);
         services.AddHostedService<TransactionsFilesConsumer>();
-        
     })
     .Build()
     .RunAsync();

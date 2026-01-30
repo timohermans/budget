@@ -2,14 +2,11 @@ using Budget.Application.Providers;
 
 namespace Budget.Tests.Utils.Providers;
 
-public class TestUserProvider : IUserProvider
+public class TestUserProvider(string initialUsername) : IUserProvider
 {
-    private readonly string _userName;
+    private string _username = initialUsername;
 
-    public TestUserProvider(string userName)
-    {
-        _userName = userName;
-    }
+    public string? GetCurrentUser() => _username;
 
-    public string? GetCurrentUser() => _userName;
+    public void OverrideUser(string username) => _username = username;
 }

@@ -12,7 +12,7 @@ try
     var services = builder.Services;
     
     services.AddInfrastructure(config);
-    services.AddSingleton<IUserProvider>(new StaticUserProvider("migration-runner"));
+    services.AddSingleton<IUserProvider>(new ManualUserProvider("migration-runner"));
 
     var app = builder.Build();
 

@@ -5,6 +5,7 @@ using Budget.Domain.Repositories;
 using CsvHelper;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
+using Budget.Application.Settings;
 
 namespace Budget.Application.UseCases.TransactionsFileEtl;
 
@@ -21,11 +22,7 @@ public class TransactionsFileEtlUseCase(ITransactionRepository repo, ILogger<Tra
         logger.LogInformation("Handling Transaction file upload");
 
         using var reader = new StreamReader(stream);
-        using var csv = new CsvReader(reader, new CsvHelper.Configuration.CsvConfiguration(new CultureInfo("nl-NL"))
-        {
-            HasHeaderRecord = true,
-            Delimiter = ","
-        });
+        using var csv = new CsvReader(reader, CsvSettings.BudgetCsvConfig);
 
         var records = csv.GetRecords<TransactionsFileCsvMap>();
         
