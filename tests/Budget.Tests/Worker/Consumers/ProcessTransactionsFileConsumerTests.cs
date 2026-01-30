@@ -1,3 +1,4 @@
+using Budget.Application.Providers;
 using Budget.Application.UseCases.TransactionsFileEtl;
 using Budget.Domain;
 using Budget.Domain.Commands;
@@ -9,6 +10,7 @@ using Budget.Infrastructure.Database.Repositories;
 using Budget.Worker.Consumers;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -16,10 +18,9 @@ using NSubstitute;
 namespace Budget.Tests.Worker.Consumers;
 
 public class TestableTransactionsFileConsumer(
+    IServiceScopeFactory serviceScopeFactory,
     IMessageBusClient messageBusClient,
-    BudgetDbContext db,
-    ITransactionsFileEtlUseCase useCase,
-    ILogger<ProcessTransactionsFile> logger) : TransactionsFilesConsumer(messageBusClient, db, useCase, logger)
+    ILogger<ProcessTransactionsFile> logger) : TransactionsFilesConsumer(serviceScopeFactory, messageBusClient, logger)
 {
     public async Task CallExecute()
     {
@@ -41,10 +42,17 @@ public class ProcessTransactionsFileConsumerTests(TestContext testContext) : Bas
         messageBusClient.SubscribeAsync<Guid>(MessageConstants.TransactionsFileJobCreated,
                 "transactions-files-group")
             .Returns(new List<Guid> { job.Id }.ToAsyncEnumerable());
+        
+        var services = new ServiceCollection();
+        services.AddScoped<BudgetDbContext>(_ => dbContext);
+        services.AddScoped<IUserProvider>(_ => new ManualUserProvider("worker"));
+        services.AddScoped<ITransactionsFileEtlUseCase>(_ =>
+            useCase ?? new TransactionsFileEtlUseCase(transactionRepo,
+                NullLogger<TransactionsFileEtlUseCase>.Instance));
+        
         return new TestableTransactionsFileConsumer(
+            services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>(),
             messageBusClient,
-            dbContext,
-            useCase ?? new TransactionsFileEtlUseCase(transactionRepo, NullLogger<TransactionsFileEtlUseCase>.Instance),
             logger);
     }
 

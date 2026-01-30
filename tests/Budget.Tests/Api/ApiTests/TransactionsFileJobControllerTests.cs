@@ -24,7 +24,7 @@ public class TransactionsFileJobControllerTests(TestContext testContext) : BaseA
             OriginalFileName = "TestFile.csv",
             CreatedAt = DateTime.UtcNow,
             Status = Domain.Enums.JobStatus.Pending,
-            User = "testuser"
+            User = CreateUniqueUserName("testuser")
         };
         db.TransactionsFileJobs.Add(job);
         await db.SaveChangesAsync(CancellationToken.None);

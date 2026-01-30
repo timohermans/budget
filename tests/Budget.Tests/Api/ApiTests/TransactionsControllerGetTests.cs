@@ -19,9 +19,9 @@ public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTe
 
         var transactions = new List<Transaction>
         {
-                new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = "testuser" },
-                new Transaction { Id = 2, FollowNumber = 2, Iban = "NL01TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = "testuser" },
-                new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 4, 1), BalanceAfterTransaction = 600, User = "testuser" }
+                new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = CreateUniqueUserName("testuser") },
+                new Transaction { Id = 2, FollowNumber = 2, Iban = "NL01TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = CreateUniqueUserName("testuser") },
+                new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 4, 1), BalanceAfterTransaction = 600, User = CreateUniqueUserName("testuser") }
         };
 
         db.Transactions.AddRange(transactions);
@@ -50,10 +50,10 @@ public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTe
 
         var transactions = new List<Transaction>
         {
-            new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = "testuser" },
-            new Transaction { Id = 2, FollowNumber = 2, Iban = "NL02TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = "testuser" },
-            new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 3, 3), BalanceAfterTransaction = 600, User = "testuser" },
-            new Transaction { Id = 4, FollowNumber = 4, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 4, 3), BalanceAfterTransaction = 600, User = "testuser" }
+            new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 2, FollowNumber = 2, Iban = "NL02TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 3, 3), BalanceAfterTransaction = 600, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 4, FollowNumber = 4, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 4, 3), BalanceAfterTransaction = 600, User = CreateUniqueUserName("testuser") }
         };
 
         await db.Transactions.AddRangeAsync(transactions, CancellationToken.None);
@@ -84,9 +84,9 @@ public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTe
 
         var transactions = new List<Transaction>
         {
-            new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = "testuser" },
-            new Transaction { Id = 2, FollowNumber = 2, Iban = "NL02TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = "testuser" },
-            new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 3, 3), BalanceAfterTransaction = 600, User = "testuser" }
+            new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 2, FollowNumber = 2, Iban = "NL02TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 3, 3), BalanceAfterTransaction = 600, User = CreateUniqueUserName("testuser") }
         };
 
         await db.Transactions.AddRangeAsync(transactions, CancellationToken.None);
@@ -113,11 +113,11 @@ public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTe
 
         var transactions = new List<Transaction>
         {
-            new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = "testuser" },
-            new Transaction { Id = 2, FollowNumber = 2, Iban = "NL02TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = "testuser" },
-            new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 3, 3), BalanceAfterTransaction = 600, User = "testuser" },
-            new Transaction { Id = 4, FollowNumber = 4, Iban = "NL03TEST", Currency = "EUR", Amount = 400, DateTransaction = new DateOnly(2025, 3, 4), BalanceAfterTransaction = 1000, User = "testuser" },
-            new Transaction { Id = 5, FollowNumber = 5, Iban = "NL01TEST", Currency = "EUR", Amount = 500, DateTransaction = new DateOnly(2025, 3, 5), BalanceAfterTransaction = 1500, User = "testuser" }
+            new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 2, FollowNumber = 2, Iban = "NL02TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 3, 3), BalanceAfterTransaction = 600, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 4, FollowNumber = 4, Iban = "NL03TEST", Currency = "EUR", Amount = 400, DateTransaction = new DateOnly(2025, 3, 4), BalanceAfterTransaction = 1000, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 5, FollowNumber = 5, Iban = "NL01TEST", Currency = "EUR", Amount = 500, DateTransaction = new DateOnly(2025, 3, 5), BalanceAfterTransaction = 1500, User = CreateUniqueUserName("testuser") }
         };
 
         await db.Transactions.AddRangeAsync(transactions, CancellationToken.None);
@@ -146,12 +146,12 @@ public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTe
 
         var transactions = new List<Transaction>
         {
-            new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = "testuser" },
-            new Transaction { Id = 2, FollowNumber = 2, Iban = "NL02TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = "testuser" },
-            new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 3, 3), BalanceAfterTransaction = 600, User = "testuser" },
-            new Transaction { Id = 4, FollowNumber = 4, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 3, 3), BalanceAfterTransaction = 400, User = "testuser" },
-            new Transaction { Id = 5, FollowNumber = 5, Iban = "NL03TEST", Currency = "EUR", Amount = 400, DateTransaction = new DateOnly(2025, 3, 4), BalanceAfterTransaction = 1000, User = "testuser" },
-            new Transaction { Id = 6, FollowNumber = 6, Iban = "NL01TEST", Currency = "EUR", Amount = 500, DateTransaction = new DateOnly(2025, 3, 5), BalanceAfterTransaction = 1500, User = "testuser" }
+            new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 2, FollowNumber = 2, Iban = "NL02TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 3, 3), BalanceAfterTransaction = 600, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 4, FollowNumber = 4, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 3, 3), BalanceAfterTransaction = 400, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 5, FollowNumber = 5, Iban = "NL03TEST", Currency = "EUR", Amount = 400, DateTransaction = new DateOnly(2025, 3, 4), BalanceAfterTransaction = 1000, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 6, FollowNumber = 6, Iban = "NL01TEST", Currency = "EUR", Amount = 500, DateTransaction = new DateOnly(2025, 3, 5), BalanceAfterTransaction = 1500, User = CreateUniqueUserName("testuser") }
         };
 
         await db.Transactions.AddRangeAsync(transactions, CancellationToken.None);
@@ -185,9 +185,9 @@ public class TransactionsControllerGetTests(TestContext testContext) : BaseApiTe
 
         var transactions = new List<Transaction>
         {
-            new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = "testuser" },
-            new Transaction { Id = 2, FollowNumber = 2, Iban = "NL01TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = "testuser" },
-            new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 4, 1), BalanceAfterTransaction = 600, User = "testuser" }
+            new Transaction { Id = 1, FollowNumber = 1, Iban = "NL01TEST", Currency = "EUR", Amount = 100, DateTransaction = new DateOnly(2025, 3, 1), BalanceAfterTransaction = 100, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 2, FollowNumber = 2, Iban = "NL01TEST", Currency = "EUR", Amount = 200, DateTransaction = new DateOnly(2025, 3, 2), BalanceAfterTransaction = 300, User = CreateUniqueUserName("testuser") },
+            new Transaction { Id = 3, FollowNumber = 3, Iban = "NL01TEST", Currency = "EUR", Amount = 300, DateTransaction = new DateOnly(2025, 4, 1), BalanceAfterTransaction = 600, User = CreateUniqueUserName("testuser") }
         };
 
         db.Transactions.AddRange(transactions);

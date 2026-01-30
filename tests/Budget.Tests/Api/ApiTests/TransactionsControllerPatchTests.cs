@@ -25,7 +25,7 @@ public class TransactionsControllerPatchTests(TestContext testContext) : BaseApi
             BalanceAfterTransaction = 500,
             Description = "Test transaction",
             CashbackForDate = null,
-            User = "testuser"
+            User = CreateUniqueUserName("testuser")
         };
 
         db.Transactions.Add(transaction);
