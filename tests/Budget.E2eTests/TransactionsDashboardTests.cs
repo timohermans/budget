@@ -115,6 +115,8 @@ public class TransactionsDashboardTests(TestContext testContext) : BaseE2ETests(
         var fileInput = page.GetByTestId(TestIdConstants.UploadTransactionsButton);
         await fileInput.SetInputFilesAsync(filePath);
 
+        await Expect(page.GetByTestId(TestIdConstants.UploadTransactionsButtonLoader)).ToBeVisibleAsync();
+
         await Expect(pageObj.Heading).ToContainTextAsync($"{fixture.Date:yyyy}-{fixture.Date:MM}");
 
         await using var db = await CreateContext(username);
@@ -151,8 +153,5 @@ public class TransactionsDashboardTests(TestContext testContext) : BaseE2ETests(
         await Expect(rowPayPal2.GetByTestId("transaction-name")).ToContainTextAsync(paypal2.NameOtherParty!);
         await Expect(rowPayPal2.GetByTestId("transaction-amount")).ToContainTextAsync(paypal2.Amount?.ToString() ?? "");
         await Expect(rowPayPal2.GetByTestId("transaction-fixed-status")).ToBeEmptyAsync();
-        
-        
-        // TODO: Either remove flicker, or write everything in Angular (I choose angular)
     }
 }
