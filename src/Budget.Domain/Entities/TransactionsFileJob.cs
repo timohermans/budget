@@ -12,4 +12,5 @@ public class TransactionsFileJob
     public DateTime? ProcessedAt { get; set; }
     public JobStatus Status { get; set; } = JobStatus.Pending;
     public string? ErrorMessage { get; set; }
+    public required string User {get; set; }
 }

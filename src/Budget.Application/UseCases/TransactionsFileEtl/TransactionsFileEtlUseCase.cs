@@ -5,29 +5,36 @@ using Budget.Domain.Repositories;
 using CsvHelper;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
+using Budget.Application.Settings;
 
 namespace Budget.Application.UseCases.TransactionsFileEtl;
 
 public interface ITransactionsFileEtlUseCase
 {
-    Task<Result> HandleAsync(Stream stream);
+    Task<Result> HandleAsync(Stream stream, string user);
 }
 
 public class TransactionsFileEtlUseCase(ITransactionRepository repo, ILogger<TransactionsFileEtlUseCase> logger)
     : ITransactionsFileEtlUseCase
 {
-    public async Task<Result> HandleAsync(Stream stream)
+    public async Task<Result> HandleAsync(Stream stream, string user)
     {
         logger.LogInformation("Handling Transaction file upload");
 
         using var reader = new StreamReader(stream);
-        using var csv = new CsvReader(reader, new CsvHelper.Configuration.CsvConfiguration(new CultureInfo("nl-NL"))
-        {
-            HasHeaderRecord = true,
-            Delimiter = ","
-        });
+        using var csv = new CsvReader(reader, CsvSettings.BudgetCsvConfig);
 
         var records = csv.GetRecords<TransactionsFileCsvMap>();
+        
+#if DEBUG
+        stream.Seek(0, SeekOrigin.Begin);
+        using (var r = new StreamReader(stream, System.Text.Encoding.UTF8, leaveOpen: true))
+        {
+            string value = await r.ReadToEndAsync();
+            logger.LogInformation("trans file contents: {CsvString}", value);
+            stream.Seek(0, SeekOrigin.Begin);
+        }
+#endif
 
         List<Transaction> transactions = new();
 
@@ -54,7 +61,8 @@ public class TransactionsFileEtlUseCase(ITransactionRepository repo, ILogger<Tra
                 Description = (r.Description1 + r.Description2 + r.Description3).Trim(),
                 Code = r.Code,
                 BatchId = r.BatchId,
-                Reference = r.Reference
+                Reference = r.Reference,
+                User = user
             });
         }
 

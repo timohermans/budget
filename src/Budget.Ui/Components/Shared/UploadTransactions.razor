@@ -1,10 +1,18 @@
 ﻿@using Budget.Ui.Core.UseCases.Transactions.FileEtl
 @using Refit
 
-<InputFile id="inputFile" class="visually-hidden" @ref="_inputFile" OnChange="LoadFileAsync"/>
+<InputFile data-testid="@TestIdConstants.UploadTransactionsButton" id="inputFile" class="visually-hidden"
+           @ref="_inputFile" OnChange="LoadFileAsync"/>
 
 <button type="button" class="btn btn-primary fs-4" onclick="document.querySelector('#inputFile').click()">
-    <i class="bi bi-cloud-arrow-up"></i>
+    @if (_isUploading)
+    {
+        <span data-testid="@TestIdConstants.UploadTransactionsButtonLoader" class="spinner-grow spinner-grow-sm"></span>
+    }
+    else
+    {
+        <i class="bi bi-cloud-arrow-up"></i>
+    }
     <span class="visually-hidden">Upload transactions</span>
 </button>
 
@@ -28,6 +36,7 @@
     [Inject] public NavigationManager NavigationManager { get; set; } = default!;
     [Inject] public ILogger<UploadTransactions> Logger { get; set; } = default!;
 
+    private bool _isUploading = false;
     private string? _errorMessage = null;
     private InputFile? _inputFile;
 
@@ -35,6 +44,7 @@
     {
         try
         {
+            _isUploading = true;
             var streamPart = new StreamPart(e.File.OpenReadStream(), e.File.Name, e.File.ContentType, "file");
             var response = await UseCase.HandleAsync(streamPart);
 
@@ -51,6 +61,10 @@
         {
             _errorMessage = ex.Message;
             Logger.LogError(ex, "Well, poffertjes!");
+        }
+        finally
+        {
+            _isUploading = false;
         }
     }
 

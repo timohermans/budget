@@ -18,7 +18,7 @@ jobs:
     uses: ./.github/workflows/_template.yml
     with:
       project_path: 'src/Budget.Worker'
-      tests_path: 'tests/Budget.Api.UnitTests'
+      tests_path: 'tests/Budget.Tests'
       image_name: 'budget-worker'
       deployment_path: 'k8s/budget/worker/deployment.yaml'
     secrets:

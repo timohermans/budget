@@ -17,5 +17,5 @@ public class Transaction
     public string? Code { get; set; }
     public string? BatchId { get; set; }
     public string? Reference { get; set; }
-
+    public required string User { get; init;}
 }

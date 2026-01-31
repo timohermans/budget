@@ -1,5 +1,5 @@
 using Budget.Api.Server;
-using Microsoft.AspNetCore.Authentication;
+using Budget.Application.Providers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -15,6 +15,8 @@ public static class StartupExtensions
 
         services.AddControllers();
         services.AddOpenApi(); // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+        services.AddHttpContextAccessor();
+        services.AddScoped<IUserProvider, UserProvider>();
         services.AddBudgetAuthentication(config, builder.Environment);
         services.AddSerilog((sp, lc) =>
         {
@@ -25,15 +27,22 @@ public static class StartupExtensions
                     outputTemplate:
                     "[{Timestamp:HH:mm:ss} {Level:u3}] ({SourceContext}) {Message:lj}{NewLine}{Exception}");
         });
+        builder.Services.AddCors(options =>
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin();
+            }));
     }
 
     private static void AddBudgetAuthentication(this IServiceCollection services, IConfiguration configuration,
         IHostEnvironment environment)
     {
-        if (environment.IsEnvironment("Test"))
+        if (environment.IsDevelopment())
         {
-            services.AddAuthentication(FakeAuthHandler.SchemeName)
-                .AddScheme<AuthenticationSchemeOptions, FakeAuthHandler>(FakeAuthHandler.SchemeName, _ => { });
+            services.AddAuthentication("FakeJwt")
+                .AddScheme<FakeJwtOptions, FakeAuthHandler>("FakeJwt", null);
         }
         else
         {

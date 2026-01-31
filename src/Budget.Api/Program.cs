@@ -1,6 +1,7 @@
 using Budget.Api;
 using Budget.Application;
 using Budget.Infrastructure;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,8 +14,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
+app.UseCors();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -26,6 +29,7 @@ app.Run();
 
 namespace Budget.Api
 {
-    public partial class Program { }
+    public partial class Program
+    {
+    }
 }
-

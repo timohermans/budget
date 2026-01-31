@@ -82,9 +82,13 @@ namespace Budget.Infrastructure.Migrations
                     b.Property<string>("Reference")
                         .HasColumnType("text");
 
+                    b.Property<string>("User")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("FollowNumber", "Iban")
+                    b.HasIndex("FollowNumber", "Iban", "User")
                         .IsUnique();
 
                     b.ToTable("Transactions");
@@ -114,6 +118,10 @@ namespace Budget.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("User")
                         .IsRequired()
                         .HasColumnType("text");
 

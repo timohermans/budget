@@ -1,4 +1,5 @@
-﻿using Budget.Infrastructure;
+using Budget.Application.Providers;
+using Budget.Infrastructure;
 using Budget.Infrastructure.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ try
     var services = builder.Services;
     
     services.AddInfrastructure(config);
+    services.AddSingleton<IUserProvider>(new ManualUserProvider("migration-runner"));
 
     var app = builder.Build();
 

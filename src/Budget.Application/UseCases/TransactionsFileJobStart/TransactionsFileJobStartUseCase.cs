@@ -1,3 +1,4 @@
+using Budget.Application.Providers;
 using Budget.Application.Settings;
 using Budget.Domain;
 using Budget.Domain.Entities;
@@ -17,7 +18,8 @@ public class TransactionsFileJobStartUseCase(
     ILogger<TransactionsFileJobStartUseCase> logger,
     IMessageBusClient messageBusClient,
     FileStorageSettings fileSettings,
-    TimeProvider timeProvider) : ITransactionsFileJobStartUseCase
+    TimeProvider timeProvider,
+    IUserProvider userProvider) : ITransactionsFileJobStartUseCase
 {
     public class FileModel
     {
@@ -44,6 +46,7 @@ public class TransactionsFileJobStartUseCase(
             CreatedAt = timeProvider.GetUtcNow().UtcDateTime,
             FileContent = command.File.Content,
             OriginalFileName = command.File.FileName,
+            User = userProvider.GetCurrentUser() ?? throw new InvalidOperationException("User not found"),
         };
         await repo.AddAsync(job);
         await repo.SaveChangesAsync();

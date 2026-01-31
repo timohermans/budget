@@ -1,20 +1,99 @@
 services:
-  budget:
-    container_name: budget
-    image: registry.timo-hermans.nl/budget:latest
-    restart: unless-stopped
-    env_file: .env
-    networks:
-      - traefik
-      - postgres
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.budget.rule=HOST(`budget.timo-hermans.nl`)'
-      - 'traefik.http.services.budget.loadbalancer.server.port=8080'
+  nats:
+    image: nats:2.12.3-alpine
+    container_name: nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
 
-networks:
-  postgres:
-    name: postgres
-    external: true
-  traefik:
-    external: true
+  budget-db:
+    image: postgres:17
+    container_name: budget-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=budgetdb
+    ports:
+      - "5122:5432"
+    volumes:
+      - budget-development-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d budgetdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "5123:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@local.nl
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    depends_on:
+      - budget-db
+
+  budget-migrations:
+    build:
+      context: .
+      dockerfile: src/Budget.MigrationsRunner/Dockerfile
+    container_name: budget-migrations
+    environment:
+      - ConnectionStrings__budgetdb=Host=budget-db;Database=budgetdb;Username=postgres;Password=password
+    depends_on:
+      budget-db:
+        condition: service_healthy
+
+  budget-api:
+    build:
+      context: .
+      dockerfile: src/Budget.Api/Dockerfile
+    container_name: budget-api
+    ports:
+      - "7070:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__nats=nats://nats:4222
+      - ConnectionStrings__budgetdb=Host=budget-db;Database=budgetdb;Username=postgres;Password=password
+    depends_on:
+      budget-db:
+        condition: service_healthy
+      budget-migrations:
+        condition: service_completed_successfully
+
+  budget-worker:
+    build:
+      context: .
+      dockerfile: src/Budget.Worker/Dockerfile
+    container_name: budget-worker
+    environment:
+      - ConnectionStrings__nats=nats://nats:4222
+      - ConnectionStrings__budgetdb=Host=budget-db;Database=budgetdb;Username=postgres;Password=password
+    depends_on:
+      budget-db:
+        condition: service_healthy
+      nats:
+        condition: service_started
+      budget-migrations:
+        condition: service_completed_successfully
+
+  budget-app:
+    build:
+      context: .
+      dockerfile: src/Budget.Ui/Dockerfile
+    container_name: budget-app
+    ports:
+      - "5001:8080" # Map to your preferred local port
+      - "5002:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - BudgetApi__BaseUrl=http://budget-api:8080
+    depends_on:
+      budget-api:
+        condition: service_started
+      budget-migrations:
+        condition: service_completed_successfully
+
+volumes:
+  budget-development-data:

@@ -7,5 +7,6 @@ public static class TestIdConstants
     public const string NextMonthButton = "next_month_button";
     public const string TransactionsTable = "transactions_table";
     public const string NoTransactionsMessage = "no_transactions_message";
-    public const string TransactionRow = "transaction_row";
+    public const string UploadTransactionsButton = "upload_transactions_button";
+    public const string UploadTransactionsButtonLoader = "upload_transactions_button_loader";
 }
