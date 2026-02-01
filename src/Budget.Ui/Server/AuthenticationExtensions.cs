@@ -15,7 +15,7 @@ public static class AuthenticationExtensions
     /// <returns>The same service collection</returns>
     public static IServiceCollection AddOidcAuthentication(this IServiceCollection services, IConfiguration config, IWebHostEnvironment environment)
     {
-        if (environment.IsDevelopment())
+        if (environment.IsDevelopment() && !config.GetValue<bool>("Auth:UseInDevelopment"))
         {
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>

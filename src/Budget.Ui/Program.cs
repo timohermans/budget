@@ -35,7 +35,7 @@ services
 
 services.AddHttpContextAccessor();
 services.AddApiClientRegistration<BudgetApiOptions>(config, "BudgetApi",
-        environment.IsDevelopment() ? CookieAuthenticationDefaults.AuthenticationScheme : "OpenIdConnect")
+        environment.IsDevelopment() && !config.GetValue<bool>("Auth:UseInDevelopment") ? CookieAuthenticationDefaults.AuthenticationScheme : "OpenIdConnect")
     .AddRefitClient<IBudgetClient>();
 
 var app = builder.Build();
