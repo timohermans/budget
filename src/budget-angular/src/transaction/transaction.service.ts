@@ -12,26 +12,24 @@ export class TransactionService {
   private budgetService = inject(BudgetService);
   private http = inject(HttpClient);
 
-  public transactions = httpResource<TransactionApiModel[]>(
-    () => {
-      if (this.budgetService.date()) {
-        const iban = this.budgetService.iban();
-        const params: {startDate: string, endDate:string, iban?: string} = {
-            startDate: this.budgetService.dateStartOfMonth() ?? '',
-            endDate: this.budgetService.dateEndOfMonth() ?? '',
-        };
+  public transactions = httpResource<TransactionApiModel[]>(() => {
+    if (this.budgetService.date()) {
+      const iban = this.budgetService.iban();
+      const params: { startDate: string; endDate: string; iban?: string } = {
+        startDate: this.budgetService.dateStartOfMonth() ?? '',
+        endDate: this.budgetService.dateEndOfMonth() ?? '',
+      };
 
-        if (iban) params.iban = iban;
+      if (iban) params.iban = iban;
 
-        return {
-          url: `${environment.apiUrl}/Transactions`,
-          params,
-        };
-      }
+      return {
+        url: `${environment.apiUrl}/Transactions`,
+        params,
+      };
+    }
 
-      return undefined;
-    },
-  );
+    return undefined;
+  });
 
   public uploadTransactions(file: File): Observable<Object> {
     const formData = new FormData();
