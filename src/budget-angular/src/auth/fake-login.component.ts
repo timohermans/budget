@@ -9,12 +9,12 @@ import { AuthService } from './auth.service';
   standalone: true,
   imports: [FormsModule],
   template: `
-    <div class="login-container">
+    <div class="login-container flex flex-col items-center justify-center min-h-screen">
       <div class="login-card">
-        <h3>Developer Login</h3>
+        <h1 class="text-2xl font-bold mb-4">Developer Login</h1>
         <p>Environment: <strong>Development</strong></p>
 
-        <form (ngSubmit)="login()">
+        <form class="flex flex-col gap-3" (ngSubmit)="login()">
           <div class="form-group">
             <input
               type="text"
@@ -22,7 +22,7 @@ import { AuthService } from './auth.service';
               name="username"
               placeholder="Enter Username"
               required
-              class="form-control"
+              class="input"
             />
           </div>
           <button type="submit" class="btn btn-primary">
