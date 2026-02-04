@@ -39,7 +39,7 @@ public static class StartupExtensions
     private static void AddBudgetAuthentication(this IServiceCollection services, IConfiguration configuration,
         IHostEnvironment environment)
     {
-        if (environment.IsDevelopment() && configuration.GetValue<bool>("Authentication:UseInDevelopment"))
+        if (environment.IsDevelopment() && !configuration.GetValue<bool>("Authentication:UseInDevelopment"))
         {
             services.AddAuthentication("FakeJwt")
                 .AddScheme<FakeJwtOptions, FakeAuthHandler>("FakeJwt", null);

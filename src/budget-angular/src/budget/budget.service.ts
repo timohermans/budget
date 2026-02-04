@@ -9,13 +9,20 @@ export class BudgetService {
     public iban: WritableSignal<string | null> = signal(null);
 
     public date: Signal<Date | null> = this.dateSignal;
-    public dateEndOfMonth = computed(() => {
-        const date = this.dateSignal();
-        if (!date) return null;
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    public dateStartOfMonth: Signal<string> = computed(() => {
+        let date = this.dateSignal();
+        if (date == null) date = new Date();
+        return `${date.getFullYear()}-${(date.getMonth())}-01`; 
     });
-    
-    
+    public dateEndOfMonth: Signal<string> = computed(() => {
+        let date = this.dateSignal();
+        if (date == null) date = new Date();
+        return `${date.getFullYear()}-${(date.getMonth() + 1)}-${date.getDate()}`;
+    });
+
+    constructor() {
+        this.setDate(new Date());
+    }
 
     public users = httpResource<{ id: number; name: string }[]>(() => '/api/users',
         { defaultValue: []});

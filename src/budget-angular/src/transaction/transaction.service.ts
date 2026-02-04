@@ -18,8 +18,8 @@ export class TransactionService {
           url: `https://localhost:7070/Transactions`,
           // headers: { 'Authorization': `Bearer ${this.authService.getToken()}` },
           params: {
-            startDate: this.budgetService.date()?.toISOString().split('T')[0] ?? '',
-            endDate: this.budgetService.dateEndOfMonth()?.toISOString().split('T')[0] ?? '',
+            startDate: this.budgetService.dateStartOfMonth() ?? '',
+            endDate: this.budgetService.dateEndOfMonth() ?? '',
             iban: this.budgetService.iban() ?? '',
           },
         };

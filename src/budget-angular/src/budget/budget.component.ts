@@ -3,6 +3,7 @@ import { NavbarComponent } from '../shared/navbar.component';
 import { BudgetService } from './budget.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { TransactionsUploadComponent } from '../shared/transactions-upload.component';
+import { JsonPipe } from '@angular/common';
 
 @Component({
   template: `
@@ -18,13 +19,13 @@ import { TransactionsUploadComponent } from '../shared/transactions-upload.compo
           <span class="loading loading-infinity loading-lg"></span>
         </p>
       } @else if (transactions.hasValue()) {
-        <p>There are transactions!</p>
+        <p>There are transactions! {{ transactions.value() | json }}</p>
       } @else if (transactions.error()) {
         <p>Error loading transactions: {{ transactions.error() }}</p>
       }
     </div>
   `,
-  imports: [NavbarComponent, TransactionsUploadComponent],
+  imports: [NavbarComponent, TransactionsUploadComponent, JsonPipe],
 })
 export class Budget {
   protected readonly budgetService = inject(BudgetService);

@@ -3,6 +3,8 @@ import { Budget } from './budget.component';
 
 import { BudgetService } from './budget.service';
 import { TransactionService } from '../transaction/transaction.service';
+import { AuthService } from '../auth/auth.service';
+import { mock } from '../testing/mock';
 
 class MockBudgetService {
   date = () => null;
@@ -42,6 +44,7 @@ describe('BudgetComponent', () => {
       providers: [
         { provide: BudgetService, useValue: mockBudgetService },
         { provide: TransactionService, useValue: mockTransactionService },
+        { provide: AuthService, useValue: mock<AuthService>() }
       ],
     }).compileComponents();
   });
