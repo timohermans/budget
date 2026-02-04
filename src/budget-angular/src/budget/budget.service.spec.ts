@@ -35,11 +35,23 @@ describe('BudgetService', () => {
         }).inject(BudgetService);
     });
 
-    it('sets the start date to the first day of the month', () => {
+    it('sets the current date automatically at initialization', () => {
         const today = new Date();
 
         expect(service.date()?.getFullYear()).toBe(today.getFullYear());
         expect(service.date()?.getMonth()).toBe(today.getMonth());
         expect(service.date()?.getDate()).toBe(today.getDate());
+    });
+
+    it('computes the start of the month of a given date', () => {
+        service.setDate(new Date(2024, 0, 15));
+
+        expect(service.dateStartOfMonth()).toBe('2024-01-01');
+    });
+
+    it('computes the end of the month of a given date', () => {
+        service.setDate(new Date(2024, 0, 15));
+
+        expect(service.dateEndOfMonth()).toBe('2024-01-31');
     });
 });

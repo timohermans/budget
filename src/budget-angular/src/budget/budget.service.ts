@@ -12,12 +12,14 @@ export class BudgetService {
     public dateStartOfMonth: Signal<string> = computed(() => {
         let date = this.dateSignal();
         if (date == null) date = new Date();
-        return `${date.getFullYear()}-${(date.getMonth())}-01`; 
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`; 
     });
     public dateEndOfMonth: Signal<string> = computed(() => {
         let date = this.dateSignal();
         if (date == null) date = new Date();
-        return `${date.getFullYear()}-${(date.getMonth() + 1)}-${date.getDate()}`;
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+        lastDay.setDate(lastDay.getDate() - 1)
+        return `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
     });
 
     constructor() {
