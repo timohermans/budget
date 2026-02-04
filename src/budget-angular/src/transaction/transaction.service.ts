@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { TransactionApiModel } from './transaction.api-model';
 import { BudgetService } from '../budget/budget.service';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -14,14 +15,17 @@ export class TransactionService {
   public transactions = httpResource<TransactionApiModel[]>(
     () => {
       if (this.budgetService.date()) {
-        return {
-          url: `https://localhost:7070/Transactions`,
-          // headers: { 'Authorization': `Bearer ${this.authService.getToken()}` },
-          params: {
+        const iban = this.budgetService.iban();
+        const params: {startDate: string, endDate:string, iban?: string} = {
             startDate: this.budgetService.dateStartOfMonth() ?? '',
             endDate: this.budgetService.dateEndOfMonth() ?? '',
-            iban: this.budgetService.iban() ?? '',
-          },
+        };
+
+        if (iban) params.iban = iban;
+
+        return {
+          url: `${environment.apiUrl}/Transactions`,
+          params,
         };
       }
 
@@ -33,7 +37,7 @@ export class TransactionService {
     const formData = new FormData();
     formData.append('file', file);
 
-    return this.http.post(`https://localhost:7070/Transactions/upload`, formData).pipe(
+    return this.http.post(`${environment.apiUrl}/Transactions/upload`, formData).pipe(
       tap(() => {
         console.log('going to reload');
         this.transactions.reload();

@@ -1,3 +1,4 @@
 export const environment = {
-    useFakeAuth: true
+    useFakeAuth: true,
+    apiUrl: 'https://localhost:7070'
 };

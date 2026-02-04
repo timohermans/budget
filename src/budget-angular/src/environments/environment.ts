@@ -1,3 +1,4 @@
 export const environment = {
-    useFakeAuth: false
+    useFakeAuth: false,
+    apiUrl: ''
 };
