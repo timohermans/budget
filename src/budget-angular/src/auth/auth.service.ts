@@ -12,19 +12,29 @@ export class TokenService {
   public token = signal<string | null>(null);
 }
 
+
+export abstract class AuthService {
+  abstract initialLogin(): Promise<void>;
+  abstract login(): void;
+  abstract getUsernameFromClaims(): string | null;
+  abstract getAccessToken(): string | null;
+  abstract isAuthenticated: Signal<boolean>;
+  abstract isDoneLoading: Signal<boolean>;
+  abstract canActivateProtectedRoutes: Signal<boolean>;
+  abstract loginUrl: string;
+}
+
 /**
  * Authentication service that is basically a wrapper around angular-oauth2-oidc.
  * Example used from here: https://github.com/jeroenheijmans/sample-angular-oauth2-oidc-with-auth-guards/blob/master/src/app/core/auth.service.ts
  */
-@Injectable({
-  providedIn: 'root',
-})
-export class AuthService {
-  private readonly tokenService = inject(TokenService);
+@Injectable()
+export class OAuth2AuthService extends AuthService {
   private readonly oauthService = inject(OAuthService);
   private readonly router = inject(Router);
 
   private _isAuthenticated: WritableSignal<boolean> = signal(false);
+  public override loginUrl: string = '/';
   public isAuthenticated: Signal<boolean> = this._isAuthenticated;
 
   private _isDoneLoading: WritableSignal<boolean> = signal(false);
@@ -41,6 +51,7 @@ export class AuthService {
   }
 
   constructor() {
+    super();
     this.oauthService.configure(authConfig);
     this.logEventsForDebugging();
     this.onCrossTabChangesRefreshIsAuthenticated();
@@ -122,5 +133,9 @@ export class AuthService {
 
   public login() {
     this.oauthService.initLoginFlow();
+  }
+
+  public override getAccessToken(): string | null {
+    return this.oauthService.getAccessToken();
   }
 }
