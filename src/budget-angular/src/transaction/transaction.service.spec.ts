@@ -5,6 +5,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { mock, Mocked } from '../testing/mock';
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { firstValueFrom } from 'rxjs';
 
 describe('TransactionService', () => {
   let service: TransactionService;
@@ -55,7 +56,7 @@ describe('TransactionService', () => {
     budgetServiceMock.date.mockReturnValue(new Date());
     budgetServiceMock.iban.mockReturnValue('NL44RABOW');
 
-    const foo = service.transactions.value();
+    service.transactions.value();
 
     TestBed.tick();
 
@@ -64,5 +65,22 @@ describe('TransactionService', () => {
     expect(req.request.urlWithParams).toContain('startDate=2020-01-01');
     expect(req.request.urlWithParams).toContain('endDate=2020-01-31');
     expect(req.request.urlWithParams).toContain('iban=NL44RABOW');
+  });
+
+  it('refreshes the transactions after uploading transactions', () => {
+    budgetServiceMock.dateStartOfMonth.mockReturnValue('2020-01-01');
+    budgetServiceMock.dateEndOfMonth.mockReturnValue('2020-01-31');
+
+    service.transactions.reload = vi.fn();
+
+    firstValueFrom(service.uploadTransactions(new File([], 'transactions.csv')));
+
+    TestBed.tick();
+
+    const req = backendMock.expectOne(req => req.url.endsWith('Transactions/upload'))
+
+    req.flush({});
+
+    expect(service.transactions.reload).toHaveBeenCalled();
   });
 });

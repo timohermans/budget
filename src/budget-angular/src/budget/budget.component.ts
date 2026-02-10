@@ -4,6 +4,7 @@ import { BudgetService } from './budget.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { TransactionsUploadComponent } from '../shared/transactions-upload.component';
 import { JsonPipe } from '@angular/common';
+import { LastMonthSummaryComponent } from './last-month-summary.component';
 
 @Component({
   template: `
@@ -19,13 +20,15 @@ import { JsonPipe } from '@angular/common';
           <span class="loading loading-infinity loading-lg"></span>
         </p>
       } @else if (transactions.hasValue()) {
-        <p>There are transactions! {{ transactions.value() | json }}</p>
+        <div>
+          <app-last-month-summary [date]="budgetService.date()" [transactions]="transactions.value()" />
+        </div>
       } @else if (transactions.error()) {
         <p>Error loading transactions: {{ transactions.error() }}</p>
       }
     </div>
   `,
-  imports: [NavbarComponent, TransactionsUploadComponent, JsonPipe],
+  imports: [NavbarComponent, TransactionsUploadComponent, LastMonthSummaryComponent],
 })
 export class Budget {
   protected readonly budgetService = inject(BudgetService);

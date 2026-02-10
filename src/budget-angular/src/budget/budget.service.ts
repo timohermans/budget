@@ -5,10 +5,10 @@ import { computed, Inject, Injectable, Signal, signal, WritableSignal } from "@a
     providedIn: 'root'
 })
 export class BudgetService {
-    private dateSignal: WritableSignal<Date | null> = signal(null);
+    private dateSignal: WritableSignal<Date> = signal(new Date());
     public iban: WritableSignal<string | null> = signal(null);
 
-    public date: Signal<Date | null> = this.dateSignal;
+    public date: Signal<Date> = this.dateSignal;
     public dateStartOfMonth: Signal<string> = computed(() => {
         let date = this.dateSignal();
         if (date == null) date = new Date();
@@ -18,7 +18,7 @@ export class BudgetService {
         let date = this.dateSignal();
         if (date == null) date = new Date();
         const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
-        lastDay.setDate(lastDay.getDate() - 1)
+        lastDay.setDate(lastDay.getDate() - 1);
         return `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
     });
 

@@ -40,11 +40,12 @@ describe('BudgetComponent', () => {
   beforeEach(async () => {
     mockBudgetService = new MockBudgetService();
     mockTransactionService = new MockTransactionService();
+
     await TestBed.configureTestingModule({
       providers: [
         { provide: BudgetService, useValue: mockBudgetService },
         { provide: TransactionService, useValue: mockTransactionService },
-        { provide: AuthService, useValue: mock<AuthService>() }
+        { provide: AuthService, useValue: mock<AuthService>() },
       ],
     }).compileComponents();
   });
@@ -66,5 +67,18 @@ describe('BudgetComponent', () => {
     const loader = component.querySelector('[data-testid="transactions-loader"]');
     expect(loader).toBeDefined();
     expect(loader?.innerHTML).toBeDefined();
+  });
+
+  it('renders a last month summary component when loading is done', async () => {
+    mockTransactionService.transactions = {
+      hasValue: vi.fn().mockReturnValue(true),
+      isLoading: vi.fn().mockReturnValue(false),
+      value: vi.fn().mockReturnValue([]),
+      error: vi.fn().mockReturnValue(null),
+    };
+    const { component } = await renderComponent();
+
+    const lastMonthSummary = component.querySelector('app-last-month-summary');
+    expect(lastMonthSummary).toBeTruthy();
   });
 });
