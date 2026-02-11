@@ -7,7 +7,7 @@ import { AuthService } from '../auth/auth.service';
 import { mock } from '../testing/mock';
 
 class MockBudgetService {
-  date = () => null;
+  date = () => new Date();
   dateEndOfMonth = () => null;
   iban = () => null;
   setDate = (_date: Date) => {};

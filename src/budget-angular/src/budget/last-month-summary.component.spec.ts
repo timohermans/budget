@@ -1,5 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { LastMonthSummaryComponent } from "./last-month-summary.component";
+import { TransactionApiModel } from "../transaction/transaction.api-model";
 
 describe('LastMonthSummaryComponent', () => {
     function setup() {
@@ -17,12 +18,27 @@ describe('LastMonthSummaryComponent', () => {
         await fixture.whenStable();
 
         const heading = fixture.nativeElement.querySelector('[data-testid="current-month-heading"]')
-        expect(heading.textContent).toBe('Januari');
+        expect(heading.textContent.trim()).toBe('January');
     });
 
-    it('shows the previous month as income heading');
+    it('shows the previous month as income heading', async () => {
+        const fixture = setup();
 
-    it('shows the total income of the previous month (and skips income of this month)');
+        fixture.componentRef.setInput('date', new Date(2026, 0, 1));
+        fixture.componentRef.setInput('transactions', []);
+
+        await fixture.whenStable();
+
+        const heading = fixture.nativeElement.querySelector('[data-testid="previous-month-heading"]')
+        expect(heading.textContent.trim()).toBe('December');
+    });
+
+    it('shows the total income of the previous month (and skips income of this month)', async () => {
+        const transactions: TransactionApiModel[] = [
+            { }
+        ]
+
+    });
 
     it('shows the total fixed expenses of the previous month (and skips any other expenses)');
 });
