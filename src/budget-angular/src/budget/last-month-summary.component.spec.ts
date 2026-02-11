@@ -35,17 +35,41 @@ describe('LastMonthSummaryComponent', () => {
 
     it('shows the total income of the previous month (and skips income of this month)', async () => {
         const transactions: TransactionApiModel[] = [
-            { 
+            {
                 Amount: 3000.30,
                 DateTransaction: '2025-12-12',
                 Iban: 'NL44RABO0101010',
+                IbanOtherParty: 'NL66ING0101010',
                 FollowNumber: 1,
                 AuthorizationCode: '0123',
                 Id: 1,
-                Code: 'sb'
+                Code: 'sb',
+                Description: 'Salaris werkgever A'
+            },
+            {
+                Amount: 2000.30,
+                DateTransaction: '2025-12-12',
+                Iban: 'NL44RABO0101010',
+                IbanOtherParty: 'NL66ING0101010',
+                FollowNumber: 1,
+                AuthorizationCode: '0123',
+                Id: 1,
+                Code: 'sb',
+                Description: 'Salaris werkgever B'
             }
         ]
 
+        const fixture = setup();
+
+        fixture.componentRef.setInput('date', new Date(2026, 0, 1));
+        fixture.componentRef.setInput('transactions', transactions);
+        fixture.componentRef.setInput('iban', 'NL44RABO0101010');
+        fixture.componentRef.setInput('ownedIbans', ['NL44RABO0101010']);
+
+        await fixture.whenStable();
+
+        const heading = fixture.nativeElement.querySelector('[data-testid="previous-month-income"]')
+        expect(heading.textContent.trim()).toBe('5000,30');
     });
 
     it('shows the total fixed expenses of the previous month (and skips any other expenses)');
