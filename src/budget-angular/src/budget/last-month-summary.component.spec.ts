@@ -35,7 +35,15 @@ describe('LastMonthSummaryComponent', () => {
 
     it('shows the total income of the previous month (and skips income of this month)', async () => {
         const transactions: TransactionApiModel[] = [
-            { }
+            { 
+                Amount: 3000.30,
+                DateTransaction: '2025-12-12',
+                Iban: 'NL44RABO0101010',
+                FollowNumber: 1,
+                AuthorizationCode: '0123',
+                Id: 1,
+                Code: 'sb'
+            }
         ]
 
     });
