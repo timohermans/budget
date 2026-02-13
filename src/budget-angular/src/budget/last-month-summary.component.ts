@@ -16,7 +16,7 @@ type LastMonthSummary = {
         {{ previousMonth().toLocaleString('default', { month: 'long' }) }}
       </div>
       <div data-testid="previous-month-income">
-        {{this.lastMonthSummary().income}}
+        {{this.lastMonthSummary().income.toFixed(2)}}
       </div>
 
       <div data-testid="current-month-heading">
@@ -27,7 +27,7 @@ type LastMonthSummary = {
 })
 export class LastMonthSummaryComponent {
   date = input.required<Date>();
-  iban = input.required<string>();
+  iban = input.required<string | null>();
   ownedIbans = input.required<string[]>();
   previousMonth = computed(
     () => new Date(this.date().getFullYear(), this.date().getMonth() - 1, 1),
@@ -35,7 +35,7 @@ export class LastMonthSummaryComponent {
   transactions = input.required<TransactionApiModel[]>();
 
   lastMonthSummary = computed(() => {
-    const thisMonth = new Date();
+    const thisMonth = this.date();
     const lastMonth = new Date(thisMonth.getFullYear(), thisMonth.getMonth() - 1, thisMonth.getDate());
 
     return this.transactions().reduce<LastMonthSummary>(
@@ -52,9 +52,6 @@ export class LastMonthSummaryComponent {
         if (isFixedIncome(transaction, this.ownedIbans())) {
           return { ...summary, income: summary.income + transaction.Amount }
         }
-
-
-
 
         return summary;
       },

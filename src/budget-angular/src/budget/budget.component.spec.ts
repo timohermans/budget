@@ -21,6 +21,12 @@ class MockTransactionService {
     isLoading: () => false,
     error: () => null,
   };
+  ibansOwned = {
+    hasValue: () => true,
+    value: () => [],
+    isLoading: () => false,
+    error: () => null,
+  };
 }
 
 describe('BudgetComponent', () => {
@@ -76,6 +82,13 @@ describe('BudgetComponent', () => {
       value: vi.fn().mockReturnValue([]),
       error: vi.fn().mockReturnValue(null),
     };
+    mockTransactionService.ibansOwned = {
+      hasValue: vi.fn().mockReturnValue(true),
+      isLoading: vi.fn().mockReturnValue(false),
+      value: vi.fn().mockReturnValue([]),
+      error: vi.fn().mockReturnValue(null),
+    };
+
     const { component } = await renderComponent();
 
     const lastMonthSummary = component.querySelector('app-last-month-summary');

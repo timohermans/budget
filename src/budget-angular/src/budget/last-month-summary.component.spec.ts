@@ -69,7 +69,7 @@ describe('LastMonthSummaryComponent', () => {
         await fixture.whenStable();
 
         const heading = fixture.nativeElement.querySelector('[data-testid="previous-month-income"]')
-        expect(heading.textContent.trim()).toBe('5000,30');
+        expect(heading.textContent.trim()).toBe('5000.60');
     });
 
     it('shows the total fixed expenses of the previous month (and skips any other expenses)');

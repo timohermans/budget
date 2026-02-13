@@ -31,6 +31,8 @@ export class TransactionService {
     return undefined;
   });
 
+  public ibansOwned = httpResource<string[]>(() => `${environment.apiUrl}/Transactions/ibans`);
+
   public uploadTransactions(file: File): Observable<Object> {
     const formData = new FormData();
     formData.append('file', file);
@@ -39,6 +41,7 @@ export class TransactionService {
       tap(() => {
         console.log('going to reload');
         this.transactions.reload();
+        this.ibansOwned.reload();
       }),
     );
   }

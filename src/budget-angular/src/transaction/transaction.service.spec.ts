@@ -43,7 +43,7 @@ describe('TransactionService', () => {
 
     TestBed.tick();
 
-    const req = backendMock.expectOne((req) => req.url.includes('/Transactions'));
+    const req = backendMock.expectOne((req) => req.url.endsWith('/Transactions'));
 
     expect(req.request.urlWithParams).toContain('startDate=2020-01-01');
     expect(req.request.urlWithParams).toContain('endDate=2020-01-31');
@@ -60,7 +60,7 @@ describe('TransactionService', () => {
 
     TestBed.tick();
 
-    const req = backendMock.expectOne((req) => req.url.includes('/Transactions'));
+    const req = backendMock.expectOne((req) => req.url.endsWith('/Transactions'));
 
     expect(req.request.urlWithParams).toContain('startDate=2020-01-01');
     expect(req.request.urlWithParams).toContain('endDate=2020-01-31');
@@ -72,6 +72,7 @@ describe('TransactionService', () => {
     budgetServiceMock.dateEndOfMonth.mockReturnValue('2020-01-31');
 
     service.transactions.reload = vi.fn();
+    service.ibansOwned.reload = vi.fn();
 
     firstValueFrom(service.uploadTransactions(new File([], 'transactions.csv')));
 
@@ -82,5 +83,6 @@ describe('TransactionService', () => {
     req.flush({});
 
     expect(service.transactions.reload).toHaveBeenCalled();
+    expect(service.ibansOwned.reload).toHaveBeenCalled();
   });
 });
