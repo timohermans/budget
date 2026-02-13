@@ -6,7 +6,7 @@
 {
     <tr class="align-middle" data-testid="@($"transaction-row-{Transaction.Id}")">
         <td>
-            @if (Transaction is { IsFromOwnAccount: false, IsFixed: false, IsIncome: true})
+            @if (Transaction is { IsFixed: false, IsIncome: true})
             {
                 <TransactionRowOptions Id="Transaction.Id" OnOpenCashback="OpenCashbackForm" />
             }
