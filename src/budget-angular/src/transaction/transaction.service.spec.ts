@@ -5,7 +5,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { mock, Mocked } from '../testing/mock';
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, shareReplay } from 'rxjs';
+import { tickHttpResources } from '../testing/utils.spec';
+import { TransactionApiModel } from './transaction.api-model';
 
 describe('TransactionService', () => {
   let service: TransactionService;
@@ -26,6 +28,120 @@ describe('TransactionService', () => {
 
     service = TestBed.inject(TransactionService);
     backendMock = TestBed.inject(HttpTestingController);
+  });
+
+  describe('summary',  () => {
+    it('combines results of transactions and ibans into a summary', async () => {
+      budgetServiceMock.dateStartOfMonth.mockReturnValue('2025-12-01');
+      budgetServiceMock.dateEndOfMonth.mockReturnValue('2026-01-31');
+      budgetServiceMock.date.mockReturnValue(new Date(2026, 0, 1));
+      budgetServiceMock.iban.mockReturnValue('OWNED01')
+
+      service.summary(); // this will trigger requests
+
+      TestBed.tick();
+
+      const transactionRequest = backendMock.expectOne((req) => req.url.endsWith('/Transactions'));
+      const ibansRequest = backendMock.expectOne((req) => req.url.endsWith('/ibans'));
+
+      transactionRequest.flush([
+        // volgende 2 transacties zouden vaste inkomen moeten zijn
+        {
+          Amount: 3000.3,
+          DateTransaction: '2025-12-12',
+          Iban: 'OWNED01',
+          IbanOtherParty: 'NL66ING0101010',
+          NameOtherParty: 'Werkgever A',
+          FollowNumber: 1,
+          AuthorizationCode: '0123',
+          Id: 1,
+          Code: 'sb',
+          Description: 'Salaris werkgever A',
+        },
+        {
+          Amount: 2000.3,
+          DateTransaction: '2025-12-12',
+          Iban: 'OWNED01',
+          IbanOtherParty: 'NL66ING0101010',
+          NameOtherParty: 'Werkgever B',
+          FollowNumber: 2,
+          AuthorizationCode: '0123',
+          Id: 2,
+          Code: 'sb',
+          Description: 'Salaris werkgever B',
+        },
+        // de volgende transacties zijn vaste lasten
+        {
+          Amount: -44,
+          DateTransaction: '2025-12-08',
+          Iban: 'OWNED01',
+          IbanOtherParty: 'NL99PIAN0101010',
+          NameOtherParty: 'Piano lerares',
+          FollowNumber: 3,
+          AuthorizationCode: null,
+          Id: 3,
+          Code: 'bg',
+          Description: 'Lessen Timo',
+        },
+        {
+          Id: 4,
+          FollowNumber: 4,
+          Amount: -51.03,
+          DateTransaction: '2025-12-06',
+          Iban: 'OWNED01',
+          IbanOtherParty: 'NL99ODIDO0101010',
+          NameOtherParty: 'ODIDO Netherlands',
+          AuthorizationCode: null,
+          Code: 'ei',
+          Description: 'Mob 0611111111 Klantnr. 1.1231241',
+        },
+        {
+          Id: 5,
+          FollowNumber: 5,
+          Amount: -109,
+          DateTransaction: '2025-12-06',
+          Iban: 'OWNED01',
+          IbanOtherParty: 'NL99OESSE0101010',
+          NameOtherParty: 'ESSENT RETAIL ENERGIE B.V.',
+          AuthorizationCode: null,
+          Code: 'cb',
+          Description: '150046212311/KLANT 1235467 KNMRK',
+        }, 
+        {
+          Id: 6,
+          FollowNumber: 6,
+          Amount: -5.45,
+          DateTransaction: '2025-12-02',
+          Iban: 'OWNED01',
+          IbanOtherParty: 'NL99ORABO0101010',
+          NameOtherParty: 'Rabobank',
+          AuthorizationCode: null,
+          Code: 'db',
+          Description: 'Kosten basispakket',
+        },
+        {
+          Id: 8,
+          FollowNumber: 8,
+          Amount: -1801.81,
+          DateTransaction: '2025-12-28',
+          Iban: 'OWNED01',
+          IbanOtherParty: 'NL99OBLG0101010',
+          NameOtherParty: 'BLG Wonen',
+          AuthorizationCode: null,
+          Code: 'ei',
+          Description: 'Hypotheek termijnbetaling.',
+        }
+      ] as TransactionApiModel[]);
+      ibansRequest.flush(['OWNED01']);
+
+      await tickHttpResources();
+
+      const summary = service.summary();
+
+      expect(summary).toBeDefined();
+      expect(summary?.income).toBe(5000.6);
+      expect(summary?.expenses).toBe(-2011.29)
+    });
   });
 
   it('should return undefined when date is not set', () => {
@@ -78,7 +194,7 @@ describe('TransactionService', () => {
 
     TestBed.tick();
 
-    const req = backendMock.expectOne(req => req.url.endsWith('Transactions/upload'))
+    const req = backendMock.expectOne((req) => req.url.endsWith('Transactions/upload'));
 
     req.flush({});
 
@@ -86,3 +202,4 @@ describe('TransactionService', () => {
     expect(service.ibansOwned.reload).toHaveBeenCalled();
   });
 });
+
