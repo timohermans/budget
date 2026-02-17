@@ -6,7 +6,7 @@ import { mock, Mocked } from '../testing/mock';
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { firstValueFrom, shareReplay } from 'rxjs';
-import { tickHttpResources } from '../testing/utils.spec';
+import { tickHttpResources } from '../testing/utils';
 import { TransactionApiModel } from './transaction.api-model';
 
 describe('TransactionService', () => {

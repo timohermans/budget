@@ -6,7 +6,7 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '../environments/environment';
 import { isFixedExpense, isFixedIncome, toDate, toIsoWeekNumber } from './transaction.utils';
 
-type LastMonthSummary = {
+export type LastMonthSummary = {
   income: number;
   expenses: number;
 };
@@ -88,7 +88,6 @@ export class TransactionService {
 
     return this.http.post(`${environment.apiUrl}/Transactions/upload`, formData).pipe(
       tap(() => {
-        console.log('going to reload');
         this.transactions.reload();
         this.ibansOwned.reload();
       }),

@@ -4,34 +4,11 @@ import { Budget } from './budget.component';
 import { BudgetService } from './budget.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { AuthService } from '../auth/auth.service';
-import { mock } from '../testing/mock';
-
-class MockBudgetService {
-  date = () => new Date();
-  dateEndOfMonth = () => null;
-  iban = () => null;
-  setDate = (_date: Date) => {};
-  users = { data: [] };
-}
-
-class MockTransactionService {
-  transactions = {
-    hasValue: () => true,
-    value: () => [],
-    isLoading: () => false,
-    error: () => null,
-  };
-  ibansOwned = {
-    hasValue: () => true,
-    value: () => [],
-    isLoading: () => false,
-    error: () => null,
-  };
-}
+import { mock, Mocked } from '../testing/mock';
 
 describe('BudgetComponent', () => {
-  let mockBudgetService: MockBudgetService;
-  let mockTransactionService: MockTransactionService;
+  let mockBudgetService: Mocked<BudgetService>;
+  let mockTransactionService: Mocked<TransactionService>;
 
   async function renderComponent(): Promise<{
     fixture: ComponentFixture<Budget>;
@@ -44,8 +21,8 @@ describe('BudgetComponent', () => {
   }
 
   beforeEach(async () => {
-    mockBudgetService = new MockBudgetService();
-    mockTransactionService = new MockTransactionService();
+    mockBudgetService = mock<BudgetService>();
+    mockTransactionService = mock<TransactionService>();
 
     await TestBed.configureTestingModule({
       providers: [
@@ -57,17 +34,14 @@ describe('BudgetComponent', () => {
   });
 
   it('renders the "Overzicht" title', async () => {
+    mockTransactionService.isLoading.mockReturnValue(true);
     const { component } = await renderComponent();
     expect(component.querySelector('h2')?.textContent).toContain('Overzicht');
   });
 
   it('renders a loading element when transactions are loading', async () => {
-    mockTransactionService.transactions = {
-      hasValue: vi.fn().mockReturnValue(false),
-      isLoading: vi.fn().mockReturnValue(true),
-      value: vi.fn().mockReturnValue([]),
-      error: vi.fn().mockReturnValue(null),
-    };
+    mockTransactionService.isLoading.mockReturnValue(true);
+
     const { component } = await renderComponent();
 
     const loader = component.querySelector('[data-testid="transactions-loader"]');
@@ -76,18 +50,11 @@ describe('BudgetComponent', () => {
   });
 
   it('renders a last month summary component when loading is done', async () => {
-    mockTransactionService.transactions = {
-      hasValue: vi.fn().mockReturnValue(true),
-      isLoading: vi.fn().mockReturnValue(false),
-      value: vi.fn().mockReturnValue([]),
-      error: vi.fn().mockReturnValue(null),
-    };
-    mockTransactionService.ibansOwned = {
-      hasValue: vi.fn().mockReturnValue(true),
-      isLoading: vi.fn().mockReturnValue(false),
-      value: vi.fn().mockReturnValue([]),
-      error: vi.fn().mockReturnValue(null),
-    };
+    mockTransactionService.isLoading.mockReturnValue(false);
+    mockTransactionService.transactions = { hasValue: vi.fn().mockReturnValue(true) } as any;
+    mockTransactionService.ibansOwned = { hasValue: vi.fn().mockReturnValue(true) } as any;
+    mockTransactionService.summary.mockReturnValue(undefined);
+    mockBudgetService.date.mockReturnValue(new Date());
 
     const { component } = await renderComponent();
 

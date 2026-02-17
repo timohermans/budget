@@ -14,21 +14,21 @@ import { LastMonthSummaryComponent } from './last-month-summary.component';
         <app-transactions-upload></app-transactions-upload>
       </div>
 
-      @if (transactions.isLoading() || ibansOwned.isLoading()) {
+      @if (transactionService.isLoading()) {
         <p data-testid="transactions-loader">
           <span class="loading loading-infinity loading-lg"></span>
         </p>
       } @else if (transactions.hasValue() && ibansOwned.hasValue()) {
         <div>
           <app-last-month-summary
-            [iban]="budgetService.iban()"
             [date]="budgetService.date()"
-            [transactions]="transactions.value()"
-            [ownedIbans]="ibansOwned.value()"
+            [summary]="transactionService.summary()"
           />
         </div>
       } @else if (transactions.error()) {
         <p>Error loading transactions: {{ transactions.error() }}</p>
+      } @else if (ibansOwned.error()) {
+        <p>Error loading owned ibans: {{ ibansOwned.error() }}</p>
       }
     </div>
   `,
