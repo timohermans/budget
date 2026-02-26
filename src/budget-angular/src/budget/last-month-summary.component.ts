@@ -12,7 +12,11 @@ import { LastMonthSummary } from '../transaction/transaction.service';
         {{ previousMonth().toLocaleString('default', { month: 'long' }) }}
       </div>
       <div data-testid="previous-month-income">
-        {{ summary()?.income?.toFixed(2)}}
+        {{ summary()?.income?.toFixed(2) }}
+      </div>
+
+      <div data-testid="previous-month-expense">
+        {{ summary()?.expenses?.toFixed(2) }}
       </div>
 
       <div data-testid="current-month-heading">

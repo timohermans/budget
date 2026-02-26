@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TransactionService } from './transaction.service';
+import { TransactionService, WeekSummary } from './transaction.service';
 import { BudgetService } from '../budget/budget.service';
 import { provideHttpClient } from '@angular/common/http';
 import { mock, Mocked } from '../testing/mock';
@@ -30,12 +30,12 @@ describe('TransactionService', () => {
     backendMock = TestBed.inject(HttpTestingController);
   });
 
-  describe('summary',  () => {
+  describe('summary', () => {
     it('combines results of transactions and ibans into a summary', async () => {
       budgetServiceMock.dateStartOfMonth.mockReturnValue('2025-12-01');
       budgetServiceMock.dateEndOfMonth.mockReturnValue('2026-01-31');
       budgetServiceMock.date.mockReturnValue(new Date(2026, 0, 1));
-      budgetServiceMock.iban.mockReturnValue('OWNED01')
+      budgetServiceMock.iban.mockReturnValue('OWNED01');
 
       service.summary(); // this will trigger requests
 
@@ -106,7 +106,7 @@ describe('TransactionService', () => {
           AuthorizationCode: null,
           Code: 'cb',
           Description: '150046212311/KLANT 1235467 KNMRK',
-        }, 
+        },
         {
           Id: 6,
           FollowNumber: 6,
@@ -130,7 +130,7 @@ describe('TransactionService', () => {
           AuthorizationCode: null,
           Code: 'ei',
           Description: 'Hypotheek termijnbetaling.',
-        }
+        },
       ] as TransactionApiModel[]);
       ibansRequest.flush(['OWNED01']);
 
@@ -140,7 +140,19 @@ describe('TransactionService', () => {
 
       expect(summary).toBeDefined();
       expect(summary?.income).toBe(5000.6);
-      expect(summary?.expenses).toBe(-2011.29)
+      expect(summary?.expenses).toBe(-2011.29);
+      // 2989.31 zou dan budget moeten zijn.
+      // december 2025 bevat 5 weken
+      // budget per dag: 2989.31 / 31 = 96.42
+      // week 49, 50, 51 bevatten 5 dagen (96.42 * 5 = 482.1)
+      // week 52 bevat 3 dagen (96.42 * 3 = 289.26)
+      expect(summary?.weeks).toEqual([
+        { weekNumber: 49, budget: 482.1 },
+        { weekNumber: 50, budget: 482.1 },
+        { weekNumber: 51, budget: 482.1 },
+        { weekNumber: 52, budget: 482.1 },
+        { weekNumber: 1, budget: 289.26 },
+      ] as WeekSummary[]);
     });
   });
 
@@ -202,4 +214,3 @@ describe('TransactionService', () => {
     expect(service.ibansOwned.reload).toHaveBeenCalled();
   });
 });
-

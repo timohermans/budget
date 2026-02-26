@@ -34,10 +34,11 @@ describe('LastMonthSummaryComponent', () => {
     expect(heading.textContent.trim()).toBe('December');
   });
 
-  it('shows the total income of the previous month (and skips income of this month)', async () => {
+  it('shows the total income and expenses of the previous month (and skips income of this month)', async () => {
     const summary: LastMonthSummary = {
       income: 5000.6,
       expenses: 3080.7,
+      weeks: []
     };
 
     const fixture = setup();
@@ -47,9 +48,10 @@ describe('LastMonthSummaryComponent', () => {
 
     await fixture.whenStable();
 
-    const heading = fixture.nativeElement.querySelector('[data-testid="previous-month-income"]');
-    expect(heading.textContent.trim()).toBe('5000.60');
-  });
+    const incomeHeading = fixture.nativeElement.querySelector('[data-testid="previous-month-income"]');
+    expect(incomeHeading.textContent.trim()).toBe('5000.60');
 
-  it('shows the total fixed expenses of the previous month (and skips any other expenses)');
+    const expenseHeading = fixture.nativeElement.querySelector('[data-testid="previous-month-expense"]');
+    expect(expenseHeading.textContent.trim()).toBe('3080.70');
+  });
 });

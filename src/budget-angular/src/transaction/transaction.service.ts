@@ -6,9 +6,16 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '../environments/environment';
 import { isFixedExpense, isFixedIncome, toDate, toIsoWeekNumber } from './transaction.utils';
 
+export type WeekSummary = {
+  weekNumber: number;
+  budget: number;
+  spent: number;
+};
+
 export type LastMonthSummary = {
   income: number;
   expenses: number;
+  weeks: WeekSummary[];
 };
 
 @Injectable({

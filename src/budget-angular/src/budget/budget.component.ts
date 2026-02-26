@@ -24,6 +24,8 @@ import { LastMonthSummaryComponent } from './last-month-summary.component';
             [date]="budgetService.date()"
             [summary]="transactionService.summary()"
           />
+
+          
         </div>
       } @else if (transactions.error()) {
         <p>Error loading transactions: {{ transactions.error() }}</p>
