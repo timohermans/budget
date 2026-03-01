@@ -1,5 +1,6 @@
 import { TransactionApiModel } from './transaction.api-model';
 import {
+  daysBetweenDates,
     isFixedExpense,
   isFixedIncome,
   isFromOtherParty,
@@ -260,5 +261,11 @@ describe('transaction.utils', () => {
         expect(actual).toBe(expected);
       },
     );
+  });
+
+  describe('daysBetweenDates', () => {
+    it('calculates that between 20-01 and 24-01 are 4 days', () => {
+      expect(daysBetweenDates(new Date(2026, 0, 20), new Date(2026, 0, 24))).toBe(4);
+    });
   });
 });

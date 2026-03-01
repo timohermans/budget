@@ -4,7 +4,7 @@ import { TransactionApiModel } from './transaction.api-model';
 import { BudgetService } from '../budget/budget.service';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../environments/environment';
-import { isFixedExpense, isFixedIncome, toDate, toIsoWeekNumber } from './transaction.utils';
+import { daysBetweenDates, isFixed, isFixedExpense, isFixedIncome, isIncome, isVariable, toDate, toIsoWeekNumber } from './transaction.utils';
 
 export type WeekSummary = {
   weekNumber: number;
@@ -41,7 +41,7 @@ export class TransactionService {
     );
     const ibansOwned = this.ibansOwned.value() ?? [];
 
-    return this.transactions.value().reduce<LastMonthSummary>(
+    const summary = this.transactions.value().reduce<LastMonthSummary>(
       (summary, transaction) => {
         const date = toDate(transaction.DateTransaction);
         const isLastMonth =
@@ -62,10 +62,25 @@ export class TransactionService {
           summary.expenses += amount;
         }
 
+        let targetWeek = summary.weeks.find(w => w.weekNumber === week);
+        if(!targetWeek){
+          targetWeek = {weekNumber: week, budget: 0, spent: 0};
+          summary.weeks.push(targetWeek);
+        }
+
+        if (isVariable(transaction)) {
+          targetWeek.spent += transaction.Amount;
+        }
+
         return summary;
       },
-      { income: 0, expenses: 0 } as LastMonthSummary,
+      { income: 0, expenses: 0, weeks: [] } as LastMonthSummary,
     );
+
+    const lastDateOfMonth = new Date(thisMonth.getFullYear(), thisMonth.getMonth() + 1, -1);
+    const days = daysBetweenDates(thisMonth, lastDateOfMonth);
+
+    return summary;
   });
 
   public transactions = httpResource<TransactionApiModel[]>(() => {

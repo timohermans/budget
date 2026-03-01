@@ -35,6 +35,10 @@ export function isFixed(transaction: TransactionApiModel) {
   );
 }
 
+export function isVariable(transaction: TransactionApiModel) {
+  return !isFixed(transaction);
+}
+
 export function isFixedIncome(transaction: TransactionApiModel, ownedIbans: string[]) {
   return (
     isIncome(transaction) &&
@@ -54,4 +58,13 @@ export function isAlwaysVariable(transaction: TransactionApiModel) {
 
 export function isFixedExpense(transaction: TransactionApiModel) {
   return isExpense(transaction) && isFixed(transaction) && !isAlwaysVariable(transaction);
+}
+
+export function daysBetweenDates(start: Date, end: Date) {
+  const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+  const firstDate = start;
+  const secondDate = end;
+
+  const diffDays = Math.round(Math.abs((+firstDate - +secondDate) / oneDay));
+  return diffDays;
 }
