@@ -142,16 +142,17 @@ describe('TransactionService', () => {
       expect(summary?.income).toBe(5000.6);
       expect(summary?.expenses).toBe(-2011.29);
       // 2989.31 zou dan budget moeten zijn.
-      // december 2025 bevat 5 weken
+      // januari 2026 bevat 5 weken
       // budget per dag: 2989.31 / 31 = 96.42
-      // week 49, 50, 51 bevatten 5 dagen (96.42 * 5 = 482.1)
-      // week 52 bevat 3 dagen (96.42 * 3 = 289.26)
+      // week 1 bevat 4 dagen (96.42 * 4 = 385.713)
+      // week 2, 3, 4 bevatten 7 dagen (96.42 * 7 = 675.005)
+      // week 5 bevat 5 dagen (96.42 * 5 = 578.57)
       expect(summary?.weeks).toEqual([
-        { weekNumber: 49, budget: 482.1 },
-        { weekNumber: 50, budget: 482.1 },
-        { weekNumber: 51, budget: 482.1 },
-        { weekNumber: 52, budget: 482.1 },
-        { weekNumber: 1, budget: 289.26 },
+        { weekNumber: 1, budget: 385.72, spent: 0 },
+        { weekNumber: 2, budget: 675.01, spent: 0 },
+        { weekNumber: 3, budget: 675.01, spent: 0 },
+        { weekNumber: 4, budget: 675.01, spent: 0 },
+        { weekNumber: 5, budget: 578.58, spent: 0 },
       ] as WeekSummary[]);
     });
   });

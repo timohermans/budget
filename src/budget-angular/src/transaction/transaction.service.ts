@@ -2,9 +2,19 @@ import { HttpClient, httpResource } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
 import { TransactionApiModel } from './transaction.api-model';
 import { BudgetService } from '../budget/budget.service';
-import { Observable, tap } from 'rxjs';
+import { last, Observable, tap } from 'rxjs';
 import { environment } from '../environments/environment';
-import { daysBetweenDates, isFixed, isFixedExpense, isFixedIncome, isIncome, isVariable, toDate, toIsoWeekNumber } from './transaction.utils';
+import {
+  daysBetweenDates,
+  isFixed,
+  isFixedExpense,
+  isFixedIncome,
+  isIncome,
+  isVariable,
+  toDate,
+  toIsoWeekNumber,
+} from './transaction.utils';
+import { createDatesPerWeekFor } from './date.utils';
 
 export type WeekSummary = {
   weekNumber: number;
@@ -41,12 +51,15 @@ export class TransactionService {
     );
     const ibansOwned = this.ibansOwned.value() ?? [];
 
+    const daysInMonth = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 0);
+    const datesPerWeek = createDatesPerWeekFor(thisMonth);
     const summary = this.transactions.value().reduce<LastMonthSummary>(
       (summary, transaction) => {
         const date = toDate(transaction.DateTransaction);
         const isLastMonth =
           date.getFullYear() === lastMonth.getFullYear() &&
           date.getMonth() === lastMonth.getMonth();
+        const isThisMonth = !isLastMonth;
         const amount = transaction.Amount;
         const week = toIsoWeekNumber(date);
 
@@ -62,23 +75,33 @@ export class TransactionService {
           summary.expenses += amount;
         }
 
-        let targetWeek = summary.weeks.find(w => w.weekNumber === week);
-        if(!targetWeek){
-          targetWeek = {weekNumber: week, budget: 0, spent: 0};
-          summary.weeks.push(targetWeek);
+        if (isThisMonth) {
+          let targetWeek = summary.weeks.find((w) => w.weekNumber === week);
+          if (!targetWeek) {
+            targetWeek = { weekNumber: week, budget: 0, spent: 0 };
+            summary.weeks.push(targetWeek);
+          }
         }
 
-        if (isVariable(transaction)) {
-          targetWeek.spent += transaction.Amount;
-        }
+        // if (isVariable(transaction)) {
+        //   targetWeek.spent += transaction.Amount;
+        // }
 
         return summary;
       },
       { income: 0, expenses: 0, weeks: [] } as LastMonthSummary,
     );
 
-    const lastDateOfMonth = new Date(thisMonth.getFullYear(), thisMonth.getMonth() + 1, -1);
-    const days = daysBetweenDates(thisMonth, lastDateOfMonth);
+    const budget = Math.abs(summary.income) - Math.abs(summary.expenses);
+    datesPerWeek.forEach((dates, week) => {
+      let weekSummary = summary.weeks.find((w) => w.weekNumber === week);
+      if (!weekSummary) {
+        weekSummary = { weekNumber: week, spent: 0, budget: 0 };
+        summary.weeks.push(weekSummary);
+      }
+      const budgetOfWeek = (budget / daysInMonth.getDate()) * (datesPerWeek.get(week)?.length ?? 0);
+      weekSummary.budget = +budgetOfWeek.toFixed(2);
+    });
 
     return summary;
   });
