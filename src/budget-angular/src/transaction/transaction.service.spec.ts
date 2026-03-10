@@ -184,11 +184,11 @@ describe('TransactionService', () => {
       // week 2, 3, 4 bevatten 7 dagen (96.42 * 7 = 675.005)
       // week 5 bevat 5 dagen (96.42 * 5 = 578.57)
       expect(summary?.weeks).toEqual(new Map<number, WeekSummary>([
-        [1, { weekNumber: 1, budget: 385.72, spent: 320.72 }],
-        [2, { weekNumber: 2, budget: 675.01, spent: 800 }],
-        [3, { weekNumber: 3, budget: 675.01, spent: 0 }],
-        [4, { weekNumber: 4, budget: 675.01, spent: 0 }],
-        [5, { weekNumber: 5, budget: 578.58, spent: 0 }],
+        [1, { weekNumber: 1, budget: 385.72, spent: 320.72, left: 65 }],
+        [2, { weekNumber: 2, budget: 675.01, spent: 800, left: -124.99 }],
+        [3, { weekNumber: 3, budget: 675.01, spent: 0, left: 675.01 }],
+        [4, { weekNumber: 4, budget: 675.01, spent: 0, left: 675.01 }],
+        [5, { weekNumber: 5, budget: 578.58, spent: 0, left: 578.58 }],
       ]));
     });
   });

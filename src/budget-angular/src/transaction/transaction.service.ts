@@ -2,24 +2,24 @@ import { HttpClient, httpResource } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
 import { TransactionApiModel } from './transaction.api-model';
 import { BudgetService } from '../budget/budget.service';
-import { last, Observable, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../environments/environment';
 import {
-  daysBetweenDates,
-  isFixed,
+  isExpense,
   isFixedExpense,
   isFixedIncome,
-  isIncome,
   isVariable,
   toDate,
   toIsoWeekNumber,
 } from './transaction.utils';
 import { createDatesPerWeekFor } from './date.utils';
+import { round2 } from './number.utils';
 
 export type WeekSummary = {
   weekNumber: number;
   budget: number;
   spent: number;
+  left: number;
 };
 
 export type LastMonthSummary = {
@@ -53,7 +53,7 @@ export class TransactionService {
 
     const daysInMonth = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 0);
     const datesPerWeek = createDatesPerWeekFor(thisMonth);
-    const weekSummaries = new Map<number, WeekSummary>([...datesPerWeek.keys()].map(w => [w, { weekNumber: w, spent: 0, budget: 0 }]));
+    const weekSummaries = new Map<number, WeekSummary>([...datesPerWeek.keys()].map(w => [w, { weekNumber: w, spent: 0, budget: 0, left: 0 }]));
     const transactions = this.transactions.value();
     const summary = transactions.reduce<LastMonthSummary>(
       (summary, transaction, index) => {
@@ -82,7 +82,7 @@ export class TransactionService {
           const targetWeek = summary.weeks.get(week);
           if (!targetWeek) throw new Error('Week not found in map.');
 
-          if (isVariable(transaction)) {
+          if (isVariable(transaction) && isExpense(transaction)) {
             targetWeek.spent += Math.abs(transaction.Amount);
           }
         }
@@ -92,6 +92,7 @@ export class TransactionService {
           summary.weeks.forEach((weekSummary, week) => {
             const budgetOfWeek = (budget / daysInMonth.getDate()) * (datesPerWeek.get(week)?.length ?? 0);
             weekSummary.budget = +budgetOfWeek.toFixed(2);
+            weekSummary.left = round2(weekSummary.budget - weekSummary.spent);
           }) ;
         }
 
