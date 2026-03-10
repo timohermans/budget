@@ -25,7 +25,7 @@ export type WeekSummary = {
 export type LastMonthSummary = {
   income: number;
   expenses: number;
-  weeks: WeekSummary[];
+  weeks: Map<number, WeekSummary>;
 };
 
 @Injectable({
@@ -53,8 +53,11 @@ export class TransactionService {
 
     const daysInMonth = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 0);
     const datesPerWeek = createDatesPerWeekFor(thisMonth);
-    const summary = this.transactions.value().reduce<LastMonthSummary>(
-      (summary, transaction) => {
+    const weekSummaries = new Map<number, WeekSummary>([...datesPerWeek.keys()].map(w => [w, { weekNumber: w, spent: 0, budget: 0 }]));
+    const transactions = this.transactions.value();
+    const summary = transactions.reduce<LastMonthSummary>(
+      (summary, transaction, index) => {
+        const isFinalIteration = (transactions.length - 1) === index;
         const date = toDate(transaction.DateTransaction);
         const isLastMonth =
           date.getFullYear() === lastMonth.getFullYear() &&
@@ -63,45 +66,39 @@ export class TransactionService {
         const amount = transaction.Amount;
         const week = toIsoWeekNumber(date);
 
-        if (this.budgetService.iban() != transaction.Iban || !isLastMonth) {
+        if (this.budgetService.iban() != transaction.Iban) {
           return summary;
         }
 
-        if (isFixedIncome(transaction, ibansOwned)) {
+        if (isLastMonth && isFixedIncome(transaction, ibansOwned)) {
           summary.income += amount;
         }
 
-        if (isFixedExpense(transaction)) {
+        if (isLastMonth && isFixedExpense(transaction)) {
           summary.expenses += amount;
         }
 
         if (isThisMonth) {
-          let targetWeek = summary.weeks.find((w) => w.weekNumber === week);
-          if (!targetWeek) {
-            targetWeek = { weekNumber: week, budget: 0, spent: 0 };
-            summary.weeks.push(targetWeek);
+          const targetWeek = summary.weeks.get(week);
+          if (!targetWeek) throw new Error('Week not found in map.');
+
+          if (isVariable(transaction)) {
+            targetWeek.spent += Math.abs(transaction.Amount);
           }
         }
 
-        // if (isVariable(transaction)) {
-        //   targetWeek.spent += transaction.Amount;
-        // }
+        if (isFinalIteration) {
+          const budget = Math.abs(summary.income) - Math.abs(summary.expenses);
+          summary.weeks.forEach((weekSummary, week) => {
+            const budgetOfWeek = (budget / daysInMonth.getDate()) * (datesPerWeek.get(week)?.length ?? 0);
+            weekSummary.budget = +budgetOfWeek.toFixed(2);
+          }) ;
+        }
 
         return summary;
       },
-      { income: 0, expenses: 0, weeks: [] } as LastMonthSummary,
+      { income: 0, expenses: 0, weeks: weekSummaries } as LastMonthSummary,
     );
-
-    const budget = Math.abs(summary.income) - Math.abs(summary.expenses);
-    datesPerWeek.forEach((dates, week) => {
-      let weekSummary = summary.weeks.find((w) => w.weekNumber === week);
-      if (!weekSummary) {
-        weekSummary = { weekNumber: week, spent: 0, budget: 0 };
-        summary.weeks.push(weekSummary);
-      }
-      const budgetOfWeek = (budget / daysInMonth.getDate()) * (datesPerWeek.get(week)?.length ?? 0);
-      weekSummary.budget = +budgetOfWeek.toFixed(2);
-    });
 
     return summary;
   });

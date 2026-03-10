@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { LastMonthSummaryComponent } from './last-month-summary.component';
 import { TransactionApiModel } from '../transaction/transaction.api-model';
-import { LastMonthSummary } from '../transaction/transaction.service';
+import { LastMonthSummary, WeekSummary } from '../transaction/transaction.service';
 
 describe('LastMonthSummaryComponent', () => {
   function setup() {
@@ -38,7 +38,7 @@ describe('LastMonthSummaryComponent', () => {
     const summary: LastMonthSummary = {
       income: 5000.6,
       expenses: 3080.7,
-      weeks: []
+      weeks: new Map<number, WeekSummary>()
     };
 
     const fixture = setup();

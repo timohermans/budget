@@ -131,6 +131,42 @@ describe('TransactionService', () => {
           Code: 'ei',
           Description: 'Hypotheek termijnbetaling.',
         },
+        // variabele uitgaven
+        // week 1 variable
+        {
+          Id: 9,
+          FollowNumber: 9,
+          Amount: -20.72,
+          DateTransaction: '2026-01-02',
+          Iban: 'OWNED01',
+          NameOtherParty: 'AH - Jan Linders 4149',
+          AuthorizationCode: null,
+          Code: 'bc',
+          Description: 'Terminal: Boodschappen1',
+        },
+        {
+          Id: 10,
+          FollowNumber: 10,
+          Amount: -300.00,
+          DateTransaction: '2026-01-02',
+          Iban: 'OWNED01',
+          NameOtherParty: 'AH - Jan Linders 4149',
+          AuthorizationCode: null,
+          Code: 'bc',
+          Description: 'Terminal: Boodschappen1',
+        },
+        {
+          Id: 11,
+          FollowNumber: 11,
+          Amount: -800.00,
+          DateTransaction: '2026-01-11',
+          Iban: 'OWNED01',
+          NameOtherParty: 'AH - Jan Linders 4149',
+          AuthorizationCode: null,
+          Code: 'bc',
+          Description: 'Terminal: Boodschappen2',
+        },
+        
       ] as TransactionApiModel[]);
       ibansRequest.flush(['OWNED01']);
 
@@ -147,13 +183,13 @@ describe('TransactionService', () => {
       // week 1 bevat 4 dagen (96.42 * 4 = 385.713)
       // week 2, 3, 4 bevatten 7 dagen (96.42 * 7 = 675.005)
       // week 5 bevat 5 dagen (96.42 * 5 = 578.57)
-      expect(summary?.weeks).toEqual([
-        { weekNumber: 1, budget: 385.72, spent: 0 },
-        { weekNumber: 2, budget: 675.01, spent: 0 },
-        { weekNumber: 3, budget: 675.01, spent: 0 },
-        { weekNumber: 4, budget: 675.01, spent: 0 },
-        { weekNumber: 5, budget: 578.58, spent: 0 },
-      ] as WeekSummary[]);
+      expect(summary?.weeks).toEqual(new Map<number, WeekSummary>([
+        [1, { weekNumber: 1, budget: 385.72, spent: 320.72 }],
+        [2, { weekNumber: 2, budget: 675.01, spent: 800 }],
+        [3, { weekNumber: 3, budget: 675.01, spent: 0 }],
+        [4, { weekNumber: 4, budget: 675.01, spent: 0 }],
+        [5, { weekNumber: 5, budget: 578.58, spent: 0 }],
+      ]));
     });
   });
 
