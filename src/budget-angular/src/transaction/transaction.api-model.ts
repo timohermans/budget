@@ -1,13 +1,13 @@
 export interface TransactionApiModel {
-    Id: number;
-    FollowNumber: number;
-    Iban: string;
-    Amount: number;
-    DateTransaction: string;
-    NameOtherParty?: string;
-    IbanOtherParty?: string;
-    AuthorizationCode?: string;
-    Description?: string;
-    CashbackForDate?: string;
-    Code?: string;
+    id: number;
+    followNumber: number;
+    iban: string;
+    amount: number;
+    dateTransaction: string;
+    nameOtherParty?: string;
+    ibanOtherParty?: string;
+    authorizationCode?: string;
+    description?: string;
+    cashbackForDate?: string;
+    code?: string;
 }

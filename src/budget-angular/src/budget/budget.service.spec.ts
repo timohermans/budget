@@ -49,6 +49,12 @@ describe('BudgetService', () => {
         expect(service.dateStartOfMonth()).toBe('2024-01-01');
     });
 
+    it('computes the start of the previous month of a given date', () => {
+        service.setDate(new Date(2024, 0, 15));
+
+        expect(service.dateStartOfPreviousMonth()).toBe('2023-12-01');
+    });
+
     it('computes the end of the month of a given date', () => {
         service.setDate(new Date(2024, 0, 15));
 

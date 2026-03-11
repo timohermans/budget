@@ -25,6 +25,7 @@ export type WeekSummary = {
 export type LastMonthSummary = {
   income: number;
   expenses: number;
+  spent: number;
   weeks: Map<number, WeekSummary>;
 };
 
@@ -43,30 +44,34 @@ export class TransactionService {
     if (!this.transactions.hasValue()) return;
     if (!this.ibansOwned.hasValue()) return;
 
+    const transactions = this.transactions.value();
+    const ibansOwned = this.ibansOwned.value() ?? [];
     const thisMonth = this.budgetService.date();
+    const iban = this.budgetService.iban() ?? (ibansOwned.length > 0 ? ibansOwned[0] : undefined); // TODO: write to iban signal
+
     const lastMonth = new Date(
       thisMonth.getFullYear(),
       thisMonth.getMonth() - 1,
       thisMonth.getDate(),
     );
-    const ibansOwned = this.ibansOwned.value() ?? [];
 
     const daysInMonth = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 0);
     const datesPerWeek = createDatesPerWeekFor(thisMonth);
-    const weekSummaries = new Map<number, WeekSummary>([...datesPerWeek.keys()].map(w => [w, { weekNumber: w, spent: 0, budget: 0, left: 0 }]));
-    const transactions = this.transactions.value();
+    const weekSummaries = new Map<number, WeekSummary>(
+      [...datesPerWeek.keys()].map((w) => [w, { weekNumber: w, spent: 0, budget: 0, left: 0 }]),
+    );
     const summary = transactions.reduce<LastMonthSummary>(
       (summary, transaction, index) => {
-        const isFinalIteration = (transactions.length - 1) === index;
-        const date = toDate(transaction.DateTransaction);
+        const isFinalIteration = transactions.length - 1 === index;
+        const date = toDate(transaction.dateTransaction);
         const isLastMonth =
           date.getFullYear() === lastMonth.getFullYear() &&
           date.getMonth() === lastMonth.getMonth();
         const isThisMonth = !isLastMonth;
-        const amount = transaction.Amount;
+        const amount = transaction.amount;
         const week = toIsoWeekNumber(date);
 
-        if (this.budgetService.iban() != transaction.Iban) {
+        if (iban != transaction.iban) {
           return summary;
         }
 
@@ -83,22 +88,24 @@ export class TransactionService {
           if (!targetWeek) throw new Error('Week not found in map.');
 
           if (isVariable(transaction) && isExpense(transaction)) {
-            targetWeek.spent += Math.abs(transaction.Amount);
+            summary.spent += Math.abs(transaction.amount);
+            targetWeek.spent += Math.abs(transaction.amount);
           }
         }
 
         if (isFinalIteration) {
           const budget = Math.abs(summary.income) - Math.abs(summary.expenses);
           summary.weeks.forEach((weekSummary, week) => {
-            const budgetOfWeek = (budget / daysInMonth.getDate()) * (datesPerWeek.get(week)?.length ?? 0);
+            const budgetOfWeek =
+              (budget / daysInMonth.getDate()) * (datesPerWeek.get(week)?.length ?? 0);
             weekSummary.budget = +budgetOfWeek.toFixed(2);
             weekSummary.left = round2(weekSummary.budget - weekSummary.spent);
-          }) ;
+          });
         }
 
         return summary;
       },
-      { income: 0, expenses: 0, weeks: weekSummaries } as LastMonthSummary,
+      { income: 0, expenses: 0, spent: 0, weeks: weekSummaries } as LastMonthSummary,
     );
 
     return summary;
@@ -108,7 +115,7 @@ export class TransactionService {
     if (this.budgetService.date()) {
       const iban = this.budgetService.iban();
       const params: { startDate: string; endDate: string; iban?: string } = {
-        startDate: this.budgetService.dateStartOfMonth() ?? '',
+        startDate: this.budgetService.dateStartOfPreviousMonth() ?? '',
         endDate: this.budgetService.dateEndOfMonth() ?? '',
       };
 

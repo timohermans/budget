@@ -43,15 +43,15 @@ describe('transaction.utils', () => {
       { amount: 0, expected: false },
     ])('marks the transaction with amount $amount as $expected income', ({ amount, expected }) => {
       const transaction: TransactionApiModel = {
-        Amount: amount,
-        DateTransaction: '2025-12-12',
-        Iban: 'NL44RABO0101010',
-        IbanOtherParty: 'NL66ING0101010',
-        FollowNumber: 1,
-        AuthorizationCode: '0123',
-        Id: 1,
-        Code: 'sb',
-        Description: 'Salaris werkgever A',
+        amount: amount,
+        dateTransaction: '2025-12-12',
+        iban: 'NL44RABO0101010',
+        ibanOtherParty: 'NL66ING0101010',
+        followNumber: 1,
+        authorizationCode: '0123',
+        id: 1,
+        code: 'sb',
+        description: 'Salaris werkgever A',
       };
 
       const actual = isIncome(transaction);
@@ -69,15 +69,15 @@ describe('transaction.utils', () => {
       'marks $otherIban as $expected other party when owned ibans are $ownedIbans',
       ({ otherIban, ownedIbans, expected }) => {
         const transaction: TransactionApiModel = {
-          Amount: 10,
-          DateTransaction: '2025-12-12',
-          Iban: 'OWNED01',
-          IbanOtherParty: otherIban,
-          FollowNumber: 1,
-          AuthorizationCode: '0123',
-          Id: 1,
-          Code: 'sb',
-          Description: 'Salaris werkgever A',
+          amount: 10,
+          dateTransaction: '2025-12-12',
+          iban: 'OWNED01',
+          ibanOtherParty: otherIban,
+          followNumber: 1,
+          authorizationCode: '0123',
+          id: 1,
+          code: 'sb',
+          description: 'Salaris werkgever A',
         };
 
         const actual = isFromOtherParty(transaction, ownedIbans);
@@ -138,16 +138,16 @@ describe('transaction.utils', () => {
       'marks transaction $description with amount $amount, code $code and otherIban $otherIban, cashback $cashbackDate as $expected fixed income',
       ({ amount, code, cashbackDate, otherIban, ownedIbans, expected }) => {
         const transaction: TransactionApiModel = {
-          Amount: amount,
-          DateTransaction: '2025-12-12',
-          CashbackForDate: cashbackDate,
-          Iban: 'OWNED01',
-          IbanOtherParty: otherIban,
-          FollowNumber: 1,
-          AuthorizationCode: '0123',
-          Id: 1,
-          Code: code,
-          Description: 'Salaris werkgever A',
+          amount: amount,
+          dateTransaction: '2025-12-12',
+          cashbackForDate: cashbackDate,
+          iban: 'OWNED01',
+          ibanOtherParty: otherIban,
+          followNumber: 1,
+          authorizationCode: '0123',
+          id: 1,
+          code: code,
+          description: 'Salaris werkgever A',
         };
 
         const actual = isFixedIncome(transaction, ownedIbans);
@@ -244,16 +244,16 @@ describe('transaction.utils', () => {
       'marks transaction $nameOtherParty with amount $amount, code $code and otherIban $otherIban as $expected fixed expense',
       ({ amount, code, otherIban, expected, nameOtherParty, description }) => {
         const transaction: TransactionApiModel = {
-          Amount: amount,
-          DateTransaction: '2025-12-12',
-          Iban: 'OWNED01',
-          IbanOtherParty: otherIban,
-          NameOtherParty: nameOtherParty,
-          FollowNumber: 1,
-          AuthorizationCode: '0123',
-          Id: 1,
-          Code: code,
-          Description: description || 'some description',
+          amount: amount,
+          dateTransaction: '2025-12-12',
+          iban: 'OWNED01',
+          ibanOtherParty: otherIban,
+          nameOtherParty: nameOtherParty,
+          followNumber: 1,
+          authorizationCode: '0123',
+          id: 1,
+          code: code,
+          description: description || 'some description',
         };
 
         const actual = isFixedExpense(transaction);

@@ -47,124 +47,124 @@ describe('TransactionService', () => {
       transactionRequest.flush([
         // volgende 2 transacties zouden vaste inkomen moeten zijn
         {
-          Amount: 3000.3,
-          DateTransaction: '2025-12-12',
-          Iban: 'OWNED01',
-          IbanOtherParty: 'NL66ING0101010',
-          NameOtherParty: 'Werkgever A',
-          FollowNumber: 1,
-          AuthorizationCode: '0123',
-          Id: 1,
-          Code: 'sb',
-          Description: 'Salaris werkgever A',
+          amount: 3000.3,
+          dateTransaction: '2025-12-12',
+          iban: 'OWNED01',
+          ibanOtherParty: 'NL66ING0101010',
+          nameOtherParty: 'Werkgever A',
+          followNumber: 1,
+          authorizationCode: '0123',
+          id: 1,
+          code: 'sb',
+          description: 'Salaris werkgever A',
         },
         {
-          Amount: 2000.3,
-          DateTransaction: '2025-12-12',
-          Iban: 'OWNED01',
-          IbanOtherParty: 'NL66ING0101010',
-          NameOtherParty: 'Werkgever B',
-          FollowNumber: 2,
-          AuthorizationCode: '0123',
-          Id: 2,
-          Code: 'sb',
-          Description: 'Salaris werkgever B',
+          amount: 2000.3,
+          dateTransaction: '2025-12-12',
+          iban: 'OWNED01',
+          ibanOtherParty: 'NL66ING0101010',
+          nameOtherParty: 'Werkgever B',
+          followNumber: 2,
+          authorizationCode: '0123',
+          id: 2,
+          code: 'sb',
+          description: 'Salaris werkgever B',
         },
         // de volgende transacties zijn vaste lasten
         {
-          Amount: -44,
-          DateTransaction: '2025-12-08',
-          Iban: 'OWNED01',
-          IbanOtherParty: 'NL99PIAN0101010',
-          NameOtherParty: 'Piano lerares',
-          FollowNumber: 3,
-          AuthorizationCode: null,
-          Id: 3,
-          Code: 'bg',
-          Description: 'Lessen Timo',
+          amount: -44,
+          dateTransaction: '2025-12-08',
+          iban: 'OWNED01',
+          ibanOtherParty: 'NL99PIAN0101010',
+          nameOtherParty: 'Piano lerares',
+          followNumber: 3,
+          authorizationCode: null,
+          id: 3,
+          code: 'bg',
+          description: 'Lessen Timo',
         },
         {
-          Id: 4,
-          FollowNumber: 4,
-          Amount: -51.03,
-          DateTransaction: '2025-12-06',
-          Iban: 'OWNED01',
-          IbanOtherParty: 'NL99ODIDO0101010',
-          NameOtherParty: 'ODIDO Netherlands',
-          AuthorizationCode: null,
-          Code: 'ei',
-          Description: 'Mob 0611111111 Klantnr. 1.1231241',
+          id: 4,
+          followNumber: 4,
+          amount: -51.03,
+          dateTransaction: '2025-12-06',
+          iban: 'OWNED01',
+          ibanOtherParty: 'NL99ODIDO0101010',
+          nameOtherParty: 'ODIDO Netherlands',
+          authorizationCode: null,
+          code: 'ei',
+          description: 'Mob 0611111111 Klantnr. 1.1231241',
         },
         {
-          Id: 5,
-          FollowNumber: 5,
-          Amount: -109,
-          DateTransaction: '2025-12-06',
-          Iban: 'OWNED01',
-          IbanOtherParty: 'NL99OESSE0101010',
-          NameOtherParty: 'ESSENT RETAIL ENERGIE B.V.',
-          AuthorizationCode: null,
-          Code: 'cb',
-          Description: '150046212311/KLANT 1235467 KNMRK',
+          id: 5,
+          followNumber: 5,
+          amount: -109,
+          dateTransaction: '2025-12-06',
+          iban: 'OWNED01',
+          ibanOtherParty: 'NL99OESSE0101010',
+          nameOtherParty: 'ESSENT RETAIL ENERGIE B.V.',
+          authorizationCode: null,
+          code: 'cb',
+          description: '150046212311/KLANT 1235467 KNMRK',
         },
         {
-          Id: 6,
-          FollowNumber: 6,
-          Amount: -5.45,
-          DateTransaction: '2025-12-02',
-          Iban: 'OWNED01',
-          IbanOtherParty: 'NL99ORABO0101010',
-          NameOtherParty: 'Rabobank',
-          AuthorizationCode: null,
-          Code: 'db',
-          Description: 'Kosten basispakket',
+          id: 6,
+          followNumber: 6,
+          amount: -5.45,
+          dateTransaction: '2025-12-02',
+          iban: 'OWNED01',
+          ibanOtherParty: 'NL99ORABO0101010',
+          nameOtherParty: 'Rabobank',
+          authorizationCode: null,
+          code: 'db',
+          description: 'Kosten basispakket',
         },
         {
-          Id: 8,
-          FollowNumber: 8,
-          Amount: -1801.81,
-          DateTransaction: '2025-12-28',
-          Iban: 'OWNED01',
-          IbanOtherParty: 'NL99OBLG0101010',
-          NameOtherParty: 'BLG Wonen',
-          AuthorizationCode: null,
-          Code: 'ei',
-          Description: 'Hypotheek termijnbetaling.',
+          id: 8,
+          followNumber: 8,
+          amount: -1801.81,
+          dateTransaction: '2025-12-28',
+          iban: 'OWNED01',
+          ibanOtherParty: 'NL99OBLG0101010',
+          nameOtherParty: 'BLG Wonen',
+          authorizationCode: null,
+          code: 'ei',
+          description: 'Hypotheek termijnbetaling.',
         },
         // variabele uitgaven
         // week 1 variable
         {
-          Id: 9,
-          FollowNumber: 9,
-          Amount: -20.72,
-          DateTransaction: '2026-01-02',
-          Iban: 'OWNED01',
-          NameOtherParty: 'AH - Jan Linders 4149',
-          AuthorizationCode: null,
-          Code: 'bc',
-          Description: 'Terminal: Boodschappen1',
+          id: 9,
+          followNumber: 9,
+          amount: -20.72,
+          dateTransaction: '2026-01-02',
+          iban: 'OWNED01',
+          nameOtherParty: 'AH - Jan Linders 4149',
+          authorizationCode: null,
+          code: 'bc',
+          description: 'Terminal: Boodschappen1',
         },
         {
-          Id: 10,
-          FollowNumber: 10,
-          Amount: -300.00,
-          DateTransaction: '2026-01-02',
-          Iban: 'OWNED01',
-          NameOtherParty: 'AH - Jan Linders 4149',
-          AuthorizationCode: null,
-          Code: 'bc',
-          Description: 'Terminal: Boodschappen1',
+          id: 10,
+          followNumber: 10,
+          amount: -300.00,
+          dateTransaction: '2026-01-02',
+          iban: 'OWNED01',
+          nameOtherParty: 'AH - Jan Linders 4149',
+          authorizationCode: null,
+          code: 'bc',
+          description: 'Terminal: Boodschappen1',
         },
         {
-          Id: 11,
-          FollowNumber: 11,
-          Amount: -800.00,
-          DateTransaction: '2026-01-11',
-          Iban: 'OWNED01',
-          NameOtherParty: 'AH - Jan Linders 4149',
-          AuthorizationCode: null,
-          Code: 'bc',
-          Description: 'Terminal: Boodschappen2',
+          id: 11,
+          followNumber: 11,
+          amount: -800.00,
+          dateTransaction: '2026-01-11',
+          iban: 'OWNED01',
+          nameOtherParty: 'AH - Jan Linders 4149',
+          authorizationCode: null,
+          code: 'bc',
+          description: 'Terminal: Boodschappen2',
         },
         
       ] as TransactionApiModel[]);
@@ -177,6 +177,7 @@ describe('TransactionService', () => {
       expect(summary).toBeDefined();
       expect(summary?.income).toBe(5000.6);
       expect(summary?.expenses).toBe(-2011.29);
+      expect(summary?.spent).toBe(1120.72);
       // 2989.31 zou dan budget moeten zijn.
       // januari 2026 bevat 5 weken
       // budget per dag: 2989.31 / 31 = 96.42
@@ -200,7 +201,7 @@ describe('TransactionService', () => {
   });
 
   it('calls the api with a start and end date and NO iban', () => {
-    budgetServiceMock.dateStartOfMonth.mockReturnValue('2020-01-01');
+    budgetServiceMock.dateStartOfPreviousMonth.mockReturnValue('2020-01-01');
     budgetServiceMock.dateEndOfMonth.mockReturnValue('2020-01-31');
     budgetServiceMock.date.mockReturnValue(new Date());
 
@@ -216,7 +217,7 @@ describe('TransactionService', () => {
   });
 
   it('calls the api with a start, end date and an iban', () => {
-    budgetServiceMock.dateStartOfMonth.mockReturnValue('2020-01-01');
+    budgetServiceMock.dateStartOfPreviousMonth.mockReturnValue('2020-01-01');
     budgetServiceMock.dateEndOfMonth.mockReturnValue('2020-01-31');
     budgetServiceMock.date.mockReturnValue(new Date());
     budgetServiceMock.iban.mockReturnValue('NL44RABOW');
@@ -233,7 +234,7 @@ describe('TransactionService', () => {
   });
 
   it('refreshes the transactions after uploading transactions', () => {
-    budgetServiceMock.dateStartOfMonth.mockReturnValue('2020-01-01');
+    budgetServiceMock.dateStartOfPreviousMonth.mockReturnValue('2020-01-01');
     budgetServiceMock.dateEndOfMonth.mockReturnValue('2020-01-31');
 
     service.transactions.reload = vi.fn();

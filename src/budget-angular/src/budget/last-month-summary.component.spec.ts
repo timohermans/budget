@@ -10,18 +10,6 @@ describe('LastMonthSummaryComponent', () => {
     }).createComponent(LastMonthSummaryComponent);
   }
 
-  it('shows the given month as fixed expenses heading', async () => {
-    const fixture = setup();
-
-    fixture.componentRef.setInput('date', new Date(2026, 0, 1));
-    fixture.componentRef.setInput('summary', undefined);
-
-    await fixture.whenStable();
-
-    const heading = fixture.nativeElement.querySelector('[data-testid="current-month-heading"]');
-    expect(heading.textContent.trim()).toBe('January');
-  });
-
   it('shows the previous month as income heading', async () => {
     const fixture = setup();
 
@@ -38,6 +26,7 @@ describe('LastMonthSummaryComponent', () => {
     const summary: LastMonthSummary = {
       income: 5000.6,
       expenses: 3080.7,
+      spent: 0, 
       weeks: new Map<number, WeekSummary>()
     };
 

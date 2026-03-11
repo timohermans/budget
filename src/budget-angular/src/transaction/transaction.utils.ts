@@ -19,19 +19,19 @@ export function toIsoWeekNumber(date: Date) {
 }
 
 export function isIncome(transaction: TransactionApiModel) {
-  return transaction.Amount > 0;
+  return transaction.amount > 0;
 }
 
 export function isFromOtherParty(transaction: TransactionApiModel, ownedIbans: string[]) {
-  return !ownedIbans.includes(transaction.IbanOtherParty ?? '');
+  return !ownedIbans.includes(transaction.ibanOtherParty ?? '');
 }
 
 export function isFixed(transaction: TransactionApiModel) {
   return (
-    ['sb', 'cb', 'bg', 'ei', 'tb'].includes(transaction.Code ?? '') ||
-    (transaction.Code === 'db' &&
-      (transaction.Description?.toLowerCase().includes('sparen') ||
-        transaction.NameOtherParty === 'Rabobank'))
+    ['sb', 'cb', 'bg', 'ei', 'tb'].includes(transaction.code ?? '') ||
+    (transaction.code === 'db' &&
+      (transaction.description?.toLowerCase().includes('sparen') ||
+        transaction.nameOtherParty === 'Rabobank'))
   );
 }
 
@@ -42,18 +42,18 @@ export function isVariable(transaction: TransactionApiModel) {
 export function isFixedIncome(transaction: TransactionApiModel, ownedIbans: string[]) {
   return (
     isIncome(transaction) &&
-    transaction.CashbackForDate == null &&
+    transaction.cashbackForDate == null &&
     isFixed(transaction) &&
     isFromOtherParty(transaction, ownedIbans)
   );
 }
 
 export function isExpense(transaction: TransactionApiModel) {
-  return transaction.Amount < 0;
+  return transaction.amount < 0;
 }
 
 export function isAlwaysVariable(transaction: TransactionApiModel) {
-  return transaction.NameOtherParty?.toLowerCase().includes('paypal');
+  return transaction.nameOtherParty?.toLowerCase().includes('paypal');
 }
 
 export function isFixedExpense(transaction: TransactionApiModel) {

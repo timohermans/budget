@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Budget } from './budget.component';
 
 import { BudgetService } from './budget.service';
-import { TransactionService } from '../transaction/transaction.service';
+import { TransactionService, WeekSummary } from '../transaction/transaction.service';
 import { AuthService } from '../auth/auth.service';
 import { mock, Mocked } from '../testing/mock';
 
@@ -51,14 +51,23 @@ describe('BudgetComponent', () => {
 
   it('renders a last month summary component when loading is done', async () => {
     mockTransactionService.isLoading.mockReturnValue(false);
-    mockTransactionService.transactions = { hasValue: vi.fn().mockReturnValue(true) } as any;
-    mockTransactionService.ibansOwned = { hasValue: vi.fn().mockReturnValue(true) } as any;
-    mockTransactionService.summary.mockReturnValue(undefined);
+    mockTransactionService.summary.mockReturnValue({expenses: 0, income: 0, spent: 0, weeks: new Map<number, WeekSummary>()});
     mockBudgetService.date.mockReturnValue(new Date());
 
     const { component } = await renderComponent();
 
     const lastMonthSummary = component.querySelector('app-last-month-summary');
     expect(lastMonthSummary).toBeTruthy();
+  });
+
+  it('renders a last month summary component when loading is done', async () => {
+    mockTransactionService.isLoading.mockReturnValue(false);
+    mockTransactionService.summary.mockReturnValue({expenses: 0, income: 0, spent: 0, weeks: new Map<number, WeekSummary>()});
+    mockBudgetService.date.mockReturnValue(new Date());
+
+    const { component } = await renderComponent();
+
+    const weeksBudget = component.querySelector('app-weeks-budget');
+    expect(weeksBudget).toBeTruthy();
   });
 });

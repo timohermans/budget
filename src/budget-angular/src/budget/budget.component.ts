@@ -4,6 +4,7 @@ import { BudgetService } from './budget.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { TransactionsUploadComponent } from '../shared/transactions-upload.component';
 import { LastMonthSummaryComponent } from './last-month-summary.component';
+import { WeeksBudgetComponent } from "./weeks-budget.component";
 
 @Component({
   template: `
@@ -18,13 +19,14 @@ import { LastMonthSummaryComponent } from './last-month-summary.component';
         <p data-testid="transactions-loader">
           <span class="loading loading-infinity loading-lg"></span>
         </p>
-      } @else if (transactions.hasValue() && ibansOwned.hasValue()) {
+      } @else if (transactionService.summary()) {
         <div>
           <app-last-month-summary
             [date]="budgetService.date()"
             [summary]="transactionService.summary()"
           />
 
+          <app-weeks-budget [date]="budgetService.date()" [summary]="transactionService.summary()" />
           
         </div>
       } @else if (transactions.error()) {
@@ -34,11 +36,16 @@ import { LastMonthSummaryComponent } from './last-month-summary.component';
       }
     </div>
   `,
-  imports: [NavbarComponent, TransactionsUploadComponent, LastMonthSummaryComponent],
+  imports: [NavbarComponent, TransactionsUploadComponent, LastMonthSummaryComponent, WeeksBudgetComponent],
 })
 export class Budget {
   protected readonly budgetService = inject(BudgetService);
   protected readonly transactionService = inject(TransactionService);
   protected transactions = this.transactionService.transactions;
   protected ibansOwned = this.transactionService.ibansOwned;
+
+
+  // TODO: So one issue here is that although ibans and transactions are fetches at the same time, 
+  // the page does not support creating a budget for all ibans at once
+  // so I think I need to refactor this to first fetch iban, THEN fetch the transactions
 }

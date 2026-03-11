@@ -7,19 +7,26 @@ import { computed, Inject, Injectable, Signal, signal, WritableSignal } from "@a
 export class BudgetService {
     private dateSignal: WritableSignal<Date> = signal(new Date());
     public iban: WritableSignal<string | null> = signal(null);
+    private formatter = new Intl.DateTimeFormat('en-CA', { // en-CA has yyyy-MM-dd as default format
+        timeZone: 'Europe/Amsterdam',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        });
 
     public date: Signal<Date> = this.dateSignal;
+    public dateStartOfPreviousMonth: Signal<string> = computed(() => {
+        let date = this.dateSignal();
+        const dateComputed = new Date(date.getFullYear(), date.getMonth() -1, 1);
+        return this.formatter.format(dateComputed);
+    });
     public dateStartOfMonth: Signal<string> = computed(() => {
         let date = this.dateSignal();
-        if (date == null) date = new Date();
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`; 
+        return this.formatter.format(new Date(date.getFullYear(), date.getMonth(), 1));
     });
     public dateEndOfMonth: Signal<string> = computed(() => {
         let date = this.dateSignal();
-        if (date == null) date = new Date();
-        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
-        lastDay.setDate(lastDay.getDate() - 1);
-        return `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
+        return this.formatter.format(new Date(date.getFullYear(), date.getMonth() + 1, 0));
     });
 
     constructor() {
