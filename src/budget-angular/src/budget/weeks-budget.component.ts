@@ -4,11 +4,11 @@ import { LastMonthSummary } from '../transaction/transaction.service';
 @Component({
   selector: 'app-weeks-budget',
   template: `
-    <section>
-      <div data-testid="current-month-heading">
-        {{ date().toLocaleString('default', { month: 'long' }) }}
-      </div>
+    <div data-testid="current-month-heading">
+      {{ date().toLocaleString('default', { month: 'long' }) }}
+    </div>
 
+    <section class="grid grid-cols-[100px_200px]">
       <div>Budget</div>
       <div data-testid="total-budget">{{ budget() }}</div>
 

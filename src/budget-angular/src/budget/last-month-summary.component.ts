@@ -6,12 +6,10 @@ import { LastMonthSummary } from '../transaction/transaction.service';
 @Component({
   selector: `app-last-month-summary`,
   template: `
-    <h2>Hello Last Month</h2>
-    <section>
-      <div data-testid="previous-month-heading">
-        {{ previousMonth().toLocaleString('default', { month: 'long' }) }}
-      </div>
-
+    <div data-testid="previous-month-heading">
+      {{ previousMonth().toLocaleString('default', { month: 'long' }) }}
+    </div>
+    <section class="grid grid-cols-[100px_200px]">
       <div>Inkomen</div>
       <div data-testid="previous-month-income">
         {{ summary()?.income?.toFixed(2) }}
