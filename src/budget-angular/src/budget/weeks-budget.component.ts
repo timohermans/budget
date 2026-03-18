@@ -12,16 +12,20 @@ import { LastMonthSummary } from '../transaction/transaction.service';
         <input type="radio" name="my-accordion-2" checked="checked" />
         <div class="collapse-title font-semibold flex justify-between">
           <div [attr.data-testid]="'week-' + week + '-label'">Week {{ week }}</div>
+          <div class="w-15 text-right">
+            <span title="nog te spenderen">{{ weekSummary.left.toFixed(2) }}</span>
+          </div>
           <div class="flex gap-2 items-center">
-            <div [attr.data-testid]="'week-' + week + '-spent'">
+            <div class="w-15 text-right" [attr.data-testid]="'week-' + week + '-spent'">
               {{ weekSummary.spent.toFixed(2) }}
             </div>
             <progress
-              class="progress progress-primary w-56"
+              class="progress w-56"
+              [class.progress-error]="weekSummary.spent > weekSummary.budget"
               [attr.value]="weekSummary.spent"
               [attr.max]="weekSummary.budget"
             ></progress>
-            <div class="w-10">{{ weekSummary.budget.toFixed(2) }}</div>
+            <div class="w-15">{{ weekSummary.budget.toFixed(2) }}</div>
           </div>
         </div>
         <div class="collapse-content text-sm">
