@@ -4,33 +4,37 @@ import { LastMonthSummary } from '../transaction/transaction.service';
 @Component({
   selector: 'app-weeks-budget',
   template: `
-    <div data-testid="current-month-heading">
-      {{ date().toLocaleString('default', { month: 'long' }) }}
-    </div>
+    @for (weekKvp of summary()?.weeks?.entries(); track $index) {
+      @let week = weekKvp[0];
+      @let weekSummary = weekKvp[1];
 
-    <section class="grid grid-cols-[100px_200px]">
-      <div>Budget</div>
-      <div data-testid="total-budget">{{ budget() }}</div>
-
-      @for (weekKvp of summary()?.weeks?.entries(); track $index) {
-        @let week = weekKvp[0];
-        @let weekSummary = weekKvp[1];
-
-        <div [attr.data-testid]="'week-' + week + '-label'">Week {{ week }}</div>
-        <div [attr.data-testid]="'week-' + week + '-spent'">
-          <span>{{ weekSummary.spent }}</span>
-          <span>/</span>
-          <span>{{ weekSummary.budget }}</span>
-          <span> ({{ weekSummary.left }})</span>
+      <div class="collapse collapse-arrow bg-base-100 border border-base-300">
+        <input type="radio" name="my-accordion-2" checked="checked" />
+        <div class="collapse-title font-semibold flex justify-between">
+          <div [attr.data-testid]="'week-' + week + '-label'">Week {{ week }}</div>
+          <div class="flex gap-2 items-center">
+            <div [attr.data-testid]="'week-' + week + '-spent'">
+              {{ weekSummary.spent.toFixed(2) }}
+            </div>
+            <progress
+              class="progress progress-primary w-56"
+              [attr.value]="weekSummary.spent"
+              [attr.max]="weekSummary.budget"
+            ></progress>
+            <div class="w-10">{{ weekSummary.budget.toFixed(2) }}</div>
+          </div>
         </div>
-      }
-    </section>
+        <div class="collapse-content text-sm">
+          Click the "Sign Up" button in the top right corner and follow the registration process.
+        </div>
+      </div>
+    }
   `,
 })
 export class WeeksBudgetComponent {
   date = input.required<Date>();
   summary = input.required<LastMonthSummary | undefined>();
-  budget = computed(() => (this.summary()?.income ?? 0) - (this.summary()?.expenses ?? 0));
+  budget = computed(() => (this.summary()?.income ?? 0) - Math.abs(this.summary()?.expenses ?? 0));
 
   // TODO: Test this component
 }
