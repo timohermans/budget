@@ -26,6 +26,7 @@ export type LastMonthSummary = {
   income: number;
   expenses: number;
   spent: number;
+  budget: number;
   weeks: Map<number, WeekSummary>;
 };
 
@@ -95,6 +96,7 @@ export class TransactionService {
 
         if (isFinalIteration) {
           const budget = Math.abs(summary.income) - Math.abs(summary.expenses);
+          summary.budget = budget;
           summary.weeks.forEach((weekSummary, week) => {
             const budgetOfWeek =
               (budget / daysInMonth.getDate()) * (datesPerWeek.get(week)?.length ?? 0);
@@ -105,7 +107,7 @@ export class TransactionService {
 
         return summary;
       },
-      { income: 0, expenses: 0, spent: 0, weeks: weekSummaries } as LastMonthSummary,
+      { income: 0, expenses: 0, spent: 0, budget: 0, weeks: weekSummaries } as LastMonthSummary,
     );
 
     return summary;

@@ -7,7 +7,7 @@ import { LastMonthSummary } from '../transaction/transaction.service';
     <div class="stats shadow">
       <div class="stat">
         <div class="stat-title">Deze maand</div>
-        <div class="stat-value" data-testid="previous-month-heading">{{ thisMonth().toLocaleString('default', { month: 'long' }) }}</div>
+        <div class="stat-value" data-testid="current-month-heading">{{ thisMonth().toLocaleString('default', { month: 'long' }) }}</div>
         <div class="stat-desc">
           <span>{{ thisMonth().toLocaleString('default', { month: 'short', day: '2-digit' }) }}</span>
           <span> - </span>
