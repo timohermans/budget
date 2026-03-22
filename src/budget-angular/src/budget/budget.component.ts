@@ -20,7 +20,7 @@ import { WeeksBudgetComponent } from "./weeks-budget.component";
           <span class="loading loading-infinity loading-lg"></span>
         </p>
       } @else if (transactionService.summary()) {
-        <div>
+        <div class="flex flex-col gap-3">
           <app-last-month-summary
             [date]="budgetService.date()"
             [summary]="transactionService.summary()"

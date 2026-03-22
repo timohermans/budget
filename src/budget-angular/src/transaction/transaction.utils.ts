@@ -26,7 +26,12 @@ export function isFromOtherParty(transaction: TransactionApiModel, ownedIbans: s
   return !ownedIbans.includes(transaction.ibanOtherParty ?? '');
 }
 
+// TODO: Test this function as well
 export function isFixed(transaction: TransactionApiModel) {
+  if (isAlwaysVariable(transaction)) {
+    return false;
+  }
+
   return (
     ['sb', 'cb', 'bg', 'ei', 'tb'].includes(transaction.code ?? '') ||
     (transaction.code === 'db' &&
@@ -36,7 +41,7 @@ export function isFixed(transaction: TransactionApiModel) {
 }
 
 export function isVariable(transaction: TransactionApiModel) {
-  return !isFixed(transaction);
+  return !isFixed(transaction) || !!transaction.cashbackForDate;
 }
 
 export function isFixedIncome(transaction: TransactionApiModel, ownedIbans: string[]) {
@@ -52,6 +57,7 @@ export function isExpense(transaction: TransactionApiModel) {
   return transaction.amount < 0;
 }
 
+// TODO: test this function as well
 export function isAlwaysVariable(transaction: TransactionApiModel) {
   return transaction.nameOtherParty?.toLowerCase().includes('paypal');
 }

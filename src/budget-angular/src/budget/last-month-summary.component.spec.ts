@@ -39,9 +39,9 @@ describe('LastMonthSummaryComponent', () => {
     await fixture.whenStable();
 
     const incomeHeading = fixture.nativeElement.querySelector('[data-testid="previous-month-income"]');
-    expect(incomeHeading.textContent.trim()).toBe('5000.60');
+    expect(incomeHeading.textContent.trim()).toBe('€5,000.60');
 
     const expenseHeading = fixture.nativeElement.querySelector('[data-testid="previous-month-expense"]');
-    expect(expenseHeading.textContent.trim()).toBe('3080.70');
+    expect(expenseHeading.textContent.trim()).toBe('€3,080.70');
   });
 });

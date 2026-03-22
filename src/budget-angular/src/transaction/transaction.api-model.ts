@@ -11,3 +11,14 @@ export interface TransactionApiModel {
     cashbackForDate?: string;
     code?: string;
 }
+
+
+export interface Transaction extends TransactionApiModel {
+    date: Date;
+    isFixed: boolean;
+    isFixedIncome: boolean;
+    isFixedExpense: boolean;
+    isVariable: boolean;
+    isIncome: boolean;
+    isExpense: boolean;
+}

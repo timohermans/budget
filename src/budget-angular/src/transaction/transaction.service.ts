@@ -1,13 +1,15 @@
 import { HttpClient, httpResource } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
-import { TransactionApiModel } from './transaction.api-model';
+import { Transaction, TransactionApiModel } from './transaction.api-model';
 import { BudgetService } from '../budget/budget.service';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../environments/environment';
 import {
   isExpense,
+  isFixed,
   isFixedExpense,
   isFixedIncome,
+  isIncome,
   isVariable,
   toDate,
   toIsoWeekNumber,
@@ -20,6 +22,7 @@ export type WeekSummary = {
   budget: number;
   spent: number;
   left: number;
+  transactions: Transaction[];
 };
 
 export type LastMonthSummary = {
@@ -59,10 +62,11 @@ export class TransactionService {
     const daysInMonth = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 0);
     const datesPerWeek = createDatesPerWeekFor(thisMonth);
     const weekSummaries = new Map<number, WeekSummary>(
-      [...datesPerWeek.keys()].map((w) => [w, { weekNumber: w, spent: 0, budget: 0, left: 0 }]),
+      [...datesPerWeek.keys()].map((w) => [w, { weekNumber: w, spent: 0, budget: 0, left: 0, transactions: [] }]),
     );
     const summary = transactions.reduce<LastMonthSummary>(
-      (summary, transaction, index) => {
+      (summary, t, index) => {
+        const transaction = t as Transaction;
         const isFinalIteration = transactions.length - 1 === index;
         const date = toDate(transaction.dateTransaction);
         const isLastMonth =
@@ -71,6 +75,12 @@ export class TransactionService {
         const isThisMonth = !isLastMonth;
         const amount = transaction.amount;
         const week = toIsoWeekNumber(date);
+        transaction.isFixed = isFixed(transaction);
+        // TODO: remove the below 2 properties, as not used
+        transaction.isFixedIncome = isFixedIncome(transaction, ibansOwned);
+        transaction.isFixedExpense = isFixedExpense(transaction);
+        transaction.isExpense = isExpense(transaction);
+        transaction.isIncome = isIncome(transaction);
 
         if (iban != transaction.iban) {
           return summary;
@@ -81,17 +91,19 @@ export class TransactionService {
         }
 
         if (isLastMonth && isFixedExpense(transaction)) {
-          summary.expenses += amount;
+          summary.expenses += (amount * -1);
         }
 
         if (isThisMonth) {
           const targetWeek = summary.weeks.get(week);
           if (!targetWeek) throw new Error('Week not found in map.');
 
-          if (isVariable(transaction) && isExpense(transaction)) {
-            summary.spent += Math.abs(transaction.amount);
-            targetWeek.spent += Math.abs(transaction.amount);
+          if (isVariable(transaction)) {
+            summary.spent += (transaction.amount * -1);
+            targetWeek.spent += (transaction.amount * -1);
           }
+
+          targetWeek.transactions = [...targetWeek.transactions, transaction];
         }
 
         if (isFinalIteration) {
@@ -101,7 +113,7 @@ export class TransactionService {
             const budgetOfWeek =
               (budget / daysInMonth.getDate()) * (datesPerWeek.get(week)?.length ?? 0);
             weekSummary.budget = +budgetOfWeek.toFixed(2);
-            weekSummary.left = round2(weekSummary.budget - weekSummary.spent);
+            weekSummary.left = round2(Math.abs(weekSummary.budget) - Math.abs(weekSummary.spent));
           });
         }
 
@@ -144,5 +156,11 @@ export class TransactionService {
         this.ibansOwned.reload();
       }),
     );
+  }
+
+  public markAsCashback(transaction: TransactionApiModel) : Observable<Object> {
+    return this.http.patch(`${environment.apiUrl}/Transactions/${transaction.id}/cashback-date`, {
+      cashbackForDate: transaction.cashbackForDate ? null : transaction.dateTransaction
+    });
   }
 }

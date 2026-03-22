@@ -147,7 +147,7 @@ describe('TransactionService', () => {
         {
           id: 10,
           followNumber: 10,
-          amount: -300.00,
+          amount: -300.0,
           dateTransaction: '2026-01-02',
           iban: 'OWNED01',
           nameOtherParty: 'AH - Jan Linders 4149',
@@ -158,7 +158,7 @@ describe('TransactionService', () => {
         {
           id: 11,
           followNumber: 11,
-          amount: -800.00,
+          amount: -800.0,
           dateTransaction: '2026-01-11',
           iban: 'OWNED01',
           nameOtherParty: 'AH - Jan Linders 4149',
@@ -166,7 +166,6 @@ describe('TransactionService', () => {
           code: 'bc',
           description: 'Terminal: Boodschappen2',
         },
-        
       ] as TransactionApiModel[]);
       ibansRequest.flush(['OWNED01']);
 
@@ -176,7 +175,7 @@ describe('TransactionService', () => {
 
       expect(summary).toBeDefined();
       expect(summary?.income).toBe(5000.6);
-      expect(summary?.expenses).toBe(-2011.29);
+      expect(summary?.expenses).toBe(2011.29);
       expect(summary?.spent).toBe(1120.72);
       expect(summary?.budget).toBe(2989.3100000000004);
       // 2989.31 zou dan budget moeten zijn.
@@ -185,13 +184,19 @@ describe('TransactionService', () => {
       // week 1 bevat 4 dagen (96.42 * 4 = 385.713)
       // week 2, 3, 4 bevatten 7 dagen (96.42 * 7 = 675.005)
       // week 5 bevat 5 dagen (96.42 * 5 = 578.57)
-      expect(summary?.weeks).toEqual(new Map<number, WeekSummary>([
-        [1, { weekNumber: 1, budget: 385.72, spent: 320.72, left: 65 }],
-        [2, { weekNumber: 2, budget: 675.01, spent: 800, left: -124.99 }],
-        [3, { weekNumber: 3, budget: 675.01, spent: 0, left: 675.01 }],
-        [4, { weekNumber: 4, budget: 675.01, spent: 0, left: 675.01 }],
-        [5, { weekNumber: 5, budget: 578.58, spent: 0, left: 578.58 }],
-      ]));
+      // TODO: Test that the transactions got the correct additional information
+      expect(summary?.weeks).toEqual(
+        new Map<number, any>([
+          [1, expect.objectContaining({ weekNumber: 1, budget: 385.72, spent: 320.72, left: 65 })],
+          [
+            2,
+            expect.objectContaining({ weekNumber: 2, budget: 675.01, spent: 800, left: -124.99 }),
+          ],
+          [3, expect.objectContaining({ weekNumber: 3, budget: 675.01, spent: 0, left: 675.01 })],
+          [4, expect.objectContaining({ weekNumber: 4, budget: 675.01, spent: 0, left: 675.01 })],
+          [5, expect.objectContaining({ weekNumber: 5, budget: 578.58, spent: 0, left: 578.58 })],
+        ]),
+      );
     });
   });
 
