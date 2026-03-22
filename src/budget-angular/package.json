@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "backend": "concurrently --names 'Api, Worker' --prefix-colors 'blue,magenta' 'dotnet run --project ../Budget.Api' 'dotnet run --project ../Budget.Worker'"
   },
   "prettier": {
     "printWidth": 100,
@@ -41,6 +42,7 @@
     "@angular/cli": "^21.1.2",
     "@angular/compiler-cli": "^21.1.2",
     "baseline-browser-mapping": "^2.9.19",
+    "concurrently": "^9.2.1",
     "jsdom": "^29.0.0",
     "prettier": "3.8.1",
     "typescript": "~5.9.3",
