@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "backend": "concurrently --names 'Api, Worker' --prefix-colors 'blue,magenta' 'dotnet run --project ../Budget.Api' 'dotnet run --project ../Budget.Worker'"
+    "backend": "concurrently -k --names 'Api, Worker' --prefix-colors 'blue,magenta' 'dotnet run --project ../Budget.Api' 'dotnet run --project ../Budget.Worker'"
   },
   "prettier": {
     "printWidth": 100,

@@ -79,7 +79,7 @@ public class BaseApiTests(TestContext testContext)
     {
         var testName = testContext.TestName ?? "unknown-test";
         var clientFactory =
-            await CustomWebApplicationFactory<Program>.CreateApiClientAsync(ConnectionString, testName, token,
+            await CustomWebApplicationFactory<Budget.Api.Program>.CreateApiClientAsync(ConnectionString, testName, token,
                 userName);
         var scope = clientFactory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<BudgetDbContext>();

@@ -8,7 +8,6 @@ using Budget.Domain.Messaging;
 using Budget.Infrastructure.Database;
 using Budget.Infrastructure.Database.Repositories;
 using Budget.Worker.Consumers;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -36,12 +35,10 @@ public class ProcessTransactionsFileConsumerTests(TestContext testContext) : Bas
     {
         var dbContext = await CreateContext(CreateUniqueUserName("consumer"));
         var transactionRepo = new TransactionRepository(dbContext);
-        var contextMock = Substitute.For<ConsumeContext<ProcessTransactionsFile>>();
-        contextMock.Message.Returns(new ProcessTransactionsFile { JobId = job.Id });
         var messageBusClient = Substitute.For<IMessageBusClient>();
         messageBusClient.SubscribeAsync<Guid>(MessageConstants.TransactionsFileJobCreated,
                 "transactions-files-group")
-            .Returns(new List<Guid> { job.Id }.ToAsyncEnumerable());
+            .Returns(ReturnJobAsync(job.Id));
         
         var services = new ServiceCollection();
         services.AddScoped<BudgetDbContext>(_ => dbContext);
@@ -54,6 +51,11 @@ public class ProcessTransactionsFileConsumerTests(TestContext testContext) : Bas
             services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>(),
             messageBusClient,
             logger);
+    }
+
+    private async IAsyncEnumerable<Guid> ReturnJobAsync(Guid jobId)
+    {
+        yield return jobId;
     }
 
     [TestMethod]

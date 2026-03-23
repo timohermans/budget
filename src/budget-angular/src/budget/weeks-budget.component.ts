@@ -2,7 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { LastMonthSummary, TransactionService } from '../transaction/transaction.service';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { TransactionApiModel } from '../transaction/transaction.api-model';
-import { MathAbsPipe, MathRoundPipe } from '../transaction/maths.pipe';
+import { MathAbsPipe } from '../transaction/maths.pipe';
 import { BudgetService } from './budget.service';
 
 @Component({
@@ -93,7 +93,7 @@ import { BudgetService } from './budget.service';
       </div>
     }
   `,
-  imports: [DatePipe, MathAbsPipe, MathRoundPipe, CurrencyPipe],
+  imports: [DatePipe, MathAbsPipe, CurrencyPipe],
 })
 export class WeeksBudgetComponent {
   transactionService = inject(TransactionService);
