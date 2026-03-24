@@ -25,12 +25,14 @@ export type WeekSummary = {
   transactions: Transaction[];
 };
 
-export type LastMonthSummary = {
+export type Summary = {
   income: number;
   expenses: number;
   spent: number;
   budget: number;
   weeks: Map<number, WeekSummary>;
+  incomeTransactions: Transaction[];
+  expenseTransactions: Transaction[];
 };
 
 @Injectable({
@@ -62,9 +64,12 @@ export class TransactionService {
     const daysInMonth = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 0);
     const datesPerWeek = createDatesPerWeekFor(thisMonth);
     const weekSummaries = new Map<number, WeekSummary>(
-      [...datesPerWeek.keys()].map((w) => [w, { weekNumber: w, spent: 0, budget: 0, left: 0, transactions: [] }]),
+      [...datesPerWeek.keys()].map((w) => [
+        w,
+        { weekNumber: w, spent: 0, budget: 0, left: 0, transactions: [] },
+      ]),
     );
-    const summary = transactions.reduce<LastMonthSummary>(
+    const summary = transactions.reduce<Summary>(
       (summary, t, index) => {
         const transaction = t as Transaction;
         const isFinalIteration = transactions.length - 1 === index;
@@ -88,10 +93,11 @@ export class TransactionService {
 
         if (isLastMonth && isFixedIncome(transaction, ibansOwned)) {
           summary.income += amount;
+          summary.incomeTransactions.push(transaction);
         }
 
         if (isLastMonth && isFixedExpense(transaction)) {
-          summary.expenses += (amount * -1);
+          summary.expenses += amount * -1;
         }
 
         if (isThisMonth) {
@@ -99,8 +105,8 @@ export class TransactionService {
           if (!targetWeek) throw new Error('Week not found in map.');
 
           if (isVariable(transaction)) {
-            summary.spent += (transaction.amount * -1);
-            targetWeek.spent += (transaction.amount * -1);
+            summary.spent += transaction.amount * -1;
+            targetWeek.spent += transaction.amount * -1;
           }
 
           targetWeek.transactions = [...targetWeek.transactions, transaction];
@@ -119,7 +125,15 @@ export class TransactionService {
 
         return summary;
       },
-      { income: 0, expenses: 0, spent: 0, budget: 0, weeks: weekSummaries } as LastMonthSummary,
+      {
+        income: 0,
+        expenses: 0,
+        spent: 0,
+        budget: 0,
+        weeks: weekSummaries,
+        incomeTransactions: [],
+        expenseTransactions: []
+      } as Summary,
     );
 
     return summary;
@@ -158,9 +172,9 @@ export class TransactionService {
     );
   }
 
-  public markAsCashback(transaction: TransactionApiModel) : Observable<Object> {
+  public markAsCashback(transaction: TransactionApiModel): Observable<Object> {
     return this.http.patch(`${environment.apiUrl}/Transactions/${transaction.id}/cashback-date`, {
-      cashbackForDate: transaction.cashbackForDate ? null : transaction.dateTransaction
+      cashbackForDate: transaction.cashbackForDate ? null : transaction.dateTransaction,
     });
   }
 }

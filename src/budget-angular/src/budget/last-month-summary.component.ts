@@ -1,5 +1,5 @@
 import { Component, computed, input, InputSignal } from '@angular/core';
-import { LastMonthSummary } from '../transaction/transaction.service';
+import { Summary } from '../transaction/transaction.service';
 import { CurrencyPipe } from '@angular/common';
 
 @Component({
@@ -37,7 +37,7 @@ import { CurrencyPipe } from '@angular/common';
   imports: [CurrencyPipe]
 })
 export class LastMonthSummaryComponent {
-  summary = input.required<LastMonthSummary | undefined>();
+  summary = input.required<Summary | undefined>();
   date = input.required<Date>();
   thisMonth = computed(
     () => new Date(this.date().getFullYear(), this.date().getMonth(), 1),

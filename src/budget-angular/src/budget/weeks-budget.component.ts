@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject, input } from '@angular/core';
 import {
-  LastMonthSummary,
+  Summary,
   TransactionService,
   WeekSummary,
 } from '../transaction/transaction.service';
@@ -66,7 +66,7 @@ export class WeeksBudgetComponent {
   transactionService = inject(TransactionService);
   budgetService = inject(BudgetService);
   date = input.required<Date>();
-  summary = input.required<LastMonthSummary | undefined>();
+  summary = input.required<Summary | undefined>();
   cdr = inject(ChangeDetectorRef);
 
   // TODO: Test this entire component
