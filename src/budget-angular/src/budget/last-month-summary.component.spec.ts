@@ -44,4 +44,27 @@ describe('LastMonthSummaryComponent', () => {
     const expenseHeading = fixture.nativeElement.querySelector('[data-testid="previous-month-expense"]');
     expect(expenseHeading.textContent.trim()).toBe('€3,080.70');
   });
+
+  it('shows what expenses (of budget) were made in the current month', async () => {
+    const summary: LastMonthSummary = {
+      income: 5000.6,
+      expenses: 3080.7,
+      spent: 1000.4,
+      budget: 2222.11, 
+      weeks: new Map<number, WeekSummary>()
+    };
+
+    const fixture = setup();
+
+    fixture.componentRef.setInput('date', new Date(2026, 0, 1));
+    fixture.componentRef.setInput('summary', summary);
+
+    await fixture.whenStable();
+
+    const currentExpenseHeading = fixture.nativeElement.querySelector('[data-testid="current-month-spent"]');
+    expect(currentExpenseHeading.textContent.trim()).toBe('€1,000.40');
+
+    const expenseHeading = fixture.nativeElement.querySelector('[data-testid="current-month-budget"]');
+    expect(expenseHeading.textContent.trim()).toBe('€2,222.11');
+  });
 });
