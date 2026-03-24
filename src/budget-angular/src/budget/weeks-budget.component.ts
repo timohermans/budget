@@ -1,5 +1,9 @@
-import { Component, inject, input } from '@angular/core';
-import { LastMonthSummary, TransactionService } from '../transaction/transaction.service';
+import { ChangeDetectorRef, Component, inject, input } from '@angular/core';
+import {
+  LastMonthSummary,
+  TransactionService,
+  WeekSummary,
+} from '../transaction/transaction.service';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { TransactionApiModel } from '../transaction/transaction.api-model';
 import { BudgetService } from './budget.service';
@@ -12,13 +16,8 @@ import { BudgetService } from './budget.service';
       @let weekSummary = weekKvp[1];
 
       <div class="collapse collapse-arrow bg-base-100 border border-base-300 overflow-visible!">
-        <input
-          type="checkbox"
-          class="top-0 sticky"
-          [checked]="isWeekOpen($index)"
-          (click)="toggleWeek($index)"
-        />
-        <div class="collapse-title font-semibold flex justify-between sticky top-0 bg-base-100">
+        <input type="checkbox" class="top-0 sticky z-20" />
+        <div class="collapse-title font-semibold flex justify-between sticky top-0 bg-base-100 z-10">
           <div [attr.data-testid]="'week-' + week + '-label'">
             <div class="stat-title">Week</div>
             <div>{{ week }}</div>
@@ -31,7 +30,7 @@ import { BudgetService } from './budget.service';
             <div class="stat-title text-center">uitgegeven</div>
             <div class="flex gap-2 items-center">
               <div class="w-15 text-right" [attr.data-testid]="'week-' + week + '-spent'">
-                {{ weekSummary.spent | currency : 'EUR' }}
+                {{ weekSummary.spent | currency: 'EUR' }}
               </div>
               <progress
                 class="progress w-56"
@@ -39,7 +38,7 @@ import { BudgetService } from './budget.service';
                 [attr.value]="weekSummary.spent"
                 [attr.max]="weekSummary.budget"
               ></progress>
-              <div class="w-15">{{ weekSummary.budget | currency : 'EUR' }}</div>
+              <div class="w-15">{{ weekSummary.budget | currency: 'EUR' }}</div>
             </div>
           </div>
         </div>
@@ -55,7 +54,7 @@ import { BudgetService } from './budget.service';
                     @if (transaction.isFixed) {
                       <button
                         class="btn btn-dash btn-sm"
-                        (click)="markAsCashback(transaction)"
+                        (click)="markAsCashback(transaction, weekSummary)"
                         [class.line-through]="!!transaction.cashbackForDate"
                         [class.hover:line-through]="transaction.cashbackForDate == null"
                         [class.hover:no-underline]="!!transaction.cashbackForDate"
@@ -76,7 +75,7 @@ import { BudgetService } from './budget.service';
                     [class.badge-success]="transaction.isIncome"
                     [class.badge-error]="transaction.isExpense"
                   >
-                    {{ transaction.amount | currency : 'EUR' }}
+                    {{ transaction.amount | currency: 'EUR' }}
                   </div>
                   <div class="italic">{{ transaction.nameOtherParty }}</div>
                   <div class="text-xs">{{ transaction.description }}</div>
@@ -99,26 +98,25 @@ export class WeeksBudgetComponent {
   budgetService = inject(BudgetService);
   date = input.required<Date>();
   summary = input.required<LastMonthSummary | undefined>();
+  cdr = inject(ChangeDetectorRef);
 
   // TODO: Test this entire component
 
-  markAsCashback(transaction: TransactionApiModel) {
-    this.transactionService.markAsCashback(transaction).subscribe(() => {
-      this.transactionService.transactions.reload();
+  markAsCashback(transaction: TransactionApiModel, weekSummary: WeekSummary) {
+    this.transactionService.markAsCashback(transaction).subscribe({
+      next: () => {
+        if (!!transaction.cashbackForDate) {
+          transaction.cashbackForDate = undefined;
+          weekSummary.spent += Math.abs(transaction.amount);
+        } else {
+          transaction.cashbackForDate = transaction.dateTransaction;
+          weekSummary.spent -= Math.abs(transaction.amount);
+        }
+      },
+      // TODO: on error, do something smart
+      complete: () => {
+        this.cdr.markForCheck();
+      }
     });
-  }
-
-  toggleWeek(index: number) {
-    if (this.isWeekOpen(index)) {
-      this.budgetService.openIndices = this.budgetService.openIndices.filter((i) => index !== i);
-    } else {
-      this.budgetService.openIndices.push(index);
-    }
-  }
-
-  isWeekOpen(index: number) {
-    console.log(index);
-    console.log(this.budgetService.openIndices.includes(index));
-    return this.budgetService.openIndices.includes(index);
   }
 }

@@ -5,7 +5,6 @@ import { computed, Inject, Injectable, Signal, signal, WritableSignal } from "@a
     providedIn: 'root'
 })
 export class BudgetService {
-    public openIndices: number[] = []; // TODO: move to different service, and test!
     private dateSignal: WritableSignal<Date> = signal(new Date());
     public iban: WritableSignal<string | null> = signal(null);
     private formatter = new Intl.DateTimeFormat('en-CA', { // en-CA has yyyy-MM-dd as default format
