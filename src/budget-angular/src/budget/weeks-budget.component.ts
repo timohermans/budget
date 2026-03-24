@@ -2,7 +2,6 @@ import { Component, inject, input } from '@angular/core';
 import { LastMonthSummary, TransactionService } from '../transaction/transaction.service';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { TransactionApiModel } from '../transaction/transaction.api-model';
-import { MathAbsPipe } from '../transaction/maths.pipe';
 import { BudgetService } from './budget.service';
 
 @Component({
@@ -32,12 +31,12 @@ import { BudgetService } from './budget.service';
             <div class="stat-title text-center">uitgegeven</div>
             <div class="flex gap-2 items-center">
               <div class="w-15 text-right" [attr.data-testid]="'week-' + week + '-spent'">
-                {{ weekSummary.spent | abs | currency : 'EUR' }}
+                {{ weekSummary.spent | currency : 'EUR' }}
               </div>
               <progress
                 class="progress w-56"
                 [class.progress-error]="weekSummary.spent > weekSummary.budget"
-                [attr.value]="weekSummary.spent | abs"
+                [attr.value]="weekSummary.spent"
                 [attr.max]="weekSummary.budget"
               ></progress>
               <div class="w-15">{{ weekSummary.budget | currency : 'EUR' }}</div>
@@ -93,7 +92,7 @@ import { BudgetService } from './budget.service';
       </div>
     }
   `,
-  imports: [DatePipe, MathAbsPipe, CurrencyPipe],
+  imports: [DatePipe, CurrencyPipe],
 })
 export class WeeksBudgetComponent {
   transactionService = inject(TransactionService);
