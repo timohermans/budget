@@ -7,6 +7,7 @@ import {
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { TransactionApiModel } from '../transaction/transaction.api-model';
 import { BudgetService } from './budget.service';
+import { TransactionRowComponent } from '../transaction/transaction-row.component';
 
 @Component({
   selector: 'app-weeks-budget',
@@ -17,7 +18,9 @@ import { BudgetService } from './budget.service';
 
       <div class="collapse collapse-arrow bg-base-100 border border-base-300 overflow-visible!">
         <input type="checkbox" class="top-0 sticky z-20" />
-        <div class="collapse-title font-semibold flex justify-between sticky top-0 bg-base-100 z-10">
+        <div
+          class="collapse-title font-semibold flex justify-between sticky top-0 bg-base-100 z-10"
+        >
           <div [attr.data-testid]="'week-' + week + '-label'">
             <div class="stat-title">Week</div>
             <div>{{ week }}</div>
@@ -45,53 +48,19 @@ import { BudgetService } from './budget.service';
         <div class="collapse-content text-sm">
           <ul class="list bg-base-100 rounded-box shadow-md">
             @for (transaction of weekSummary.transactions; track $index) {
-              <li class="list-row">
-                <div class="flex flex-col gap-2">
-                  <div class="text-center font-bold">
-                    {{ transaction.dateTransaction | date: 'dd-MM' }}
-                  </div>
-                  <div>
-                    @if (transaction.isFixed) {
-                      <button
-                        class="btn btn-dash btn-sm"
-                        (click)="markAsCashback(transaction, weekSummary)"
-                        [class.line-through]="!!transaction.cashbackForDate"
-                        [class.hover:line-through]="transaction.cashbackForDate == null"
-                        [class.hover:no-underline]="!!transaction.cashbackForDate"
-                        [class.btn-primary]="transaction.cashbackForDate == null"
-                        [class.btn-accent]="!!transaction.cashbackForDate"
-                        [class.hover:btn-accent]="transaction.cashbackForDate == null"
-                        [class.hover:btn-primary]="!!transaction.cashbackForDate"
-                      >
-                        <span>Vast</span>
-                      </button>
-                    }
-                  </div>
-                </div>
-
-                <div>
-                  <div
-                    class="badge badge-outline"
-                    [class.badge-success]="transaction.isIncome"
-                    [class.badge-error]="transaction.isExpense"
-                  >
-                    {{ transaction.amount | currency: 'EUR' }}
-                  </div>
-                  <div class="italic">{{ transaction.nameOtherParty }}</div>
-                  <div class="text-xs">{{ transaction.description }}</div>
-                </div>
-
-                <tr>
-                  <td></td>
-                </tr>
-              </li>
+              <app-transaction
+                role="listitem"
+                class="list-row"
+                [transaction]="transaction"
+                (fixedClick)="updateWeekSummaryFor(transaction, weekSummary)"
+              />
             }
           </ul>
         </div>
       </div>
     }
   `,
-  imports: [DatePipe, CurrencyPipe],
+  imports: [CurrencyPipe, TransactionRowComponent],
 })
 export class WeeksBudgetComponent {
   transactionService = inject(TransactionService);
@@ -102,21 +71,13 @@ export class WeeksBudgetComponent {
 
   // TODO: Test this entire component
 
-  markAsCashback(transaction: TransactionApiModel, weekSummary: WeekSummary) {
-    this.transactionService.markAsCashback(transaction).subscribe({
-      next: () => {
-        if (!!transaction.cashbackForDate) {
-          transaction.cashbackForDate = undefined;
-          weekSummary.spent += Math.abs(transaction.amount);
-        } else {
-          transaction.cashbackForDate = transaction.dateTransaction;
-          weekSummary.spent -= Math.abs(transaction.amount);
-        }
-      },
-      // TODO: on error, do something smart
-      complete: () => {
-        this.cdr.markForCheck();
-      }
-    });
+  updateWeekSummaryFor(transaction: TransactionApiModel, weekSummary: WeekSummary) {
+    if (!!transaction.cashbackForDate) {
+      transaction.cashbackForDate = undefined;
+      weekSummary.spent += Math.abs(transaction.amount);
+    } else {
+      transaction.cashbackForDate = transaction.dateTransaction;
+      weekSummary.spent -= Math.abs(transaction.amount);
+    }
   }
 }
