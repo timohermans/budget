@@ -17,21 +17,20 @@ import { CurrencyPipe } from '@angular/common';
       </div>
 
       <div class="stat">
-        <div class="stat-title">Inkomen</div>
-        <div class="stat-value" data-testid="previous-month-income">{{ summary()?.income | currency : 'EUR' }}</div>
-        <div class="stat-desc">Binnen gekregen vorige maand</div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-title">Lasten</div>
-        <div class="stat-value" data-testid="previous-month-expense">{{ summary()?.expenses | currency : 'EUR' }}</div>
-        <div class="stat-desc">Vaste lasten vorige maand</div>
+        <div class="stat-title">Budget</div>
+        <div class="stat-value" data-testid="current-month-budget">{{ summary()?.budget | currency : 'EUR' }}</div>
+        <div class="stat-desc">
+          <span data-testid="previous-month-income">{{ summary()?.income | currency : 'EUR' }}</span>
+          <span> - </span>
+          <span data-testid="previous-month-expense">{{ summary()?.expenses | currency : 'EUR' }}</span>
+          <span></span>
+        </div>
       </div>
 
       <div class="stat">
         <div class="stat-title">Uitgegeven</div>
         <div class="stat-value" data-testid="current-month-spent">{{ summary()?.spent | currency : 'EUR' }}</div> 
-        <div class="stat-desc">Van de <span data-testid="current-month-budget">{{summary()?.budget | currency : 'EUR'}}</span></div>
+        <div class="stat-desc">Deze maand</div>
       </div>
     </div>
   `,
