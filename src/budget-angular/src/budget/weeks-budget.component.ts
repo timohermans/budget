@@ -1,13 +1,10 @@
-import { ChangeDetectorRef, Component, inject, input } from '@angular/core';
-import {
-  Summary,
-  TransactionService,
-  WeekSummary,
-} from '../transaction/transaction.service';
+import { ChangeDetectorRef, Component, computed, inject, input } from '@angular/core';
+import { Summary, TransactionService, WeekSummary } from '../transaction/transaction.service';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { TransactionApiModel } from '../transaction/transaction.api-model';
 import { BudgetService } from './budget.service';
 import { TransactionRowComponent } from '../transaction/transaction-row.component';
+import { toIsoWeekNumber } from '../transaction/transaction.utils';
 
 @Component({
   selector: 'app-weeks-budget',
@@ -23,11 +20,18 @@ import { TransactionRowComponent } from '../transaction/transaction-row.componen
         >
           <div [attr.data-testid]="'week-' + week + '-label'">
             <div class="stat-title">Week</div>
-            <div>{{ week }}</div>
+            <div>
+              <span>{{ week }}</span>
+              @if (week === weekCurrently) {
+                <i class="bi bi-calendar4-week ms-2" title="this week"></i>
+              }
+            </div>
           </div>
           <div class="w-15 text-right">
             <div class="stat-title">over</div>
-            <span title="nog te spenderen" class="text-nowrap">{{ weekSummary.left | currency: 'EUR' }}</span>
+            <span title="nog te spenderen" class="text-nowrap">{{
+              weekSummary.left | currency: 'EUR'
+            }}</span>
           </div>
           <div>
             <div class="stat-title text-center">uitgegeven</div>
@@ -68,6 +72,8 @@ export class WeeksBudgetComponent {
   date = input.required<Date>();
   summary = input.required<Summary | undefined>();
   cdr = inject(ChangeDetectorRef);
+
+  weekCurrently = toIsoWeekNumber(new Date());
 
   // TODO: Test this entire component
 

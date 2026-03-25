@@ -18,6 +18,8 @@ import { BudgetService } from './budget.service';
 export class DateNavigationComponent {
     private budgetService = inject(BudgetService);
 
+    // TODO: Test this component
+
     goPrevious() {
         const currentDate = this.budgetService.date();
         const nextDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
