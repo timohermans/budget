@@ -51,7 +51,16 @@ describe('BudgetComponent', () => {
 
   it('renders a last month summary component when loading is done', async () => {
     mockTransactionService.isLoading.mockReturnValue(false);
-    mockTransactionService.summary.mockReturnValue({expenses: 0, income: 0, spent: 0, budget: 0, weeks: new Map<number, WeekSummary>()});
+    mockTransactionService.summary.mockReturnValue({
+      expenses: 0,
+      income: 0,
+      spent: 0,
+      left: 0,
+      budget: 0,
+      weeks: new Map<number, WeekSummary>(),
+      incomeTransactions: [],
+      expenseTransactions: []
+    });
     mockBudgetService.date.mockReturnValue(new Date());
 
     const { component } = await renderComponent();
@@ -62,7 +71,16 @@ describe('BudgetComponent', () => {
 
   it('renders a last month summary component when loading is done', async () => {
     mockTransactionService.isLoading.mockReturnValue(false);
-    mockTransactionService.summary.mockReturnValue({expenses: 0, income: 0, spent: 0, budget: 0, weeks: new Map<number, WeekSummary>()});
+    mockTransactionService.summary.mockReturnValue({
+      expenses: 0,
+      income: 0,
+      spent: 0,
+      budget: 0,
+      left: 0,
+      weeks: new Map<number, WeekSummary>(),
+      incomeTransactions: [],
+      expenseTransactions: []
+    });
     mockBudgetService.date.mockReturnValue(new Date());
 
     const { component } = await renderComponent();

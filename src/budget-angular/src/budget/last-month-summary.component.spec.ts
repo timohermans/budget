@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { LastMonthSummaryComponent } from './last-month-summary.component';
 import { TransactionApiModel } from '../transaction/transaction.api-model';
-import { LastMonthSummary, WeekSummary } from '../transaction/transaction.service';
+import { Summary, WeekSummary } from '../transaction/transaction.service';
 
 describe('LastMonthSummaryComponent', () => {
   function setup() {
@@ -23,12 +23,15 @@ describe('LastMonthSummaryComponent', () => {
   });
 
   it('shows the total income and expenses of the previous month (and skips income of this month)', async () => {
-    const summary: LastMonthSummary = {
+    const summary: Summary = {
       income: 5000.6,
       expenses: 3080.7,
       spent: 0,
       budget: 0, 
-      weeks: new Map<number, WeekSummary>()
+      left: 0,
+      weeks: new Map<number, WeekSummary>(),
+      incomeTransactions: [],
+      expenseTransactions: []
     };
 
     const fixture = setup();
@@ -46,12 +49,15 @@ describe('LastMonthSummaryComponent', () => {
   });
 
   it('shows what expenses (of budget) were made in the current month', async () => {
-    const summary: LastMonthSummary = {
+    const summary: Summary = {
       income: 5000.6,
       expenses: 3080.7,
       spent: 1000.4,
       budget: 2222.11, 
-      weeks: new Map<number, WeekSummary>()
+      left: 1221.71,
+      weeks: new Map<number, WeekSummary>(),
+      incomeTransactions: [],
+      expenseTransactions: []
     };
 
     const fixture = setup();

@@ -27,7 +27,7 @@ import { TransactionRowComponent } from '../transaction/transaction-row.componen
           </div>
           <div class="w-15 text-right">
             <div class="stat-title">over</div>
-            <span title="nog te spenderen">{{ weekSummary.left | currency: 'EUR' }}</span>
+            <span title="nog te spenderen" class="text-nowrap">{{ weekSummary.left | currency: 'EUR' }}</span>
           </div>
           <div>
             <div class="stat-title text-center">uitgegeven</div>
@@ -74,10 +74,10 @@ export class WeeksBudgetComponent {
   updateWeekSummaryFor(transaction: TransactionApiModel, weekSummary: WeekSummary) {
     if (!!transaction.cashbackForDate) {
       transaction.cashbackForDate = undefined;
-      weekSummary.spent += Math.abs(transaction.amount);
+      weekSummary.spent += transaction.amount;
     } else {
       transaction.cashbackForDate = transaction.dateTransaction;
-      weekSummary.spent -= Math.abs(transaction.amount);
+      weekSummary.spent -= transaction.amount;
     }
   }
 }

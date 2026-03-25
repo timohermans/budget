@@ -178,6 +178,7 @@ describe('TransactionService', () => {
       expect(summary?.expenses).toBe(2011.29);
       expect(summary?.spent).toBe(1120.72);
       expect(summary?.budget).toBe(2989.3100000000004);
+      expect(summary?.left).toBe(1868.5900000000004);
       // 2989.31 zou dan budget moeten zijn.
       // januari 2026 bevat 5 weken
       // budget per dag: 2989.31 / 31 = 96.42

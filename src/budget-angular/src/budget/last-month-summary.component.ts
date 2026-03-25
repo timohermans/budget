@@ -30,7 +30,7 @@ import { CurrencyPipe } from '@angular/common';
       <div class="stat">
         <div class="stat-title">Uitgegeven</div>
         <div class="stat-value" data-testid="current-month-spent">{{ summary()?.spent | currency : 'EUR' }}</div> 
-        <div class="stat-desc">Deze maand</div>
+        <div class="stat-desc">{{ summary()?.left | currency : 'EUR' }} over</div>
       </div>
     </div>
   `,
