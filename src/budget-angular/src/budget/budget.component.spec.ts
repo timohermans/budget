@@ -2,7 +2,11 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Budget } from './budget.component';
 
 import { BudgetService } from './budget.service';
-import { TransactionService, WeekSummary } from '../transaction/transaction.service';
+import {
+  BalanceSummary,
+  TransactionService,
+  WeekSummary,
+} from '../transaction/transaction.service';
 import { AuthService } from '../auth/auth.service';
 import { mock, Mocked } from '../testing/mock';
 
@@ -59,7 +63,8 @@ describe('BudgetComponent', () => {
       budget: 0,
       weeks: new Map<number, WeekSummary>(),
       incomeTransactions: [],
-      expenseTransactions: []
+      expenseTransactions: [],
+      ibanBalances: new Map<string, BalanceSummary>(),
     });
     mockBudgetService.date.mockReturnValue(new Date());
 
@@ -79,7 +84,8 @@ describe('BudgetComponent', () => {
       left: 0,
       weeks: new Map<number, WeekSummary>(),
       incomeTransactions: [],
-      expenseTransactions: []
+      expenseTransactions: [],
+      ibanBalances: new Map<string, BalanceSummary>(),
     });
     mockBudgetService.date.mockReturnValue(new Date());
 

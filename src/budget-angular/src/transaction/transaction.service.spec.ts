@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TransactionService, WeekSummary } from './transaction.service';
+import { BalanceSummary, TransactionService, WeekSummary } from './transaction.service';
 import { BudgetService } from '../budget/budget.service';
 import { provideHttpClient } from '@angular/common/http';
 import { mock, Mocked } from '../testing/mock';
@@ -166,13 +166,65 @@ describe('TransactionService', () => {
           code: 'bc',
           description: 'Terminal: Boodschappen2',
         },
+        // transacties van eigen rekening (sparen en niet sparen)
+        {
+          id: 12,
+          followNumber: 12,
+          amount: -1000.0,
+          dateTransaction: '2026-01-11',
+          iban: 'OWNED01',
+          nameOtherParty: 'Spaar',
+          ibanOtherParty: 'OWNED02',
+          authorizationCode: null,
+          code: 'tb',
+          description: 'Maandelijks sparen',
+        },
+        {
+          id: 13,
+          followNumber: 13,
+          amount: 1000.0,
+          dateTransaction: '2026-01-11',
+          iban: 'OWNED02',
+          nameOtherParty: 'Betaalrekening',
+          ibanOtherParty: 'OWNED01',
+          authorizationCode: null,
+          code: 'bc',
+          description: 'Maandelijks sparen',
+        },
+        {
+          id: 14,
+          followNumber: 14,
+          amount: 500.0,
+          dateTransaction: '2026-01-11',
+          iban: 'OWNED01',
+          nameOtherParty: 'Spaar',
+          ibanOtherParty: 'OWNED02',
+          authorizationCode: null,
+          code: 'tb',
+          description: 'Buffer geld',
+        },
+        {
+          id: 15,
+          followNumber: 15,
+          amount: -500.0,
+          dateTransaction: '2026-01-11',
+          iban: 'OWNED02',
+          nameOtherParty: 'Betaalrekening',
+          ibanOtherParty: 'OWNED01',
+          authorizationCode: null,
+          code: 'bc',
+          description: 'Buffer sparen',
+        },
       ] as TransactionApiModel[]);
-      ibansRequest.flush(['OWNED01']);
+
+      ibansRequest.flush(['OWNED01', 'OWNED02']);
 
       await tickHttpResources();
 
+      // ACT
       const summary = service.summary();
 
+      // ASSERT
       expect(summary).toBeDefined();
       expect(summary?.income).toBe(5000.6);
       expect(summary?.expenses).toBe(2011.29);
@@ -196,6 +248,15 @@ describe('TransactionService', () => {
           [3, expect.objectContaining({ weekNumber: 3, budget: 675.01, spent: 0, left: 675.01 })],
           [4, expect.objectContaining({ weekNumber: 4, budget: 675.01, spent: 0, left: 675.01 })],
           [5, expect.objectContaining({ weekNumber: 5, budget: 578.58, spent: 0, left: 578.58 })],
+        ]),
+      );
+      expect(summary?.ibanBalances).toEqual(
+        new Map<string, any>([
+          [
+            'OWNED01',
+            expect.objectContaining({ balance: 0, iban: 'OWEND01' } as Partial<BalanceSummary>),
+          ],
+          ['OWNED02', expect.objectContaining({ balance: 500, iban: 'OWNED02'} as Partial<BalanceSummary>)],
         ]),
       );
     });

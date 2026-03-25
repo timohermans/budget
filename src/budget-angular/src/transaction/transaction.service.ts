@@ -25,6 +25,12 @@ export type WeekSummary = {
   transactions: Transaction[];
 };
 
+export type BalanceSummary = {
+  iban: string;
+  balance: number;
+  transactions: Transaction[];
+}
+
 export type Summary = {
   income: number;
   expenses: number;
@@ -34,6 +40,7 @@ export type Summary = {
   weeks: Map<number, WeekSummary>;
   incomeTransactions: Transaction[];
   expenseTransactions: Transaction[];
+  ibanBalances: Map<string, BalanceSummary>;
 };
 
 @Injectable({
@@ -81,6 +88,7 @@ export class TransactionService {
         const isThisMonth = !isLastMonth;
         const amount = transaction.amount;
         const week = toIsoWeekNumber(date);
+        const isTargetIban = iban === transaction.iban;
         transaction.isFixed = isFixed(transaction);
         // TODO: remove the below 2 properties, as not used
         transaction.isFixedIncome = isFixedIncome(transaction, ibansOwned);
@@ -88,20 +96,16 @@ export class TransactionService {
         transaction.isExpense = isExpense(transaction);
         transaction.isIncome = isIncome(transaction);
 
-        if (iban != transaction.iban) {
-          return summary;
-        }
-
-        if (isLastMonth && isFixedIncome(transaction, ibansOwned)) {
+        if (isTargetIban && isLastMonth && isFixedIncome(transaction, ibansOwned)) {
           summary.income += amount;
           summary.incomeTransactions.push(transaction);
         }
 
-        if (isLastMonth && isFixedExpense(transaction)) {
+        if (isTargetIban && isLastMonth && isFixedExpense(transaction)) {
           summary.expenses += amount * -1;
         }
 
-        if (isThisMonth) {
+        if (isTargetIban && isThisMonth) {
           const targetWeek = summary.weeks.get(week);
           if (!targetWeek) throw new Error('Week not found in map.');
 
@@ -135,7 +139,8 @@ export class TransactionService {
         budget: 0,
         weeks: weekSummaries,
         incomeTransactions: [],
-        expenseTransactions: []
+        expenseTransactions: [],
+ibanBalances: new Map<string, BalanceSummary>()
       } as Summary,
     );
 

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { LastMonthSummaryComponent } from './last-month-summary.component';
 import { TransactionApiModel } from '../transaction/transaction.api-model';
-import { Summary, WeekSummary } from '../transaction/transaction.service';
+import { BalanceSummary, Summary, WeekSummary } from '../transaction/transaction.service';
 
 describe('LastMonthSummaryComponent', () => {
   function setup() {
@@ -27,11 +27,12 @@ describe('LastMonthSummaryComponent', () => {
       income: 5000.6,
       expenses: 3080.7,
       spent: 0,
-      budget: 0, 
+      budget: 0,
       left: 0,
       weeks: new Map<number, WeekSummary>(),
       incomeTransactions: [],
-      expenseTransactions: []
+      expenseTransactions: [],
+      ibanBalances: new Map<string, BalanceSummary>(),
     };
 
     const fixture = setup();
@@ -41,10 +42,14 @@ describe('LastMonthSummaryComponent', () => {
 
     await fixture.whenStable();
 
-    const incomeHeading = fixture.nativeElement.querySelector('[data-testid="previous-month-income"]');
+    const incomeHeading = fixture.nativeElement.querySelector(
+      '[data-testid="previous-month-income"]',
+    );
     expect(incomeHeading.textContent.trim()).toBe('€5,000.60');
 
-    const expenseHeading = fixture.nativeElement.querySelector('[data-testid="previous-month-expense"]');
+    const expenseHeading = fixture.nativeElement.querySelector(
+      '[data-testid="previous-month-expense"]',
+    );
     expect(expenseHeading.textContent.trim()).toBe('€3,080.70');
   });
 
@@ -53,11 +58,12 @@ describe('LastMonthSummaryComponent', () => {
       income: 5000.6,
       expenses: 3080.7,
       spent: 1000.4,
-      budget: 2222.11, 
+      budget: 2222.11,
       left: 1221.71,
       weeks: new Map<number, WeekSummary>(),
       incomeTransactions: [],
-      expenseTransactions: []
+      expenseTransactions: [],
+      ibanBalances: new Map<string, BalanceSummary>(),
     };
 
     const fixture = setup();
@@ -67,10 +73,14 @@ describe('LastMonthSummaryComponent', () => {
 
     await fixture.whenStable();
 
-    const currentExpenseHeading = fixture.nativeElement.querySelector('[data-testid="current-month-spent"]');
+    const currentExpenseHeading = fixture.nativeElement.querySelector(
+      '[data-testid="current-month-spent"]',
+    );
     expect(currentExpenseHeading.textContent.trim()).toBe('€1,000.40');
 
-    const expenseHeading = fixture.nativeElement.querySelector('[data-testid="current-month-budget"]');
+    const expenseHeading = fixture.nativeElement.querySelector(
+      '[data-testid="current-month-budget"]',
+    );
     expect(expenseHeading.textContent.trim()).toBe('€2,222.11');
   });
 });
