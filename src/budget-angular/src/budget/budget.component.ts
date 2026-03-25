@@ -6,6 +6,7 @@ import { TransactionsUploadComponent } from '../shared/transactions-upload.compo
 import { LastMonthSummaryComponent } from './last-month-summary.component';
 import { WeeksBudgetComponent } from './weeks-budget.component';
 import { DateNavigationComponent } from "./date-navigation.component";
+import { IbanBalancesComponent } from "./iban-balances.component";
 
 @Component({
   template: `
@@ -32,10 +33,14 @@ import { DateNavigationComponent } from "./date-navigation.component";
             [summary]="transactionService.summary()"
           />
 
+          <h3 class="font-bold italic text-gray-500">Budget per week</h3>
           <app-weeks-budget
             [date]="budgetService.date()"
             [summary]="transactionService.summary()"
           />
+
+          <h3 class="font-bold italic text-gray-500">Balans per rekening</h3>
+          <app-iban-balances [summary]="transactionService.summary()" />
         </div>
       } @else if (transactions.error()) {
         <p>Error loading transactions: {{ transactions.error() }}</p>
@@ -49,7 +54,8 @@ import { DateNavigationComponent } from "./date-navigation.component";
     TransactionsUploadComponent,
     LastMonthSummaryComponent,
     WeeksBudgetComponent,
-    DateNavigationComponent
+    DateNavigationComponent,
+    IbanBalancesComponent
 ],
 })
 export class Budget {

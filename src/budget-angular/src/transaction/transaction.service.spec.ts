@@ -254,9 +254,15 @@ describe('TransactionService', () => {
         new Map<string, any>([
           [
             'OWNED01',
-            expect.objectContaining({ balance: 0, iban: 'OWEND01' } as Partial<BalanceSummary>),
+            expect.objectContaining({
+              balance: -1620.7200000000003,
+              iban: 'OWNED01',
+            } as Partial<BalanceSummary>),
           ],
-          ['OWNED02', expect.objectContaining({ balance: 500, iban: 'OWNED02'} as Partial<BalanceSummary>)],
+          [
+            'OWNED02',
+            expect.objectContaining({ balance: 500, iban: 'OWNED02' } as Partial<BalanceSummary>),
+          ],
         ]),
       );
     });

@@ -29,7 +29,7 @@ export type BalanceSummary = {
   iban: string;
   balance: number;
   transactions: Transaction[];
-}
+};
 
 export type Summary = {
   income: number;
@@ -117,6 +117,22 @@ export class TransactionService {
           targetWeek.transactions = [...targetWeek.transactions, transaction];
         }
 
+        if (isThisMonth) {
+          let balance: BalanceSummary = {
+            balance: 0,
+            iban: transaction.iban,
+            transactions: [],
+          };
+          if (summary.ibanBalances.has(transaction.iban)) {
+            balance = summary.ibanBalances.get(transaction.iban)!;
+          } else {
+            summary.ibanBalances.set(transaction.iban, balance);
+          }
+
+          balance.balance += amount;
+          balance.transactions.push(transaction);
+        }
+
         if (isFinalIteration) {
           const budget = Math.abs(summary.income) - Math.abs(summary.expenses);
           summary.budget = budget;
@@ -140,7 +156,7 @@ export class TransactionService {
         weeks: weekSummaries,
         incomeTransactions: [],
         expenseTransactions: [],
-ibanBalances: new Map<string, BalanceSummary>()
+        ibanBalances: new Map<string, BalanceSummary>(),
       } as Summary,
     );
 
