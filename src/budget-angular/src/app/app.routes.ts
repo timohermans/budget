@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Budget } from '../budget/budget.component';
 import { FakeLoginComponent } from '../auth/fake-login.component';
 import { authGuard } from '../auth/auth.guard';
+import { LoginComponent } from '../auth/login.component';
 
 export const routes: Routes = [
   {
@@ -17,5 +18,9 @@ export const routes: Routes = [
   {
     path: 'fake-login',
     component: FakeLoginComponent
+  },
+  {
+    path: 'login',
+    component: LoginComponent
   }
 ];

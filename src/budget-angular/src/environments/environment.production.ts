@@ -1,4 +1,4 @@
 export const environment = {
     useFakeAuth: false,
-    apiUrl: 'http://backend-budget'
+    apiUrl: ''
 };

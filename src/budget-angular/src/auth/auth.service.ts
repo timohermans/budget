@@ -12,7 +12,6 @@ export class TokenService {
   public token = signal<string | null>(null);
 }
 
-
 export abstract class AuthService {
   abstract initialLogin(): Promise<void>;
   abstract login(): void;
@@ -34,15 +33,15 @@ export class OAuth2AuthService extends AuthService {
   private readonly router = inject(Router);
 
   private _isAuthenticated: WritableSignal<boolean> = signal(false);
-  public override loginUrl: string = '/';
+  public override loginUrl: string = '/login';
   public isAuthenticated: Signal<boolean> = this._isAuthenticated;
 
   private _isDoneLoading: WritableSignal<boolean> = signal(false);
   public isDoneLoading: Signal<boolean> = this._isDoneLoading;
 
-  public canActivateProtectedRoutes: Signal<boolean> = computed(
-    () => this.isAuthenticated() && this.isDoneLoading(),
-  );
+  public canActivateProtectedRoutes: Signal<boolean> = computed(() => {
+    return this.isAuthenticated() && this.isDoneLoading();
+  });
 
   getUsernameFromClaims(): string | null {
     const claims = this.oauthService.getIdentityClaims();
@@ -59,7 +58,7 @@ export class OAuth2AuthService extends AuthService {
     this.onTokenReceivedLoadProfile();
     this.onSessionEndGoToLogin();
     this.checkIfAuthenticated();
-    this.oauthService.setupAutomaticSilentRefresh();
+    // this.oauthService.setupAutomaticSilentRefresh();
   }
 
   private logEventsForDebugging() {
@@ -93,7 +92,10 @@ export class OAuth2AuthService extends AuthService {
   private checkIfAuthenticated() {
     const accessToken = this.oauthService.hasValidAccessToken();
     this._isAuthenticated.set(accessToken);
-    if (accessToken) this._isDoneLoading.set(true);
+    if (accessToken) {
+      this._isDoneLoading.set(true);
+      this.router.navigate(['/budget']);
+    }
   }
 
   private onAllOAuthEventsRefreshIsAuthenticated() {
@@ -128,7 +130,7 @@ export class OAuth2AuthService extends AuthService {
       this._isDoneLoading.set(true);
     }
 
-    this.router.navigate(['/budget']);
+    await this.router.navigate(['/budget']);
   }
 
   public login() {
