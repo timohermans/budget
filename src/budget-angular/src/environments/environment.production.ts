@@ -1,4 +1,4 @@
 export const environment = {
     useFakeAuth: false,
-    apiUrl: ''
+    apiUrl: 'https://budget-api.timo-hermans.nl'
 };
