@@ -8,7 +8,7 @@ ARG NGINX_VERSION=alpine3.22
 # Use a lightweight Node.js image for building (customizable via ARG)
 FROM node:${NODE_VERSION} AS builder
 
-ARG environment
+ARG environment=production
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -23,7 +23,7 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 COPY . .
 
 # Build the Angular application
-RUN npm run build --environment=${environment}
+RUN npm run build -- --configuration ${environment}
 
 # =========================================
 # Stage 2: Prepare Nginx to Serve Static Files
