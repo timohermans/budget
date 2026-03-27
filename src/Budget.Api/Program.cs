@@ -15,11 +15,15 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+    app.UseCors("AllowAll");
+}
+else
+{
+    app.UseCors("AllowLimited");
 }
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
