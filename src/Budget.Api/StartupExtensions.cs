@@ -40,9 +40,10 @@ public static class StartupExtensions
             {
                 var allowedOrigins = config.GetRequiredSection("Authentication:AllowedOrigins").Get<string[]>()!;
                 Console.WriteLine("Allowed origins: " + string.Join(", ", allowedOrigins));
-                policy.WithOrigins(allowedOrigins);
-                policy.AllowAnyHeader()
-                    .AllowAnyMethod();
+                policy.WithOrigins(allowedOrigins)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
             });
         });
     }
