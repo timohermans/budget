@@ -28,12 +28,21 @@ public static class StartupExtensions
                     "[{Timestamp:HH:mm:ss} {Level:u3}] ({SourceContext}) {Message:lj}{NewLine}{Exception}");
         });
         builder.Services.AddCors(options =>
-            options.AddDefaultPolicy(policy =>
+        {
+            options.AddPolicy("AllowAll", policy =>
             {
                 policy.AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowAnyOrigin();
-            }));
+            });
+            
+            options.AddPolicy("AllowLimited", policy =>
+            {
+                policy.WithOrigins(config.GetRequiredSection("Authentication:AllowedOrigins").Get<string[]>()!);
+                policy.AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
     }
 
     private static void AddBudgetAuthentication(this IServiceCollection services, IConfiguration configuration,
