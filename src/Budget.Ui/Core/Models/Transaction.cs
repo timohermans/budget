@@ -14,6 +14,7 @@ public class Transaction
         RabobankTransactionCodes.Bankgiro,
         RabobankTransactionCodes.Diversen,
         RabobankTransactionCodes.EuroIncasso,
+        RabobankTransactionCodes.EigenRekening
     ];
 
     private DateOnly _dateTransaction;

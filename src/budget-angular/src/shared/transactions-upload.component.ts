@@ -57,7 +57,6 @@ export class TransactionsUploadComponent {
         .uploadTransactions(file)
         .pipe(
           catchError((err) => {
-            console.error(err);
             this.errorMessage = 'Er is iets mis gegaan met het uploaden van het bestand.';
             return of(null);
           }),

@@ -1,0 +1,70 @@
+name: deploy
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+      deployment_path:
+        required: true
+        type: string
+      cluster_repo:
+        required: false
+        type: string
+        default: 'timohermans/Cluster'
+    secrets:
+      PAT_TOKEN:
+        required: true
+
+env:
+  REGISTRY: 'registry.timo-hermans.nl'
+  IMAGE_NAME: ${{ inputs.image_name }}
+  CLUSTER_REPO: ${{ inputs.cluster_repo }}
+  DEPLOYMENT_PATH: ${{ inputs.deployment_path }}
+
+jobs:
+  update-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Cluster repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CLUSTER_REPO }}
+          token: ${{ secrets.PAT_TOKEN }}
+          path: cluster-repo
+
+      - name: Update image version in deployment.yaml
+        run: |
+          cd cluster-repo
+          DEPLOYMENT_FILE="./${{ env.DEPLOYMENT_PATH }}"
+          
+          cp "$DEPLOYMENT_FILE" "$DEPLOYMENT_FILE.backup"
+          
+          sed -i "s|image:.*${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.image-version }}|" "$DEPLOYMENT_FILE"
+          
+          echo "Updated deployment file:"
+          grep "image:" "$DEPLOYMENT_FILE"
+
+      - name: Configure Git
+        run: |
+          cd cluster-repo
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Commit and push changes
+        run: |
+          cd cluster-repo
+          git add "./${{ env.DEPLOYMENT_PATH }}"
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update frontend image to ${{ needs.build-and-push.outputs.image-tag }}"
+            git push origin main
+          fi
+
+      - name: Show changes made
+        run: |
+          cd cluster-repo
+          git diff HEAD^ HEAD -- "./${{ env.DEPLOYMENT_PATH }}" || echo "No changes or first commit"

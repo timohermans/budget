@@ -1,15 +1,15 @@
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { OAuthService } from 'angular-oauth2-oidc';
 import { mock } from '../testing/mock';
 import { authInterceptor } from './auth.interceptor';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
+import { AuthService } from './auth.service';
 
 describe('authInterceptor', () => {
   it('should add Authorization header with Bearer token', (done) => {
-    const oauthServiceMock = mock<OAuthService>();
-    oauthServiceMock.getAccessToken.mockReturnValue('test-token');
+    const authServiceMock = mock<AuthService>();
+    authServiceMock.getAccessToken.mockReturnValue('test-token');
 
     TestBed.configureTestingModule({
       providers: [
@@ -17,16 +17,16 @@ describe('authInterceptor', () => {
           withInterceptors([authInterceptor])
         ),
         provideHttpClientTesting(),
-        { provide: OAuthService, useValue: oauthServiceMock }
+        { provide: AuthService, useValue: authServiceMock }
       ]
     });
 
     const httpTesting = TestBed.inject(HttpTestingController);
     const httpClient = TestBed.inject(HttpClient);
 
-    firstValueFrom(httpClient.get('/api/config'));
+    firstValueFrom(httpClient.get('/api/foo'));
 
-    const call = httpTesting.expectOne('/api/config', 'Request to load the configuration');
+    const call = httpTesting.expectOne('/api/foo', 'Request to load the configuration');
 
     expect(call.request.method).toBe('GET');
     expect(call.request.headers.has('Authorization')).toBeTruthy();
