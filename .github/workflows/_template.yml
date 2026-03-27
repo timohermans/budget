@@ -35,7 +35,7 @@ env:
   TESTS_PATH: ${{ inputs.tests_path }}
   REGISTRY: 'registry.timo-hermans.nl'
   IMAGE_NAME: ${{ inputs.image_name }}
-  DOTNET_VERSION: '9.0.x'
+  DOTNET_VERSION: '10.0.x'
   CLUSTER_REPO: ${{ inputs.cluster_repo }}
   DEPLOYMENT_PATH: ${{ inputs.deployment_path }}
 
