@@ -15,7 +15,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
-    app.UseCors("AllowLimited");
+    app.UseCors("AllowAll");
 }
 else
 {
