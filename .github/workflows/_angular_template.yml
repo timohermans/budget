@@ -99,8 +99,8 @@ jobs:
     needs: [build-and-push]
     uses: ./.github/workflows/_deploy_template.yml
     with:
-      image_name: ${{ env.IMAGE_NAME }}
-      deployment_path: ${{ env.DEPLOYMENT_PATH }}
-      cluster_repo: ${{ env.CLUSTER_REPO }}
+      image_name: ${{ inputs.image_name }}
+      deployment_path: ${{ inputs.deployment_path }}
+      cluster_repo: ${{ inputs.cluster_repo }}
     secrets:
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
