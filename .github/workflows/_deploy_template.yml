@@ -6,6 +6,9 @@ on:
       image_name:
         required: true
         type: string
+      image_version:
+        required: true
+        type: string
       deployment_path:
         required: true
         type: string
@@ -41,7 +44,7 @@ jobs:
           
           cp "$DEPLOYMENT_FILE" "$DEPLOYMENT_FILE.backup"
           
-          sed -i "s|image:.*${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.image-version }}|" "$DEPLOYMENT_FILE"
+          sed -i "s|image:.*${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.image_version }}|" "$DEPLOYMENT_FILE"
           
           echo "Updated deployment file:"
           grep "image:" "$DEPLOYMENT_FILE"
@@ -60,7 +63,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "chore: update frontend image to ${{ needs.build-and-push.outputs.image-tag }}"
+            git commit -m "chore: update frontend image to ${{ inputs.image_version }}"
             git push origin main
           fi
 

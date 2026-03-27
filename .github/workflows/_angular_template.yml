@@ -95,6 +95,7 @@ jobs:
     uses: ./.github/workflows/_deploy_template.yml
     with:
       image_name: ${{ inputs.image_name }}
+      image_version: ${{ needs.build-and-push.outputs.image-version }}
       deployment_path: ${{ inputs.deployment_path }}
       cluster_repo: ${{ inputs.cluster_repo }}
     secrets:
