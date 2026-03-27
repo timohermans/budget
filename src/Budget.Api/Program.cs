@@ -22,7 +22,6 @@ else
     app.UseCors("AllowLimited");
 }
 
-app.UseCors();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
