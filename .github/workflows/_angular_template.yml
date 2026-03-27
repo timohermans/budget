@@ -32,7 +32,7 @@ env:
   TESTS_PATH: ${{ inputs.tests_path }}
   REGISTRY: 'registry.timo-hermans.nl'
   IMAGE_NAME: ${{ inputs.image_name }}
-  NODE_VERSION: '20.x'
+  NODE_VERSION: '24.x'
   CLUSTER_REPO: ${{ inputs.cluster_repo }}
   DEPLOYMENT_PATH: ${{ inputs.deployment_path }}
 
@@ -89,7 +89,7 @@ jobs:
       - name: Build and push Docker images
         uses: docker/build-push-action@v6.18.0
         with:
-          context: .
+          context: ${{ env.PROJECT_PATH }}
           file: ${{ env.PROJECT_PATH}}/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64

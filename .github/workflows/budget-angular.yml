@@ -4,6 +4,8 @@ on:
   push:
     paths: 
     - 'src/budget-angular/**'
+    - '.github/workflows/budget-angular.yaml'
+    - '.github/workflows/_angular_template.yaml'
     branches: [ "main" ]
   workflow_dispatch:
       
