@@ -38,7 +38,9 @@ public static class StartupExtensions
             
             options.AddPolicy("AllowLimited", policy =>
             {
-                policy.WithOrigins(config.GetRequiredSection("Authentication:AllowedOrigins").Get<string[]>()!);
+                var allowedOrigins = config.GetRequiredSection("Authentication:AllowedOrigins").Get<string[]>()!;
+                Console.WriteLine("Allowed origins: " + string.Join(", ", allowedOrigins));
+                policy.WithOrigins(allowedOrigins);
                 policy.AllowAnyHeader()
                     .AllowAnyMethod();
             });
