@@ -15,7 +15,7 @@ jobs:
     with:
       project_path: 'src/budget-angular'
       image_name: 'budget-angular'
-      deployment_path: 'k8s/budget/budget-angular/deployment.yaml'
+      deployment_path: 'k8s/budget/frontend-angular/deployment.yaml'
     secrets:
       REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
