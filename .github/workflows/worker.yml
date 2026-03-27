@@ -15,7 +15,7 @@ on:
       
 jobs:
   cluster_build_and_deploy:
-    uses: ./.github/workflows/_template.yml
+    uses: ./.github/workflows/_dotnet_template.yml
     with:
       project_path: 'src/Budget.Worker'
       tests_path: 'tests/Budget.Tests'

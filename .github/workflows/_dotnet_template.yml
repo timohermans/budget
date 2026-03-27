@@ -1,7 +1,4 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: cluster_build_and_deploy
+name: dotnet_build_and_deploy
 
 on:
   workflow_call: 
@@ -9,10 +6,10 @@ on:
       project_path:
         required: true
         type: string
-      image_name: # e.g. budget-app
+      image_name:
         required: true
         type: string
-      deployment_path: # e.g. 'k8s/budget/frontend/deployment.yaml'
+      deployment_path:
         required: true
         type: string
       tests_path:
@@ -95,49 +92,11 @@ jobs:
           tags: ${{ steps.version.outputs.tag }}
   
   update-deployment:
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    steps:
-      - name: Checkout Cluster repository
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.CLUSTER_REPO }}
-          token: ${{ secrets.PAT_TOKEN }}
-          path: cluster-repo
-
-      - name: Update image version in deployment.yaml
-        run: |
-          cd cluster-repo
-          DEPLOYMENT_FILE="./${{ env.DEPLOYMENT_PATH }}"
-          
-          cp "$DEPLOYMENT_FILE" "$DEPLOYMENT_FILE.backup"
-          
-          sed -i "s|image:.*${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.image-version }}|" "$DEPLOYMENT_FILE"
-          
-          # Verify changes
-          echo "Updated deployment file:"
-          grep "image:" "$DEPLOYMENT_FILE"
-
-      - name: Configure Git
-        run: |
-          cd cluster-repo
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-      - name: Commit and push changes
-        run: |
-          cd cluster-repo
-          git add "./${{ env.DEPLOYMENT_PATH }}"
-          
-          # Check if there are changes to commit
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: update frontend image to ${{ needs.build-and-push.outputs.image-tag }}"
-            git push origin main
-          fi
-
-      - name: Show changes made
-        run: |
-          cd cluster-repo
-          git diff HEAD^ HEAD -- "./${{ env.DEPLOYMENT_PATH }}" || echo "No changes or first commit"
+    needs: [build-and-push]
+    uses: ./.github/workflows/_deploy_template.yml
+    with:
+      image_name: ${{ env.IMAGE_NAME }}
+      deployment_path: ${{ env.DEPLOYMENT_PATH }}
+      cluster_repo: ${{ env.CLUSTER_REPO }}
+    secrets:
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
