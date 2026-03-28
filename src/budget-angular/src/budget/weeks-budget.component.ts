@@ -16,9 +16,9 @@ import { toIsoWeekNumber } from '../transaction/transaction.utils';
       <div class="collapse collapse-arrow bg-base-100 border border-base-300 overflow-visible!">
         <input type="checkbox" class="top-0 sticky z-20" />
         <div
-          class="collapse-title font-semibold flex justify-between sticky top-0 bg-base-100 z-10"
+          class="collapse-title font-semibold flex flex-col sm:flex-row justify-between sticky top-0 bg-base-100 z-10"
         >
-          <div [attr.data-testid]="'week-' + week + '-label'">
+          <div class="flex sm:flex-col items-center gap-2" [attr.data-testid]="'week-' + week + '-label'">
             <div class="stat-title">Week</div>
             <div>
               <span>{{ week }}</span>
@@ -27,20 +27,20 @@ import { toIsoWeekNumber } from '../transaction/transaction.utils';
               }
             </div>
           </div>
-          <div class="w-15 text-right">
-            <div class="stat-title">over</div>
+          <div class="flex sm:flex-col items-center gap-2 w-15 text-right">
+            <div class="stat-title">Over</div>
             <span title="nog te spenderen" class="text-nowrap">{{
               weekSummary.left | currency: 'EUR'
             }}</span>
           </div>
-          <div>
-            <div class="stat-title text-center">uitgegeven</div>
+          <div class="flex sm:flex-col items-center gap-2">
+            <div class="stat-title text-center">Uitgegeven</div>
             <div class="flex gap-2 items-center">
               <div class="w-15 text-right" [attr.data-testid]="'week-' + week + '-spent'">
                 {{ weekSummary.spent | currency: 'EUR' }}
               </div>
               <progress
-                class="progress w-56"
+                class="progress w-15 sm:w-56"
                 [class.progress-error]="weekSummary.spent > weekSummary.budget"
                 [attr.value]="weekSummary.spent"
                 [attr.max]="weekSummary.budget"
