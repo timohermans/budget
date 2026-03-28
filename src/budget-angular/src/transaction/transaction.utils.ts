@@ -58,12 +58,17 @@ export function isExpense(transaction: TransactionApiModel) {
 }
 
 // TODO: test this function as well
+// TODO: Test cashback for date better in income and expense
 export function isAlwaysVariable(transaction: TransactionApiModel) {
   return transaction.nameOtherParty?.toLowerCase().includes('paypal');
 }
 
 export function isFixedExpense(transaction: TransactionApiModel) {
-  return isExpense(transaction) && isFixed(transaction) && !isAlwaysVariable(transaction);
+  return (
+    isExpense(transaction) &&
+    isFixed(transaction) &&
+    transaction.cashbackForDate == null
+  );
 }
 
 export function daysBetweenDates(start: Date, end: Date) {
