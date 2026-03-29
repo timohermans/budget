@@ -66,7 +66,7 @@ export class TransactionService {
     const lastMonth = new Date(
       thisMonth.getFullYear(),
       thisMonth.getMonth() - 1,
-      thisMonth.getDate(),
+      1,
     );
 
     const daysInMonth = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 0);
