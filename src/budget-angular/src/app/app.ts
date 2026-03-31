@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +8,6 @@ import { AuthService } from '../auth/auth.service';
   styleUrls: ['./app.css'],
 })
 export class App {
-  constructor() {}
-
-  async ngOnInit() {}
+  constructor() {
+  }
 }

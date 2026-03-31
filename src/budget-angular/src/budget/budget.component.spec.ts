@@ -7,7 +7,6 @@ import {
   TransactionService,
   WeekSummary,
 } from '../transaction/transaction.service';
-import { AuthService } from '../auth/auth.service';
 import { mock, Mocked } from '../testing/mock';
 
 describe('BudgetComponent', () => {
@@ -32,7 +31,6 @@ describe('BudgetComponent', () => {
       providers: [
         { provide: BudgetService, useValue: mockBudgetService },
         { provide: TransactionService, useValue: mockTransactionService },
-        { provide: AuthService, useValue: mock<AuthService>() },
       ],
     }).compileComponents();
   });

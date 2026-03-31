@@ -1,19 +1,46 @@
-import { Component, inject, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { AuthService } from '../auth/auth.service';
+import { Component, effect, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import Keycloak from 'keycloak-js';
+import {
+  KEYCLOAK_EVENT_SIGNAL,
+  KeycloakEventType,
+  ReadyArgs,
+  typeEventArgs,
+} from 'keycloak-angular';
 
 @Component({
   selector: 'app-login',
   template: `<div></div>`,
-  styleUrls: []
+  styleUrls: [],
 })
 export class LoginComponent {
-  protected readonly authService = inject(AuthService);
+  authenticated = false;
+  keycloakStatus = '';
+  private readonly router = inject(Router);
+  private readonly keycloak = inject(Keycloak);
+  private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
 
   constructor() {
-  }
+    effect(() => {
+      const keycloakEvent = this.keycloakSignal();
 
-  async ngOnInit() {
-    await this.authService.initialLogin();
+      this.keycloakStatus = keycloakEvent.type;
+
+      if (keycloakEvent.type === KeycloakEventType.Ready) {
+        this.authenticated = typeEventArgs<ReadyArgs>(keycloakEvent.args);
+      }
+
+      if (keycloakEvent.type === KeycloakEventType.AuthLogout) {
+        this.authenticated = false;
+      }
+
+      if (this.keycloakStatus == KeycloakEventType.Ready) {
+        if (this.authenticated) {
+          this.router.navigate(['/budget']);
+        } else {
+          this.keycloak.login();
+        }
+      }
+    });
   }
 }
