@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { provideOAuthClient } from 'angular-oauth2-oidc';
 import { App } from './app';
 import { mock } from '../testing/mock';
 import { FakeAuthService } from '../auth/fake-auth.service';
@@ -11,7 +10,6 @@ describe('App', () => {
       imports: [App],
       providers: [
         provideHttpClient(),
-        provideOAuthClient(),
         { provide: FakeAuthService, useValue: mock<FakeAuthService>()}
       ]
     }).compileComponents();
