@@ -10,12 +10,6 @@ import { AuthService } from '../auth/auth.service';
   styleUrls: ['./app.css']
 })
 export class App {
-  protected readonly authService = inject(AuthService);
-
   constructor() {
-  }
-
-  async ngOnInit() {
-    await this.authService.initialLogin();
   }
 }
