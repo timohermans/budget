@@ -4,11 +4,11 @@ import { mock } from '../testing/mock';
 import { authInterceptor } from './auth.interceptor';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
-import { AuthService } from './auth.service';
+import { FakeAuthService } from './fake-auth.service';
 
 describe('authInterceptor', () => {
   it('should add Authorization header with Bearer token', (done) => {
-    const authServiceMock = mock<AuthService>();
+    const authServiceMock = mock<FakeAuthService>();
     authServiceMock.getAccessToken.mockReturnValue('test-token');
 
     TestBed.configureTestingModule({
@@ -17,7 +17,7 @@ describe('authInterceptor', () => {
           withInterceptors([authInterceptor])
         ),
         provideHttpClientTesting(),
-        { provide: AuthService, useValue: authServiceMock }
+        { provide: FakeAuthService, useValue: authServiceMock }
       ]
     });
 
