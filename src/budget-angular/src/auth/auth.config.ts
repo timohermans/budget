@@ -7,5 +7,6 @@ export const authConfig: AuthConfig = {
   scope: 'openid profile email',
   responseType: 'code',
   requireHttps: true,
+  silentRefreshTimeout: 1000
   // Add any other configuration options you need
 };
