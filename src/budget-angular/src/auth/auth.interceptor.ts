@@ -1,9 +1,9 @@
 import { HttpEvent, HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthService } from './auth.service';
 import { createInterceptorCondition, INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG, IncludeBearerTokenCondition, includeBearerTokenInterceptor } from 'keycloak-angular';
 import { environment } from '../environments/environment';
+import { FakeAuthService } from './fake-auth.service';
 
 export const interceptors = [
   environment.useFakeAuth ? authInterceptor : includeBearerTokenInterceptor
@@ -30,7 +30,7 @@ export function authInterceptor(
     return next(req);
   }
 
-  const token = inject(AuthService).getAccessToken();
+  const token = inject(FakeAuthService).getAccessToken();
 
   const reqWithHeader = req.clone({
     headers: req.headers.append('Authorization', `Bearer ${token}`),

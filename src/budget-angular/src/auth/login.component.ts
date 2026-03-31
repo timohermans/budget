@@ -1,6 +1,5 @@
-import { Component, effect, inject, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { AuthService } from '../auth/auth.service';
+import { Component, effect, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import Keycloak from 'keycloak-js';
 import {
   KEYCLOAK_EVENT_SIGNAL,
@@ -17,6 +16,7 @@ import {
 export class LoginComponent {
   authenticated = false;
   keycloakStatus = '';
+  private readonly router = inject(Router);
   private readonly keycloak = inject(Keycloak);
   private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
 
@@ -33,12 +33,14 @@ export class LoginComponent {
       if (keycloakEvent.type === KeycloakEventType.AuthLogout) {
         this.authenticated = false;
       }
-    });
-  }
 
-  async ngOnInit() {
-    if (!this.authenticated) {
-      this.keycloak.login();
-    }
+      if (this.keycloakStatus == KeycloakEventType.Ready) {
+        if (this.authenticated) {
+          this.router.navigate(['/budget']);
+        } else {
+          this.keycloak.login();
+        }
+      }
+    });
   }
 }

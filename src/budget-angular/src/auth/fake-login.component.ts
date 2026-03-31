@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { FakeAuthService } from './fake-auth.service';
-import { AuthService } from './auth.service';
 
 @Component({
   selector: 'app-fake-login',
@@ -37,7 +36,7 @@ export class FakeLoginComponent {
   username = '';
 
   constructor(
-    private authService: AuthService,
+    private authService: FakeAuthService,
     private router: Router
   ) {}
 
