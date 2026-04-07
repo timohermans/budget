@@ -63,6 +63,7 @@ export class TransactionService {
     const thisMonth = this.budgetService.date();
     const iban = this.budgetService.iban() ?? (ibansOwned.length > 0 ? ibansOwned[0] : undefined); // TODO: write to iban signal
 
+    // TODO: From this comment, move everything to the transaction.utils, so it's seperate from Angular logic
     const lastMonth = new Date(
       thisMonth.getFullYear(),
       thisMonth.getMonth() - 1,

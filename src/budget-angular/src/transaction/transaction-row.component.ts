@@ -30,12 +30,19 @@ import { TransactionService } from './transaction.service';
     </div>
 
     <div>
-      <div
-        class="badge badge-outline"
-        [class.badge-success]="transaction().isIncome"
-        [class.badge-error]="transaction().isExpense"
-      >
-        {{ transaction().amount | currency: 'EUR' }}
+      <div class="flex justify-between">
+        <div
+          class="badge badge-outline"
+          [class.badge-success]="transaction().isIncome"
+          [class.badge-error]="transaction().isExpense"
+        >
+          {{ transaction().amount | currency: 'EUR' }}
+        </div>
+        <div>
+          <button (click)="toClipboard(transaction())" class="btn btn-square btn-xs">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
       </div>
       <div class="italic">{{ transaction().nameOtherParty }}</div>
       <div class="text-xs">{{ transaction().description }}</div>
@@ -52,8 +59,19 @@ export class TransactionRowComponent {
     this.transactionService.markAsCashback(transaction).subscribe({
       next: () => {
         this.fixedClick.emit();
-      }
+      },
       // TODO: on error, do something smart
+      // TODO: show loading indicator
     });
+  }
+
+  async toClipboard(transaction: Transaction) {
+    const type = 'text/json';
+    const clipboardItemData = {
+      [type]: JSON.stringify(transaction)
+    }
+    const clipboardItem = new ClipboardItem(clipboardItemData);
+    await navigator.clipboard.writeText(JSON.stringify(transaction));
+    console.log('done');
   }
 }

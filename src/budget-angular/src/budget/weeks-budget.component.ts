@@ -78,6 +78,8 @@ export class WeeksBudgetComponent {
   // TODO: Test this entire component
 
   updateWeekSummaryFor(transaction: TransactionApiModel, weekSummary: WeekSummary) {
+    // TODO: There's a bug in here that when amount < 0 and you mark it as non-fixed, it adds it up instead of subtracts
+    // TODO: Move this logic to the transaction utils. I'd love for all logic to be seperate from Angular
     if (!!transaction.cashbackForDate) {
       transaction.cashbackForDate = undefined;
       weekSummary.spent += transaction.amount;

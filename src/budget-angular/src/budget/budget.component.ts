@@ -63,8 +63,4 @@ export class Budget {
   protected readonly transactionService = inject(TransactionService);
   protected transactions = this.transactionService.transactions;
   protected ibansOwned = this.transactionService.ibansOwned;
-
-  // TODO: So one issue here is that although ibans and transactions are fetches at the same time,
-  // the page does not support creating a budget for all ibans at once
-  // so I think I need to refactor this to first fetch iban, THEN fetch the transactions
 }
