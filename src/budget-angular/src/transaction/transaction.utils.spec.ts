@@ -1,7 +1,8 @@
-import { TransactionApiModel } from './transaction.api-model';
+import { Transaction, TransactionApiModel } from './transaction.api-model';
 import {
   daysBetweenDates,
-    isFixedExpense,
+  isFixed,
+  isFixedExpense,
   isFixedIncome,
   isFromOtherParty,
   isIncome,
@@ -214,7 +215,7 @@ describe('transaction.utils', () => {
         otherIban: 'OWNED02',
         ownedIbans: ['OWNED01', 'OWNED02'],
         expected: true,
-        description: 'Sparen'
+        description: 'Sparen',
       },
       {
         nameOtherParty: 'Geld pb',
@@ -238,7 +239,7 @@ describe('transaction.utils', () => {
         code: 'db',
         otherIban: 'OWNED02',
         ownedIbans: ['OWNED01', 'OWNED02'],
-        expected: false
+        expected: false,
       },
     ])(
       'marks transaction $nameOtherParty with amount $amount, code $code and otherIban $otherIban as $expected fixed expense',
@@ -268,4 +269,60 @@ describe('transaction.utils', () => {
       expect(daysBetweenDates(new Date(2026, 0, 20), new Date(2026, 0, 24))).toBe(4);
     });
   });
+
+  describe('isFixed', () => {
+    it.each([
+      {
+        nameOtherParty: 'Friend A',
+        description: 'Spotify',
+        cashbackForDate: undefined,
+        code: 'cb',
+        expected: true,
+      },
+      {
+        nameOtherParty: 'LEVENSVERZEKERING',
+        description: 'Life insurance',
+        cashbackForDate: undefined,
+        code: 'ei',
+        expected: true,
+      },
+      {
+        nameOtherParty: 'Rabobank',
+        description: 'Kosten Rabo Standaard Periode 01-03-2026 t/m 31-03-2026',
+        cashbackForDate: null,
+        code: 'db',
+        expected: true,
+      },
+      {
+        nameOtherParty: 'Payment account',
+        description: 'sparen',
+        cashbackForDate: null,
+        code: 'db',
+        expected: true,
+      },
+      {
+        nameOtherParty: 'Savingsaccount',
+        description: 'Overgebleven budget Maart 2026',
+        cashbackForDate: '2026-03-31',
+        code: 'tb',
+        expected: false,
+      },
+      {
+        nameOtherParty: 'ADM Horren',
+        description: 'Payment for a product',
+        cashbackForDate: '2026-03-14',
+        code: 'bg',
+        expected: false
+      },
+    ])(
+      'marks transaction with code $code, description $description and cashbackDate $cashbackForDate as $expected fixed',
+      (transaction: Partial<TransactionApiModelTest>) => {
+        expect(isFixed(transaction as TransactionApiModel)).toBe(transaction.expected);
+      },
+    );
+  });
 });
+
+interface TransactionApiModelTest extends TransactionApiModel {
+  expected: boolean;
+}

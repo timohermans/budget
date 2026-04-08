@@ -8,7 +8,7 @@ export interface TransactionApiModel {
     ibanOtherParty?: string;
     authorizationCode?: string;
     description?: string;
-    cashbackForDate?: string;
+    cashbackForDate?: string | null;
     code?: string;
 }
 

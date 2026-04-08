@@ -26,8 +26,11 @@ export function isFromOtherParty(transaction: TransactionApiModel, ownedIbans: s
   return !ownedIbans.includes(transaction.ibanOtherParty ?? '');
 }
 
-// TODO: Test this function as well
 export function isFixed(transaction: TransactionApiModel) {
+  if (!!transaction.cashbackForDate) {
+    return false;
+  }
+
   if (isAlwaysVariable(transaction)) {
     return false;
   }
@@ -45,12 +48,7 @@ export function isVariable(transaction: TransactionApiModel) {
 }
 
 export function isFixedIncome(transaction: TransactionApiModel, ownedIbans: string[]) {
-  return (
-    isIncome(transaction) &&
-    transaction.cashbackForDate == null &&
-    isFixed(transaction) &&
-    isFromOtherParty(transaction, ownedIbans)
-  );
+  return isIncome(transaction) && isFixed(transaction) && isFromOtherParty(transaction, ownedIbans);
 }
 
 export function isExpense(transaction: TransactionApiModel) {
@@ -64,11 +62,7 @@ export function isAlwaysVariable(transaction: TransactionApiModel) {
 }
 
 export function isFixedExpense(transaction: TransactionApiModel) {
-  return (
-    isExpense(transaction) &&
-    isFixed(transaction) &&
-    transaction.cashbackForDate == null
-  );
+  return isExpense(transaction) && isFixed(transaction);
 }
 
 export function daysBetweenDates(start: Date, end: Date) {
