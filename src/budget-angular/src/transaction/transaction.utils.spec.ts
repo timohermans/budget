@@ -1,6 +1,7 @@
 import { Transaction, TransactionApiModel } from './transaction.api-model';
 import {
   daysBetweenDates,
+  isAlwaysVariable,
   isFixed,
   isFixedExpense,
   isFixedIncome,
@@ -312,12 +313,29 @@ describe('transaction.utils', () => {
         description: 'Payment for a product',
         cashbackForDate: '2026-03-14',
         code: 'bg',
-        expected: false
+        expected: false,
       },
     ])(
       'marks transaction with code $code, description $description and cashbackDate $cashbackForDate as $expected fixed',
       (transaction: Partial<TransactionApiModelTest>) => {
         expect(isFixed(transaction as TransactionApiModel)).toBe(transaction.expected);
+      },
+    );
+  });
+
+  describe('isAlwaysVariable', () => {
+    it.each([
+      {
+        nameOtherParty: 'PayPal Europe S.a.r.l. et Cie S.C.A',
+        ibanOtherParty: 'LU897510001312308975',
+        description: '111023875/PAYPAL',
+        code: 'ei',
+        expected: true
+      },
+    ])(
+      'marks transaction $nameOtherParty as always variable',
+      (transaction: Partial<TransactionApiModelTest>) => {
+        expect(isAlwaysVariable(transaction as TransactionApiModelTest)).toBe(transaction.expected);
       },
     );
   });

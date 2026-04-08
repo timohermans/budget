@@ -55,8 +55,6 @@ export function isExpense(transaction: TransactionApiModel) {
   return transaction.amount < 0;
 }
 
-// TODO: test this function as well
-// TODO: Test cashback for date better in income and expense
 export function isAlwaysVariable(transaction: TransactionApiModel) {
   return transaction.nameOtherParty?.toLowerCase().includes('paypal');
 }
