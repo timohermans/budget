@@ -11,7 +11,7 @@ import { TransactionService } from './transaction.service';
         {{ transaction().dateTransaction | date: 'dd-MM' }}
       </div>
       <div>
-        @if (transaction().isFixed) {
+        @if (transaction().isFixed || !!transaction().cashbackForDate) {
           <button
             class="btn btn-dash btn-sm"
             (click)="toggleFixed(transaction())"
